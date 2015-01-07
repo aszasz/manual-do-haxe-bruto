@@ -1,0 +1,1038 @@
+\chapter{Tipos}
+\label{types}
+
+O Compilador Haxe emprega um proveitoso sistema de tipos que ajuda a detectar erros relacionados a tipagem em um programa no momento da compilação. Um erro de tipo é uma operação inválida sobre um dado tipo, como a divisão por um string, o acesso ao campo de um Integer ou a chamada a uma função com menos (ou mais) argumentos que o necessário.
+
+Em algumas linguagens essa segurança adicional vem com um preço, porque os programadores são obrigados a indicar explicitamente os tipos em suas construções sintáticas:
+
+\begin{lstlisting}
+var myButton:MySpecialButton =
+    new MySpecialButton(); // As3
+MySpecialButton* myButton =
+    new MySpecialButton(); // C++
+\end{lstlisting}
+
+As anotações explicitas de tipos não são requeridas em Haxe, porque o compilador pode \emph{inferir} o tipo:
+
+\begin{lstlisting}
+var myButton = new MySpecialButton(); // Haxe
+\end{lstlisting}
+
+Exploraremos a inferência de em detalhes depois em \Fullref{type-system-type-inference}. Por hora, é suficiente dizer que a variável \expr{myButton} no código acima é reconhecida como uma \emph{instância da classe} \type{ MySpecialButton}.
+
+O sistema de tipos do Haxe reconhece sete grupos de tipos:
+
+\begin{description}
+ \item[\emph{Instância de classe}:] um objeto de uma dada classe ou interface
+ \item[\emph{Instância de enum}:] um valor de uma enumeração do Haxe
+ \item[\emph{Estrutura}:] uma estrutura anônima, i.e., uma coleção de campos nomeados
+ \item[\emph{Função}:] um tipo composto de vários argumentos e um retorno
+ \item[\emph{Dinâmico}:] um tipo coringa que é compátivel com qualquer tipo
+ \item[\emph{Abstrato}:] um tipo no momento de compilação que é representado por um tipo diferente no momento de execução
+ \item[\emph{Monomorfo}:] um tipo desconhecido que pode posteriormente se tornar um tipo diferente
+\end{description}
+
+(N do T: a palavra type pode aparecer nessa tradução, ao invés de tipo, se facilitar a compreensão. Nesse caso texto dirá algo como "o type convertido")
+
+\define{Tipo composto}{define-compound-type}{Um tipo composto é um tipo que tem subtipos. Isso inclui qualquer tipo com \tref{parâmetros de tipo}{type-system-type-parameters} e o tipo \tref{função}{types-function}.}
+
+\section{Types Básicos}
+\label{types-basic-types}
+
+Os \emph{tipos básicos} são \type{Bool}, \type{Float} e \type{Int}. Eles podem ser facilmente identificados na sintaxe por valores como
+
+\begin{itemize}
+	\item \expr{true} and \expr{false} para \type{Bool},
+	\item \expr{1}, \expr{0}, \expr{-1} e \expr{0xFF0000} para \type{Int} and
+	\item \expr{1.0}, \expr{0.0}, \expr{-1.0}, \expr{1e10} para \type{Float}.
+\end{itemize}
+
+Os tipos básicos não são \tref{classes}{types-class-instance} em Haxe. Eles são implementados como \tref{tipos abstratos}{types-abstract} e estão presos ao manuseio interno de operadores do compilador, como descrito nas seções seguintes.
+
+\subsection{Tipos numéricos}
+\label{types-numeric-types}
+
+\define[Type]{Float}{define-float}{Representa um número de ponto flutuante de dupla precisão de 64-bits pelo IEEE.}
+\define[Type]{Int}{define-int}{Representa um número inteiro.}
+
+Enquanto todo \type{Int} pode ser usado aonde se espera um \type{Float} (isso é, \type{Int} \emph{``é atribuível a''} ou \emph{``é unificável com''} \type{Float}), o contrário não é verdade: atribuir um \type{Float} a um \type{Int} poderia perder precisão e não é permitido implicitamente.
+
+\subsection{Overflow - Estouro de Capacidade}
+\label{types-overflow}
+
+Por razões de desempenho, o Compliador Haxe não policia nenhum comportamento de estouro de capacidade. O fardo da verificação de estouros de capacidade recai sobre a plataforma do target. Aqui estão algumas observações especificas à plataforma de comportamentos de estouro de capacidade:
+
+\begin{description}
+	\item[C++, Java, C\#, Neko e Flash:] inteiros de 32 bits com sinal com práticas usuais de overflow
+	\item[PHP, JS, Flash 8]: Sem tipo nativo \emph{Int}, perda de precisão ocorrerá se eles atingirem seus limites de flutuação (2\textsuperscript{52})
+\end{description}
+
+Alternativamente, as classes \emph{haxe.Int32} e \emph{haxe.Int64} podem ser usadas para assegurar o correto comportamento de estouro indiferente a plataforma ao custo de computações adicionais, dependendendo da plataforma.
+
+\subsection{Operações Numéricas}
+\label{types-numeric-operators}
+
+\begin{center}
+\begin{tabular}{| l | l | l | l | l |}
+	\hline
+	\multicolumn{5}{|c|}{Aritméticos} \\ \hline
+	Operador & Operação & Argumento 1 & Argumento 2 & Retorno \\ \hline
+	\expr{++}& incrementa & \type{Int} & N/A & \type{Int}\\
+	& & \type{Float} & N/A & \type{Float}\\
+	\expr{--} & decrementa & \type{Int} & N/A & \type{Int}\\
+	& & \type{Float} & N/A & \type{Float}\\
+	\expr{+} & adição & \type{Float} & \type{Float} & \type{Float} \\
+	& & \type{Float} & \type{Int} & \type{Float} \\
+	& & \type{Int} & \type{Float} & \type{Float} \\
+	& & \type{Int} & \type{Int} & \type{Int} \\
+	\expr{-} & subtração & \type{Float} & \type{Float} & \type{Float} \\
+	& & \type{Float} & \type{Int} & \type{Float} \\
+	& & \type{Int} & \type{Float} & \type{Float} \\
+	& & \type{Int} & \type{Int} & \type{Int} \\
+	\expr{*} & multiplicação & \type{Float} & \type{Float} & \type{Float} \\
+	& & \type{Float} & \type{Int} & \type{Float} \\
+	& & \type{Int} & \type{Float} & \type{Float} \\
+	& & \type{Int} & \type{Int} & \type{Int} \\	
+\expr{/} & divisão & \type{Float} & \type{Float} & \type{Float} \\
+	& & \type{Float} & \type{Int} & \type{Float} \\
+	& & \type{Int} & \type{Float} & \type{Float} \\
+	& & \type{Int} & \type{Int} & \type{Float} \\
+	\expr{\%} & módulo & \type{Float} & \type{Float} & \type{Float} \\
+	& & \type{Float} & \type{Int} & \type{Float} \\
+	& & \type{Int} & \type{Float} & \type{Float} \\
+	& & \type{Int} & \type{Int} & \type{Int} \\	 \hline
+	\multicolumn{5}{|c|}{Comparação} \\ \hline
+	Operador & Operação & Argumento 1 & Argumento 2 & Retorno \\ \hline
+	\expr{==} & igual a & \type{Float/Int} & \type{Float/Int} & \type{Bool} \\
+	\expr{!=} & diferente & \type{Float/Int} & \type{Float/Int} & \type{Bool} \\
+	\expr{<} & menor & \type{Float/Int} & \type{Float/Int} & \type{Bool} \\
+	\expr{<=} & menor ou igual & \type{Float/Int} & \type{Float/Int} & \type{Bool} \\
+	\expr{>} & maior & \type{Float/Int} & \type{Float/Int} & \type{Bool} \\
+	\expr{>=} & maior ou igual & \type{Float/Int} & \type{Float/Int} & \type{Bool} \\ \hline
+	\multicolumn{5}{|c|}{Bit-a-bit (bitwise)} \\ \hline
+	Operador & Operação & Argumento 1 & Argumento 2 & Retorno \\ \hline
+	\expr{\textasciitilde} & negação bit-a-bit & \type{Int} & N/A & \type{Int} \\	
+	\expr{\&} & E bit-a-bit & \type{Int} & \type{Int} & \type{Int} \\	
+	\expr{|} & OU bit-a-bit & \type{Int} & \type{Int} & \type{Int} \\	
+	\expr{\^} & XOR bit-a-bit & \type{Int} & \type{Int} & \type{Int} \\	
+	\expr{<<} & deslocamento à esquerda & \type{Int} & \type{Int} & \type{Int} \\
+	\expr{>>} & deslocamento a direita & \type{Int} & \type{Int} & \type{Int} \\
+	\expr{>>>} & desl. dir sem sinal & \type{Int} & \type{Int} & \type{Int} \\ \hline
+\end{tabular}
+\end{center}
+
+\subsection{Bool}
+\label{types-bool}
+\define[Type]{Bool(Booleano)}{define-bool}{Representa um valor que pode ser apenas um dos dois \emph{true} ou \emph{false} (verdadeiro ou falso)}
+
+Valores do tipo Bool são uma ocorrência comum em condicionais como if(ver 5.16 if) e while (while 5.14). 
+
+Os seguintes operadores aceitam e retornam valores Bool:
+
+\begin{itemize}
+	\item \expr{\&\&} (e)
+	\item \expr{||} (ou)
+	\item \expr{!} (não)
+\end{itemize}
+
+O Haxe garante que as expressões booleanas compostas são avaliadas da esquerda para a direita e apenas até onde for necessário em tempo de execução. Por exemplo, uma expressão como \expr{A \&\& B}resolverá primeiro \expr{A}, e resolverá \expr{B} apenas se \expr{A} for verdadeira. Da mesma forma, expressões como \expr{A || B} não resolverão B se \expr{A} for verdadeira. Isso é importante em casos como:
+
+\begin{lstlisting}
+if (object != null && object.field == 1)
+  { ... }
+\end{lstlisting}
+
+Acessar \expr{object.field} se \expr{object} for \expr{null} levaria a um erro em tempo de execução, mas a verificação de \expr{object!=null} previne isso.
+
+
+% ASZASZ formatou e reviu texto até aqui em 7/jan 14:15
+
+\subsection {Void (Vazio)}
+\label{types-void}
+
+\definition{Tipo Void}{Void indica a ausência de um tipo. É usado para expressar que algo (normalmente uma função) não tem um valor}
+
+Void é um caso especial no sitema de tipos porque não é em si um tipo. Ele é usado para expressar a ausência de um tipo. Já vimos Void no exemplo inicial "Hello World":
+
+O tipo função será explorado em detalhe na seção Function Type (2.6) mas uma rápida visão é útil aqui: O tipo da função main no exemplo atnerior é Void-->Void, que se lê: "não tem argumentos e nem valor de retorno (retorna 'nada')". o Haxe não permite variáveis do tipo Void e reclama se uma tentativa de declarar é feita:
+
+\section{Nulabilidade}
+ \definition{nullable}{Um tipo em Haxe é considerável nulável se null é um valor válido para ele}
+
+((
+N. do T: 
+Uma tentativa de explicar o termo:
+inexistenciabilidade
+um tipo é nullable se pode assumir o valor null: não existe, pode assumir o valor "inexistente"}
+))
+
+É comum linguagens de programação terem uma única definição clara de nulabilidade. No entanto, o Haxe tem que se comprometer em relação a esse assunto em função da natureza das linguagens dos targets:
+Enquanto algumas delas permitem e, de fato, utilizam null como valor padrão  para todas as coisas, outras linguagens não chegam a permitir o valor null 
+para certos tipos. Isso gera a necessidade de criar a distinção entre dois tipos de targets:
+
+\definition{Target estático}{Targets estáticos empregam sistemas de tipificação onde null é um valor inválido para os tipos básicos. Esse é o caso de Flash, C++, Java e C#}
+
+\definition{Target dinâmico}{Targets dinâmicos são mais lenientes em relação aos seus tipos e permitem o valor null para tipos básicos. Isso se aplica a Javascript, PHP, Neko e Flash 6-8}
+
+Não há nada para se preocupar quando se trabalha com null em targets dinâmicos; no entanto targets estáticos demandam alguma atenção. Inicialment, tipos básicos são inicializados com seus valores default
+
+\definition{Valores Default}{Tipos násicos tem os seguintes valores em targets estáticos
+
+Int: 0
+
+Float: NaN (not a number) em Flash, 0.0 nos demais
+
+Bool: false
+}
+
+Como consequência o Compilador de Haxe não permite que se atribua null a um tipo básico em targets estáticos. De forma a conseguir isso, o tipo básico tem que ser envelopado como Null<T>:
+
+Similarmente, tipos básicos não podem ser comparados a null, a não ser que sejam envelopados:
+
+Essa restrição se estende a todas as situações onde acontece a unificação (ver unificação 3.5).
+
+\definition{Type:Null<T>}{Em targets estáticos os tipos Null<Int>, Null<Float> e Null<Bool> podem ser utilizados para permitir null como um valor. Em targets dinâmicos esse envelopamento não tem nenhum efeito. Null<T> também pode ser usados com outros tipos de forma a documentar que null é um valor permitido.}
+
+Se um valor null é "escondido" em Null<T> ou Dynamic e atribuído a um tipo básico, o valor default da plataforma target é utilizado.
+
+\subsection{Argumentos Opcionais e Nulabilidade}
+
+Argumentos opcionais também precisam ser levados em conta quando se considera a nulabilidade.
+
+Em especial, deva haver uma disitinção entre argumentos opcionais nativos que não são nuláveis e argumentos opcionais específicos do Haxe que podem ser nuláveis. A distinção pode ser feita utilizando o argumento opcional ponto-de-interrogação:
+
+\trivia{Argumentos x Parametros}{Em outras linguagens de programação, argumentos e parâmetros são termos intercambiáveis. Em Haxe, argumento é usado quando nos referimos a métodos e parametro quando nos referimos a parâmetros de tipos (ver Type Parameters)}
+
+\section{Instância de Classe}
+Similar a muita linguagens orientadas a objeto, classes são a estrutura de dados primárias para a maioria dos programas em Haxe. Cada classe de Haxe tem um nome explícito, um caminho específico e zero ou mais campos de classe. Aqui nos focaremos na estrutura geral de classes e em suas relações e deixaremos os detalhes dos campos de classe para o Capítulo 4.
+
+O seguinte exemplo de código serve de base para o resto dessa seção:
+
+Semanticamente, essa classe representa um ponto discreto no espaço bidimensional, mas isso não é importante aqui. Vamos nos concentrar primeiro em descrever a estrutura:
+
+- A palavra-chave class informa que estamos declarando uma classe
+
+- Point é o nome da classe e poderia ser qualquer nome conforme as regras de identificadores de tipo (referência a pag. 68)
+
+- Chaves são os campos de classe,
+
+- que consistem em dois campos de variáveis x e y, do tipo Int,
+
+- seguidos de um campo de função especial chamada new, que é o constructor da classe,
+
+- bem como uma função normal toString
+
+Há um tipo especial em Haxe que é compatível com todas as classes:
+
+\definition{Type:Class<T>}{Esse tipo é compatível com todos os tipos de classe, o que siginifica que todas as classes (não suas instâncias) podem ser atribuídas a ele. Durante a compilação, Class<T> pe o tipo base comum de todos os tipos de classes. Entretanto essa relação não é refletida no código gerado.
+
+Esse tipo é útil quando uma API exige que um valor seja uma classe, mas nenhuma específica. Isso se aplica a diversos métodos da API Haxe Reflection (10.6).
+
+\subsection{Class constructor}
+
+Instâncias de classes são criadas na chamada do class constructor - um processo comumente referido por instanciação. Outro nome para instâncias de classes é objeto. Apesar disso, preferimos o termo instância de classe, por enfatizar a analogia entre classes/instâncias de classes e enums/instâncias de enums (ver 2.4).
+
+var p = new Point (-1, 65);
+
+Isso conduzirá a instância de uma classe Point, que foi atribuída a uma variável de nome p. O construvto de Point recebe os dois argumentos -1 e 65 e os atribui as variáveis de instância x e y respectivamente (compare sua definição em Class Instance (seção anterior)). Revisitaremo o significado exato da expressão new mais tarde na seção 5.12. Por ora, apenas pensamos nele como o constructor de classe e retornando o objeto apropriado.
+ 
+\subsection{Herança}
+
+Classes podem herdar de outras classes, o que em Haxe é indicado pela palavra-chave extends:
+
+class Point3 extends Point{
+   var z: Int;
+   public function nes (x,y,z) {
+      super(x,y);
+      this.z = z;
+   }
+}
+
+Essa relação é descrita como "é-um" (Point3 é um Point): Point então é chamado de pai (parent class) de Point 3, que é uma classe-filho de Point. Uma classe pode ter muitas classes filho, mas apenas uma classe pai. O termo "uma classe pai de X" geralmente se refere ao pai direto, mas também as classes pais dessas.
+
+O código acima é bastante similar ao código original da classe Point, com dois novos constructs envolvidos:
+
+- extends Point indica que a classe herda de classe Point
+
+- super (x,y) é a chamada ao contrutror a classe pai, nesse caso Point.new
+
+Não é necessário para as classes filho definirem seus próprios constructors, mas se o fizerem, uma chamada a super() é obrigatória. Não como outras linguagens orientadas a objeto, essa chamada pode aparecer em qualquer ponto do código do constructor e não tem que ser a primeira expressão.
+
+Uma classe pode sobreescrever métodos (4.3) de sua classe pai, o que exige explicitamente a palavra chave override. Os efeitos e restrições do disso são detalhados adiante (Overriding Methods, 4.3.1)
+
+2.3.3. Interfaces
+
+Uma interface pode ser entendida como a assinatura de uma classe, porque ela descreve os campos públicos de uma classe. Interface não oferecem implementações, são puramente informações estruturais:
+
+interface Printable {
+    public funciton toString():String;
+}
+
+A sintaxe é similar a de classes, com as seguintes exceções:
+
+- a palavra chave interface é usada ao invés da palavra-chave class
+
+- funções não tem quaisquer expressões (68)
+
+- todos os campos devem ter tipos explicitados
+
+Interfaces, de forma diferente de subtipagem (3.5.2) descrevem uma relação estática entre as classes. Uma dada classe só é considerada compatível com uma interface se ela o declara explicitamente:
+
+class Point implements Printable { }
+
+Aqui, a palavra-chave implements denota que Point tem uma relação "é uma" com Printable, i.e., cada instância de Point também é uma instância de Printable. Enquanto uma classe só pode ter uma classe pai, ela pode implementar múltiplas interfaces atraves de múltiplas utilizações da palavra-chave implements:
+
+class Point implements Printable
+    implements Serializable
+
+O compilador verifica se as premissas de implements existem. Isso é, ele garante que a classe implementa todos  os campos exigidos pela interface. Um campo é considerado implementado se a classe ou qualquer das suas classes pai oferece uma implementação.
+
+Campos de interface não são limitados a métodos. Eles podem ser variáveis e propriedades também.
+
+interface Placeable {
+   public var x:Float;
+   public var y:Float;
+}
+
+class Main implements Placeable {
+   public var x:Float;
+   public var y:Float;
+}
+
+class Main implements Placeable {
+   public var x:Float;
+   public var y:Float;
+   static public function main(){ }
+}
+
+\triva{Sintaxe de Implements}{Versões do Haxe anteriores a 3.0 exigiam multiplas palavras-chave implements separadas por virgual. Decidimos aderir ao padrão de fato do Java e nos livramos da vírgula. Essa foi uma das notáveis mudanças entre Haxe 2 e Haxe 3.}
+
+\section{Instância de Enum}
+
+Haxe oferece poderosos tipos para enumeraçao (enum), que são na verdade tipos de dados algébicos (ADT algebraic data type). Ainda que não possam ter quaisquer expressões, eles são úteis pare descrever estruturas de dados:
+
+enum Color {
+Red;
+Green;
+Blue;
+Rgb(r:Int, g:Int; b:Int);
+}
+
+Semanticamente, esse enum descreve uma cor que pode ser vermelho, verde, azul ou um valor Rgb específicado. A estrutura sintática é como segue:
+
+- A palavra-chave enum indica que estamos declarando um enum.
+
+- Color é o nome do enum, assim como qualquer palavra que se conforme com as regras para identificadores de tipos.
+
+- Cercados pelas chaves estão os enum constructors,
+
+- que são Red, Green e Blue sem argumentos.
+
+- bem como Rgb com três argumentos Int: r, g e b.
+
+O sistema de tipos do Haxe oferece um tipo que unifica com todos os tipos de  enum:
+
+\definition{Type:Enum<T>}{Esse tipo é compatível com todos os tipos de enum. No momento de compilação, Enum<T> pode ser visto com um tipo base comum para todos os tipos de enum. No entanto, essa relação não é refeletida no código gerado}
+
+\subsection{Enum Constructor}
+
+Similarmente as classes e aos seus constructors, enums oferecem uma forma de instanciação utilizando um de seus construtores. Entretanto, diferente de classes, enums oferecem multiplos constructors que podem ser facilmente usados com o seu nome:
+
+var a = Red;
+var b = Green;
+var c = Rgb(255,255,0);
+
+Nesse código, o tipo de variável a,b e c é Color. A variável c é inicializada utilizando o constructor Rgb com argumentos.
+
+Todas as instâncias de enum podem ser atribuídas a um tipo especial chamado EnumValue.
+
+\definition{Type: EnumValue}{EnumValue é um tipo especial que unifica todas as instâncias de enum. É usado pela Biblioteca Padrão do Haxe para oferecer certas operações para todas as instâncias de enum e pode ser empregado em código-usuário de forma coerente em casos onde uma API exige uma instância de enum, mas não uma instância específica.
+
+É importante se distinguir entre tipos enum e constructors de enum, como o exemplo mostra:
+
+enum Color {
+Red;
+Green;
+Blue;
+Rgb(r:Int, g:Int; b:Int);
+}
+
+class Main {
+   static public function main()  {
+      var ec:EnumValue = Red // valid
+      var en:Enum<Color> = Color; // valid
+      // Erro: Color deveria ser Enum<Color>;
+      // var x:Enum<Color> = Red;
+   }
+}
+
+Se a marca de comentário da linha for removido, o porgrama não compila porque Red (um enum constructor) não pode ser atribuído a uma variável do tipo Enum<Color>(um tipo enum). A relação é análoga a uma classe e uma instância da classe.
+
+\trivia{Parâmetro de tipo concreto para Enum<T>}{Um dos revisores desse manual ficou confuso sobre a diferença entre Color e Enum<Color> no exemplo acima. Corretamente, o uso de um parâmetro de tipo concreto ali é despropositado e serve apenas para demonstração. Usualmente nós poderíamos omitir o tipo ali e deixar a inferência de tipo tratar disso.
+
+Entretanto, a inferência de tipo poderia ser diferente de Enum<Color>. O compilador infere um pseudo-tipo que tem os enum constructors como "campos". A partir do Haxe 3.2.0. não é possível expressar esse tipo de sintaxe, contudo nunca é necessário fazê-lo.}
+
+\subsection{Usando enums}
+
+Enums são uma boa escolha se somente um conjunto finito de valores é permitido. Os constructors inidividuais (subseção seguinte) então representam as variantes permitidas e habilitam o compilador a verificar se todos os possíveis valores são respeitados. Isso pode ser observado aqui:
+
+enum Color {
+Red;
+Green;
+Blue;
+Rgb(r:Int, g:Int; b:Int);
+}
+
+class Main { 
+   static function main() {
+      var color = getColor();
+      switch (color) {
+         case Red: trace("Color was red");
+         case Green: trace (Color was green");
+         case Blue: trace (Color was green");
+         case Rgb(r, g, b):
+              trace (Color had a red value of " +r);
+      }
+}
+
+static function getColor():Color{
+   return Rgb(255, 0, 255);
+}
+
+Após registrar o valor de color atribuindo o valor de retorni de getColor() a ela, uma expressão switch pe usada para desvio em função do valor. Os primeiros três casos: Red, Green e Blue  são triviais e correspondem  aos constructors de Color que não tem argumentos. O caso final Rgb(r, g, b) mostra como os valores de um constructor podem ser extraídos, eles estão disponíveis como variáveis locais dentro do corpo da expressão do case, exatamente como se uma expressão var (5.10) tivesse sido empregada.
+
+O uso avançado da expressão switch será explorado na seção de "casamento de padrões".
+
+\subsection{Estruturas anônimas}
+
+Estruturas anônimas podem ser usadas para agrupar dados sem a criação explicita de tipos. O exemplo a seguir  crua uma estrutura com dois campos: x e name, e inicializa seus calores para 12 e foo, respectivamente:
+
+class Structure {
+  static public function main() {
+     var myStructure = {x:12, name:"foo"};
+  }
+}
+
+A estrutura sintática geral é vista a seguir
+
+1. Uma esturutra é cercada por chaves
+
+2. Tem pares chave-valor separados por chaves
+
+3. Dois pontos separam a chave, que deve ser um identificador válido (pg.68) do valor.
+
+4. O valor pode ser qualquer expressão de Haxe
+
+A regra quatro implica que as estruturas podem ser aninhadas  e complexas, por exemplo:
+
+var user = {
+   name: "Nicolas",
+   age: 32,
+   pos: [
+    { x: 0, y: 0 },
+    { x: 1, y: -1 },
+ ],
+};
+
+Campos de estruturas, assim como classes, são acessados utilizando o ponto:
+
+// retenha o valor do nome, que é "Nicolas"
+user.name;
+// faça o valor da idade ser 33
+user.age = 33;
+
+Vale apena observar que o uso de estruturas anônimas não subverte o sistema de tipos. O compilador assegura que apenas os campos disponíveis sejam acessados, o que implica que o programa seguinte não compila:
+
+class Test {
+   static public function main() {
+     var point = { x:0.0, y:12.0};
+     // { y: Float, x: Float} não tem campo z
+     point.z;
+   }   
+}
+
+A mensagem de erro indica que o compilador conhece o tipo de point: é uma estrutura com campos x e y de tipo Float. Já que não existe campo z, o acesso falha. O tupo de point é conhecido através de inferência de tipo, que graciosamente nos poupa do uso de tipos explicitos para variáveis locais. Como sempre, se point fosse um campo, tipificação explícita seria necessária:
+
+class Path {
+   var start : {x: Int, y: Int };
+   var target : {x: Int, y: Int};
+   var current : { x: Int, y: Int};
+}
+
+Para evitar essa redundância de declarações de tipo, especiamente para estruturas mais complexas é aconselhado o uso de typedef(3.1):
+
+typedef Point = { x : Int, y : Int }
+
+class Path {
+    var start: Point;
+    var target: Point;
+    var current: Point;
+}
+
+\subsection {JSON para Estruturas de Valores (Structure Values)}
+
+Também é possível usar JavaScript Object Notation para estruturas com o uso de string literals para as chaves:
+
+var point {"x" : 1, "y" : -5};
+
+Ainda que qualqure string literal seja permitido, o campo só é considerado parte do tipo se for um identificador válido do Haxe (pg 68). De outra forma, a sintaxe do Haxe não permite  forma de expressar o acesso ao campo, e reflection (10.6) tem que ser empregado através do uso de Reflect.field e Reflect.setField.
+
+\subsection{Notação de classe para tipos de estrutura}
+
+Quando se define um tipo de estrututa, o Haxe permite o uso da mesma sintaxe descrita em Campos de Classe (Capítulo 4). O seguinte typedef declara um tipo Point com os campos variáveis x e y do tipo Int:
+
+typedef Point = {
+var x : Int;
+var y : Int;
+}
+
+\subsection{Impacto no desempenho}
+O uso de estruturas e, por extensão, subtipagem de estruturas não tem impacto no desempenho quando compilado para targets dinâmicos. Entretanto, em targets estáticos uma procura dinâmica precisará ser feita, o que é tipicamente mais lento do que o acesso a um campo estático.
+
+\section{Tipo Função}
+
+O tipo função, junto com o tipo monomorfo(2.9) é um tipo que normalmente bem escondido dos usuários de Haxe, ainda que presente em todo lugar. Nós podemos fazê-lo surgir com o uso de $type, um identificador (identifier) especial do Haxe que expõe o tipo que uma expressçao tem durante a compilação:
+
+class Function Type  {
+    static public function main() {
+        $type(test);           // i : Int -> s : String -> Bool
+        $type(test(1,"foo"));  // Bool
+}
+
+   static function test(i:Int, s:String):Bool {
+        return true;
+   }
+}
+
+Há uma forte semelhança entre a declaração da função teste e o primeiro output da primeira expressão $type, mas também uma sutil diferença:
+
+- Argumentos de função são separados por um token especial de seta -> ao invés de vírgulas e
+
+- o tipo de retorno da função aparece ao final depois de outro ->.
+
+Em qualquer uma das notações é óbvio que a função teste aceita um argumento do tipo Int e um segundo argumento do tipo String e retorna um valor do tipo Bool. Se uma chamada a essa função como test(1,"foo") é feita  dentro da segunda expressão, o tipificador do Haxe verifuca se 1 pode ser atribuído ao Int e se "foo" pode ser atribuído ao String. O tipo da chamada é então igualadi ai tipo do valor que test retorna, Bool.
+
+Se um tipo função tem outro tipo função como argumento ou tipo de retorno, parenteses podem ser usados para agrupá-los corretamente. Por exemplo Int -> (Int -> Void) -> Void representa uma função cujo primeiro argumento é um Int, o segundo argumento é uma função (um tipo função) Int -> Void e o retorno é Void.
+
+2.6.1 Argumentos Opcionais
+
+Argumentos opcionais são declarados prefixando-se o identificador do argumento com um ponto de interrogação? :
+
+class OptionalArguments{
+    static public function main() {
+      $type(test); // ?i : Int -> ?s : String -> String
+      trace (test()); // i: null, s:null
+      trace (test(1)); //i: 1, s:null
+      trace (test(1,"foo")); // i:1, s: foo
+      trace (test("foo")); // i:null, s:foo
+    }
+    
+    static function test(?i:Int, ?s:String) {
+      return "i: " +i + ", s: " +s;
+    }
+} 
+
+\subsection{Default values}
+
+O Haxe permite valores default para argumentos, atribuindo constantes a eles:
+
+Valores default em Haxe não são parte do tipo e não são substituídos no local de chamada (a menos que seja uma função alinhada, ver 4.4.2), que podem ser consideradas como uma abordagem mais típica. Em alguns targets o compilador ainda pode passar null para valores de argumentos omitidos e gerar código similar a função seguinte:
+
+
+Isso deve ser  considerado  em códigos em que o desempenho é crítico, onde a solução sem valores default pode ser mais viável algumas vezes.
+
+\subsection{Dynamic}
+
+Ainda que o Haxe tenha um sistema de tipos estático, esse sistema pode, efetivamente, ser desativado com o uso do tipo Dynamic. Um valor dinâmico pode ser atribuído a qualquer coisa, e qualquer coisa pode ser atribuída a ele. Isso tem inúmeras desvantagens:
+
+- O compilador nçao pode mais verificar o tipagem nas atribuições, chamadas de funções e outros constructs onde tipos específicos são esperados.
+
+- Certas otimizações, em particular quando compiladas para targets estáticos, não podem mais ser empregadas.
+
+- Alguns erros comuns, e.g. um erro de digitação ao acesso de um campo não será pego no momento da compilação e provavelmente gerarão erros no momento de execução.
+
+- A Eliminação de Código Morto (Seção 8.2) não poderá detectar campos utilizados se eles forem usados através de Dynamic.
+
+É muito fácil chegar a exemplos onde o uso de Dynamic pode causar problemas no momento de execução. Considere a compilação das seguintes duas linhas de código:
+
+var d:Dynamic = 1;
+d.foo;
+
+A tentativa de rodar um programa compilado em flash player provoca um erro Property foo not found on Number and there is no default value. (Propriedade foo não encontrada em Number e não há valor default.) Sem Dynamic, isso teria sido detectado no momento da compilação.
+
+\trivia{Inferência de Dynamic antes do Haxe 3}{O compliador do Haxe 3 nunca infere um tipo como Dynamic, de forma que os usuários devem ser explícitos sobre isso. As versões anteriores do Haxe costumavam inferir arrays de tipos mistos, e.g. [1, true,"foo"], como Array<Dynamic>. Concluímos que esse comportamento trazia muitos problemas e o removemos para o Haxe 3.}
+
+O uso de Dynamic deve ser minimizado, uma vez que existem opções melhores  em muitas situações em que sua utilização é só uma questão prática. Partes deo da API de Haxe Reflection (Seção 10.6) o utilizam e pe algumas vezes a melhor opção quando lidamos com estruturas de dados particularizadas que não são conhecidas no momento da compilação.
+
+O tipo Dynamic se comporta de uma maneira especial quando está sendo unificado com um tipo monomorfo. Monomorfos nunca são impostos a Dynamics, o que pode ter resultados surpreendentes em exemplos como o abaixo:
+
+class Main {
+   static function main() {
+      var jsonData = '[1, 2, 3];
+      var json = haxe.Json.parse(jsonData);
+      $type(json); // Unknown<0>
+      for (i in 0 ... json.length) {
+         trace (json[0]);
+          // Acesso ao array não é permitido em
+          // { + length : Int }
+      }
+   }
+}
+
+Ainda que o tipo do retorno de Json.parse seja Dynamic, o tipo da variável local é json não é imposto a ele e ele permanece um monomorfo. Ele é então inferido como uma estrutura anônima(2.5) sobre o acesso do campo json.length, o que causa que o seguinte acesso ao array em json[0] a falhe. Para evitar isso, a variável json pode ser explicitamente rotulada com tipo Dynamic usando var json:Dynamic.
+
+\trivia{Dynamic na Biblioteca Padrão}{Dynamic era bem frequente na Biblioteca Padrão do Haxe antes do Haxe 3. Com as contínuas melhorias no sistema de tipos do Haxe, as ocorrências de Dynamic foram reduzidas nas novas versões que levaram ao Haxe 3.}
+
+\section{Dynamic com parâmetros de tipo (Type Parameter)}
+
+Dynamic é um tipo especial porque permite declaração explícita com e sem um parâmetro de tipo (). Se o parâmetro de tipo é fornecido, a semântica descrita em Dynamic (seção anterior) é restringida a todos os campos compatíveis com o tipo de parâmetro.
+
+var att : Dynamic<String> = xml.atributes;
+att.name = "Nicolas";// válido, o valor é um String
+att.age = "26";// dito (essa documentação é bem velha)
+att.income = 0; // erro, o valor não é um string
+
+\subsection{Implementando Dynamic}
+
+Classes podem implementar Dynamic e Dynamic<T>, o que habilita acessos de campos arbitrários. No primeiro caso, campos podem ter qualquer tipo, e no segundo eles são restritos à compatibilidade com o tipo de parâmetro.
+
+class ImplementsDynamic
+   implements Dynamic<String> {
+   public var present:Int;
+   public function new() {}
+}
+
+class Main {
+   static public function main() {
+   var c = new ImplementsDynamic();
+   c.present = 1 // válido, present é um campo existente
+   c.stringfield = "foo" // válido, o valor atribuído é um string
+   c.intfield = 1; // erro, Int deveria ser String
+}
+
+A implementação de Dynamic não satisfaz os requerimentos de outras interfaces implementadas. Os campos esperados ainda tem que ser implementado explicitamente.
+
+Classes que implementam Dynamic (com ou sem o parâmetro de tipo) tambpem podem utilizar um método especial chamado resolve. Se um acesso de leitura (4.2) é feito e o campo em questão não existe, o método resolve é chamado com o nome do campo como argumento.
+
+class Resolve implements Dynamic<String> {
+    public var present: Int;
+    public function new() {}
+    function resolve(field:String){
+       return "Tried to resolve " + field;
+    }
+}
+
+class Main {
+    static public function main() {
+       var c = new Resolve();
+       c.present = 2;
+       trace (c.present);
+       trace (c.resolveMe);
+    }
+}
+
+
+
+
+\Section{Abstract}
+Um tipo abstrato (Abstract) é um tipo que é, na verdade, um tipo diferente em tempo de execução. É uma funcionalidade do compilador que define tipos "através" de tipos concretos de forma a modificar ou aumentar seu comportamento.
+
+abstract AbstractInt(Int) {
+    inline public function (i:Int) { 
+        this = i;
+    }
+}
+
+Nós podemos tirar o seguinte do exemplo:
+
+- A palavra-chave abstract indica que estamos declarando um tipo abstrato.
+- AbstractInt é o nome do tipo abstrato e poderia ser qualquer coisa que se conforme com as regras de identificadores de tipos.
+- Dentro dos parenteses () está o tipo subjacente
+- Dentro das chaves estão os campos,
+- que são uma função de constructor new aceitando um argumento i do tipo Int.
+
+\definition{Tipo subjacente (Underliyng Type)}{O tipo subjacente de um abstrato é o tipo que é usado para representá-lo em tempo de execução. É normalmente um tipo concreto (i.e. não abstrato), mas poderia ser um outro tipo abstrato igualmente.
+
+A sintaxe é reminiscente de classes e a semântica é, de fato, similar. De fato, tudo que está no "corpo" de um abstrato (i.e. tudo depois da chave de abertura) é separado como campos de classe. Abstracts podem ter campos de método e campos de propriedades não-físicas.
+Além do mais, abstracts podem ser instanciados e usados exatamente como classes.
+
+class MyAbstract{
+   static public function main() {
+   var a = new AbstractInt(12)
+   trace(a); //12
+   }
+}
+
+Como foi mencionado antes, abstracts são uma funcionalidade para o momento de compilação, então é interessante observar o que o código acima gera na prática. Um target adequado para isso é Javascript, que tende a gerar código conciso e limpo. Compilando o acima (utilizando haxe -main MyAbstract -js myabstract.js) se obterá o seguinte código de Javascript:
+
+var a =12;
+console.log(a);
+
+O tipo abstrato AbstractInt desapareceu completamente do resultado e tudo que permanece é o tipo subjacente, Int. Isso é porque o constructor de AbstractInt é alinhado (inline) - algo que devemos aprender a respeito adiante, na seção - e sua expressão alinhada atribui valor para this. O efeito pode ser surpreendente quando pensamos em termos de classes, entretanto, é precisamente o que queremos expressar no contexto de abstratos. Qualquer método membro alinhado de um abstrato pode atribuir valor par this, e assim modificar ovalor interno.
+
+Uma boa pergunta nesse ponto é "O que acontece se uma função membro não for declarada alinhada (inline) porque o código obviamente precisa ir para algum lugar. O Haxe cria uma classe privada, conhecida como a classe de implementação; essa classe contem todas as funções abstratas membro como funções estáticas que aceitam o primeiro argumento adicional this do tipo subjacente. Ainda que isso seja tecnicamente um detalhe de implementação, pode ser usado para funções seletivas.
+
+\trivia{Tipos Básicos e abstratos}{Antes do advento dos tipos abstratos, todos os tipos básicos era implementados como classes externas ou enums. Ainda que isso desse bem conta de alguns aspectos tais como Int ser uma classe filho de Float, causava problemas em outros lugares. Por exemplo, com Float sendo uma classe externa, ela unificaria a estrutura vazia {}, tornando impossível restringir um tipo a aceitar apenas objetos reais.}
+
+\subsection{Casts implicitos}
+
+(N. do T. A tradução etimologicamente correta de "cast" é "lançar", posteriormente em inglês o verbo assumiu o significado de "moldar" entre outros, advindo da utilização do termo para expressar objeto "lançado" (casted vira cast)), como em objetos de ferro fundido (cast iron) (broadcst se tornou difusão) a função computacional adquiriu o significado aproximado de converter, "enfiar" ou "meter" seriam traduções apropriadas a ideia, mas não soam bem em textos pretenciosos de precisão como esse. "Fusão" ou "fundição". Usaremos a forma não traduzida cast doravante)
+
+
+Diferente de classes, abstratos permitem a definição de fusões implícitas. Há dois tipos de fusões implícitas:
+
+Direta: Permite a fusão direta do tipo abstrato de ou para um outro tipo. Isso é definido adicionando regras to (para) e from(de) ao tipo abstrato e isso só é permitido  para tipos que se unifiquem com o tipo subjacente ao abstrato.
+
+Campo classe: permite a fusão via chamadas a funções especiais de fusão que são definidas usando metadados @:from e @:to. Esse tipo de fusão é permitido para todos os tipos.
+
+O exemplo de código a seguir mostra uma fusão direta:
+
+abstract MyAbstract(Int) from Int to Int {
+    inline function new(i:Int) {
+        this = i;
+    }
+}
+
+class ImplicitCastDirect {
+    static public function main() {
+       var a:MyAbstract = 12;
+       var b:Int = a;
+    }
+}
+
+Declaramos MyAbstract como sendo de Int e para Int, implicando que o tipo abstrato pode receber uma atribuição a partir de um Int e ser atribuído a um Int. Isso pe mostrado nas linhas 9 e 10, onde nós primeiro atribuímos o Int 12 a variável a do tipo MyAbstract (isso funciona devido a declaração from Int) e então o valor de um tipo abstrato é colocado de volta em uma variável do tipo Int, b (isso funciona devido a declaração Int).
+
+Fusões pr campos classe tem a mesma semântica, mas são definidos de forma completamente diferente:
+
+abstract MyAbstract(Int)  {
+    inline function new (i:Int)  {
+        this = i;
+    }
+    
+    @:from
+    static public function fromStrint(s:String)  {
+        return new MyAbstract(Std.parseInt(s));
+    }
+
+   @:to
+   public function toArray()  {
+       return [this];
+   }
+}
+
+class ImplicitCastField {
+    static public function main () {
+        var a:MyAbstract = "3";
+        var b:Array<Int> = a;
+        trace (b); // [3]
+    }
+}
+
+Ao adicionar @:from a uma função estática, aquela função se qualifica como uma função de fusão do seu tipo de argumento para o tipo abstrato. Essas funções devem retornar um valor do tipo do abstrato. Elas também devem ser declaradas static.
+
+Similarmente, adicionar @:to a uma função a qualifica como uma função implícita  do abstrato para o seu tipo de retorno. Essas funções são tipicamente funções membro, mas podem ser tornadas static e então servir como funções seletivas (2.8.4)
+
+No exemplo, o método fromString permite a atribuição do valor "3" à uma variável do tipo MyAbstract enquanto o método toArray permite atribuir essa variável do tipo MyAbstract a uma variável b do tipo Array<Int>.
+
+Quando se usa esse tipo de fusão, chamadas as funções de fusão são inseridas quando necessário. Isso se torna óbvio quando se olha para a exposição em Javascript:
+
+var a = _ImplicitCastField.MyAbstract_Impl_.fromString("3");
+var b = _ImplicitCastField.MyAbstract_Impl_.toArray(a);
+
+Isso pode ser mais otimizado ao se alinhar as duas funções de fusão, tornando a exposição na seguinte:
+
+var a = Std.parseInt("3");
+var b = [a];
+
+O algoritmo de seleção, quando atribui um tipo A para um tipo B com ao menos um deles sendo um tipo abstrato é simples:
+
+1. Se A não é um abstrato, vá para 3.
+
+2. Se A define uma "conversão-para" que admite B, vá para 6.
+
+3. Se B não for um abstrato, vá para 5.
+
+4. Se B define uma "conversão-de" que admite A, vá para 6.
+
+5. Pare, unificação falhou.
+
+6. Pare, unificação se sucedeu.
+
+  Por concepção, fusões implícitas são não-transitivas, como o exemplo seguinte mostra:
+
+abstract A(Int) {
+    public function new () this = 0;
+    @:to public function toB() return new B();
+}
+
+abstract B(Int) {
+    public function new() this = 0;
+    @:to public function toC() return new C();
+}
+
+abstrace C(Int) {
+    public function new() this = 0;
+}
+
+class Main {
+    static public function main() {
+        var a = new A;
+        var b:B = A; //válido, usa A.toB
+        var c:C = b  //válido, usa B.toC
+        var c:C = a  //erro, A deveria ser C
+    }
+}
+
+Ainda que fusões individuais de A para B e de B para C sejam permitidas, uma fusão transitiva de A para C não é. Isso evita caminhos de fusão ambíguos e mantém um algoritmo de seleção simples.
+
+\section{Sobreposição de operadores}
+
+Abstracts permitem a sobreposição de operadores unários e binários ao se adicionar  o metadado @:op a um campo de classe
+
+abstract MyAbstract(String) {
+   public inline function new (s:String) {
+   this = s;
+   }
+
+    @:op(A * B)
+    public function repeat (rhs:Int):MyAbstract {
+        var s:StringBuf = new StringBuf();
+        for (i in 0...rhs)
+            s.add(this);
+        return new MyAbstract(s.toString());
+    }
+}
+
+class AbstractOperatorOverload {
+    static public function main()
+       var a = new MyAbstract("foo");
+       trace (a*3); //foofoofoo
+    }
+}
+
+Ao definir @:op(A*B), a função repeat serve como um método operador para o operador de multiplicação * quando o tipo do valor a esquerda é um MyAbstract e o tipo do valor à esquerda é um Int. O uso é mostrado na linha 17, que por sua vez é convertida no abaixo, quando compilada para JavaScript
+
+console.log(_AbstractOperatorOverload.
+   MyAbstract_Impl_.repeat(a,3);
+
+Similar às fusões implicitas (casts implícitos) nos campos de classe (2.8.1) uma chamada ao método sobreposto é inserida aonde necessário.
+
+O exemplo da função repeat não é comutativo: Ainda que MyAbstract * Int funcione, Int * MyAbstract não funciona. Para que isso seja também seja permitido, o metadado @:comutative deve ser incluído. Caso deva funcionar apenas para Int * MyAbstract, mas não para MyAbstract * Int, a sobreposição do método pode ser feita de forma estática, aceitando Int e MyAbstract como primeiro e segundo tipos, respectivamente.
+
+A sobreposição de operadores unários é analoga:
+
+abstract MyAbstract(String){
+    public inline function new (s:String) {
+         this = s;
+    }
+
+    @:op(++A) public function pre()
+       return "pre" + this;
+    @:op(A++) public function post()
+       return this + "post";
+}
+
+class AbstractUnopOverload {
+    static public function main() {
+       var a = new MyAbstract("foo");
+       trace (++a); // prefoo
+       trace (a++); // foopost
+    }
+}
+
+Tanto operadores sobrepostos podem retornar qualquer tipo.
+
+Também é possivel omitir o corpo do método de uma função @:op, mas apenas se o tipo subjacente do abstrato permitir a operação em questão e se o tipo resultante puder ser atribuído de volta ao abstrato.
+
+\subsection{Acesso a Arrays}
+(N do T: a opção mais apropriada em português para seria arranjo)
+
+O acesso a arrays descreve a particular sintaxe tradicionalmente usada para acessar o valor em um array com um certo deslocamento (offset). Isso normalmente só é permitido com argumentos do tipo Int. Mesmo assim, com abstratos é possível definir métodos diferenciados de acesso a arrays. A biblioteca padrão do Haxe (Haxe Standard Library) usa  isso em seu tipo Map, onde os dois métodos seguintes podem ser encontrados:
+
+@:arrayAcess public inline function
+get(key:K) return this.get(key);
+@:arrayAccess public inline function
+arrayWrite(k:K, v:V):V {
+    this.set(k,v);
+    return v;
+}
+
+Existem dois tipos de métodos de acesso a Arrays:
+
+  - Se um método @:arrayAccess aceita um argumento é um extrator (get)
+
+  - Se um método @:arrayAccess aceita dois argumentos é um atribuidor (set)
+
+Os métodos get e arrayWrite vistos acima permitem, então, os seguinte uso:
+
+class Main {
+    public static function main () {
+       var map = new Map ();
+       map ["foo"] = 1;
+       trace(map["foo"]);
+    }
+}
+
+Nessa altura, não deve ser surpreendente ver que chamadas aos campos do array sejam inseridas no resultado:
+
+map.set("foo",1);
+1;
+console.log(map.get("foo"));
+
+Resolução da ordem de acesso a arrays: Devido a um bug em versões do Haxe anteriores a 3.2 a ordem de verificação de campos :arrayAcess era indefinida. Isso foi consertado no Haxe 3.2 de forma que os campos são consistentemente verificados de cima para baixo:
+
+abstract AString(String) {
+    public function new(s) this.s;
+    @:arrayAccess function getInt1(k:Int) {
+        return this.charAt(k);
+    }
+    @:arrayAccess function getInt2(k:Int) {
+        return this.charAt(k).toUpperCase(); //toUperCase=paraMaíuscula
+    }
+}
+
+class Main {
+    static function main() {
+        var a = new AString("foo");
+        trace a[0]; // f
+    }
+}
+
+O acesso ao array a[0] é resolvido pelo campo getInt1, levando ao retorno da letra minúscula f. O resultado poderia ser diferente em versões anteriores ao Haxe 3.2
+
+Campos que são definidos mais cedo tomam prioridade mesmo se eles exigirem um cast implícito.
+
+\subsection{Funções Seletivas}
+
+Já que o compliador promove funções membro dos abstratos a funções estáticas, é possível definir funções estáticas manualmente e usá-las sobre uma instância abstrata. A semantica aqui é similar àquelas das extensões estáticas, onde o tipo do argumento da primeira função determina para quais tipos a função é definida.
+
+abstract MyAbstract<T>(T) from T {
+    public function new(t:T) this = t;
+
+    fuction get () return this;
+
+    static public function
+    getString(v:MyAbstract<String>):String {
+        return v.get();
+    }
+}
+
+class SeletiveFunction {
+    static public function main() {
+       var a = new MyAbstract("foo");
+       a.getString();
+       var b = new MyAbstract(1);
+       b.getString(); // Não funciona: Int deveria ser MyAbstract<String> 
+
+    }
+}
+
+O método getString do abstrato MyAbstract pe definido para aceitar o primeiro argumento de MyAbstract<String>. Isso faz com que ele esteja disponível na variável a na linha 14 (porque o tipo de a é MyAbstract), mas não esteja disponível na variável b, cujo tipo é MyAbstract<Int>.
+
+\trivia{Funcionalidade Acidental}{Ao invés de ter sido deliberadamente concebidas, as funções seletivas foram descobertas. Depois que a ideia foi mencionada pela primeira vez, exigiu apenas alguns ajustes menores no compilador para fazê-las funcionar. Sua descoberta também levou a introdução dos abstratos multi-tipos, como o Map}
+
+\subsection{Enums abstratos}
+
+Desde o Haxe 3.1.0
+
+Adicionando-se o metadado :enum à definição de um abstrato, esse abstrato pode ser usado para definir conjuntos finitos de valores:
+
+@:enum 
+abstract HttpStatus(Int) {
+    var NotFound = 404; // Não Encontrado
+    var MethodNotAllowed = 405; // Método não permitido
+}
+
+class Main {
+    static public function main() {
+        var status = HttpStatus.NotFound;
+        var msg = printStatus(status);
+    }
+
+    static function
+    printStatus(status:HttpStatus) {
+        return switch(status) {
+            case NotFound:
+                "Não Encontrado";
+            case MethodNotAllowed:
+                "Método não permitido";
+        }
+    }
+}
+
+O compilador do Haxe substitui todos os acessos a campos do abstrato HttpStatus por seus valores, como fica evidente em seu resultado em Javascript:
+
+Main.main = function() {
+   var status = 404
+   var msg = Main.printStatus(status);
+};
+Main.printStatus = function(status) {
+    switch(status) {
+    case 404:
+        return 	"Não encontrado";
+    case 405:
+        return   "Método não permitido";
+    }
+};
+
+Isso pe similar ao acesso de variáveis declaradas alinhadas, mas tem diversas vantagens:
+   - O tipificador pode garantir que todos os valores do conjunto são corretos.
+   - O localizardor de padrões (pattern matcher) verifica exaustivamente quando localiza um enum abstrato.
+   - A definição de campos exige menos sintaxe.
+
+\subsection{Repassando campos abstratos}
+
+Desde o Haxe 3.1.0
+
+Quando se envelopa um tipo subjacente, é algumas vezes desejável "manter" parte de suas funcionalidades. Por conta de ser pesaroso escrever o reencaminhamento de funções, o Haxe permite a adição do metadado :forward para um tipo abstrato:
+
+@forward(push,pop)
+abstract MyArray<S>(Array<S>) {
+    public inline function new() {
+        this = [];
+    }
+}
+
+class Main {
+    static public function main() {
+        var myArray = new MyArray();
+        myArray.push(12);
+        myArray.pop();
+        // MyArray<Int> não tem número de campos myArray.length
+    }
+}
+
+O abstrato MyArray nesse exemplo envelopa Array. Seu metadado :forward tem dois argumentos que correspondem aos nomes de campos a serem repassados ao tipo subjacente. Nesse exemplo, o método main instancia MyArray e acessa seus métodos push e pop. A linha comentada mostra que o campo length não está disponível.
+
+Como usualmente, podemos olhar prar o resultado em Javascript para ver como o código está sendo gerado:
+
+Main.main = function() {
+    var myArray = [];
+    myArray.push(12);
+    myArray.pop();
+};
+
+Também é possível usar :forward  sem argumentos de forma a repassar todos os campos. É claro que o compilador do Haxe assegura que o campo realmente exista no tipo subjacente.
+
+\trivia{Implementado como macro}{As funcionalidades :enum e :forward foram originalmente implementadas usando macros de build. Ainda que isso funcionasse bem em um código sem macros, causava problemas se essas funcionalidades fossem usadas de dentro das macros. A implementação foi subsequentemente movida para o compilador.
+
+\subsection{Abstratos de tipos do cerne(Core-type abstracts)}
+
+A biblioteca padrão do Haxe (Haxe Standard Library) define um conjunto de tipos em seu cerne. Eles são identificados  pelo metadado :coreType e lhes falta uma declaração de tipo subjacente. Esses abstratos podem ainda ser entendidos como representantes de um tipo diferente. Ainda assim, esse tipo é nativo ao target do Haxe.
+
+A inclusão de abstratos de tipos do cerne é raramente necessária em código usuário uma vez que exige que o target do Haxe consiga compreendê-lo. Entretanto podem haver casos de uso interessantes para autores de macros e novos targets do Haxe.
+
+Em contraste ao abstratos opacos, abstratos de tipos do cerne tem as seguintes propriedades:
+
+  - Não possuem tipo subjacente.
+
+  - São considerádos nuláveis ao menos que sejam marcados com o metadado :notNull 
+
+  - Tem permissçao para declarar funções de acesso a arrays sem expressões.
+
+  - Campos de sobreposição de operadores que nçao tenham expressões não são forçados a aderir a semântica de tipos do Haxe.
+
+ \section{Monomorfos}
+
+Um monomorfo é um tipo que pode, através de unificação (ver), se modificar para um tipo diferente posteriormente. Devemos ver detalhes sobre esse tipo quando estivermos falando de inferência de tipos.
+
