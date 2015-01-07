@@ -1,3 +1,5 @@
+% commit do Manual original: e16ca549e9966556e8ffbe3fcb0c459cad17ddaf
+
 \chapter{Introdução}
 
 \section{O que é o Haxe}

@@ -9,7 +9,10 @@ Para contribuir, inclua novos capítulos com a formatação necessária no .tex,
 
 Nos arquivos .tex `\labels` e `\defines` e as referências a eles devem ser mantidos como os nomes do original (em inglês e com hífens) 
 
+Cada arquivo criado ou alterado precisa ter registrado o último commit do Manual original com o qual está sincronizado (combinemos por hora na primeira linha, como comentário do Tex `%`)
+
 Extratos de código podem ser referenciados e eventualmente traduzidos na pasta assets (copiada do original em jan/2015), nenhuma figura foi traduzida (elas são criadas em arquivos .tex também) 
+
 
 
 
