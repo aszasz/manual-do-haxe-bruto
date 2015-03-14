@@ -1,9 +1,11 @@
-\chapter{Types}
+% upstream: 113076f2e493405ebdb71eb8123364c75520afc3
+
+\chapter{Tipos}
 \label{types}
 
-The Haxe Compiler employs a rich type system which helps detecting type-related errors in a program at compile-time. A type error is an invalid operation on a given type such as dividing by a String, trying to access a field of an Integer or calling a function with not enough (or too many) arguments.
+O Compilador Haxe emprega um detalhado sistema de tipos que ajuda a detectar erros relacionados a tipagem em um programa no momento da compilação. Um erro de tipagem é uma operação inválida para um dado tipo, como a divisão por um String, o acesso ao campo de um Integer ou a chamada a uma função com menos (ou mais) argumentos que o necessário.
 
-In some languages this additional safety comes at a price because programmers are forced to explicitly assign types to syntactic constructs:
+Em algumas linguagens essa segurança adicional é custosa porque os programadores são obrigados a indicar explicitamente os tipos em suas construções sintáticas:
 
 \begin{lstlisting}
 var myButton:MySpecialButton =
@@ -11,28 +13,30 @@ var myButton:MySpecialButton =
 MySpecialButton* myButton =
   new MySpecialButton(); // C++ 
 \end{lstlisting}
-The explicit type annotations are not required in Haxe, because the compiler can \emph{infer} the type:
+
+As indicações explicitas de tipos não são requeridas em Haxe, porque o compilador pode inferir o tipo:
 
 \begin{lstlisting}
 var myButton = new MySpecialButton(); // Haxe
 \end{lstlisting}
-We will explore type inference in detail later in \Fullref{type-system-type-inference}. For now, it is sufficient to say that the variable \expr{myButton} in the above code is known to be an \emph{instance of class} \type{MySpecialButton}. 
 
-The Haxe type system knows seven type groups:
+A inferência de tipos será explorada em detalhes em \Fullref{type-system-type-inference}. Por hora, basta saber que a variável \expr{myButton} no código acima é sabidamente uma \emph{instância da classe} \type{MySpecialButton}. 
+
+O sistema de tipos do Haxe reconhece sete grupos de tipos:
 
 \begin{description}
- \item[\emph{Class instance}:] an object of a given class or interface
- \item[\emph{Enum instance}:] a value of a Haxe enumeration
- \item[\emph{Structure}:] an anonymous structure, i.e. a collection of named fields
- \item[\emph{Function}:] a compound type of several arguments and one return
- \item[\emph{Dynamic}:] a wildcard type which is compatible with any type
- \item[\emph{Abstract}:] a compile-time type which is represented by a different type at runtime
- \item[\emph{Monomorph}:] an unknown type which may later become a different type
+ \item[\emph{Instância de classe}:] um object de uma dada classe ou interface
+ \item[\emph{Instância de enum}:] um valor de uma enumeração do Haxe  % FIXME traduzir "enum"
+ \item[\emph{Estrutura}:] uma estrutura anônima, i.e., uma coleção de campos com nomes
+ \item[\emph{Função}:] um tipo composto de vários vários argumentos e um retorno
+ \item[\emph{Dinâmico}:] um tipo coringa que é compatível com qualquer tipo
+ \item[\emph{Abstrato}:] um tipo no momento de compilação representado outro diferente na execução
+ \item[\emph{Monomorfo}:] um tipo desconhecido que pode posteriormente se tornar um tipo diferente
 \end{description}
 
-We will describe each of these type groups and how they relate to each other in the next chapters.
+Nos próximos capítulos, cada um desses grupos de tipos será descrito, bem como as relações entre eles.
 
-\define{Compound Type}{define-compound-type}{A compound type is a type which has sub-types. This includes any type with \tref{type parameters}{type-system-type-parameters} and the \tref{function}{types-function} type.}
+\define{Tipo composto}{define-compound-type}{Um tipo composto é um tipo que tem subtipos. Isso inclui qualquer tipo com \tref{parâmetros de tipo}{type-system-type-parameters} as \tref{funções}{types-function}.}
 
 
 \section{Basic Types}
