@@ -3,7 +3,7 @@
 \chapter{Tipos}
 \label{types}
 
-O Compilador Haxe emprega um detalhado sistema de tipos que ajuda a detectar erros relacionados a tipagem em um programa no momento da compilação. Um erro de tipagem é uma operação inválida para um dado tipo, como a divisão por um String, o acesso ao campo de um Integer ou a chamada a uma função com menos (ou mais) argumentos que o necessário.
+O Compilador de Haxe emprega um detalhado sistema de tipos que ajuda a detectar erros relacionados a tipagem em um programa no momento da compilação. Um erro de tipagem é uma operação inválida para um dado tipo, como a divisão por um String, o acesso ao campo de um Integer ou a chamada a uma função com menos (ou mais) argumentos que o necessário.
 
 Em algumas linguagens essa segurança adicional é custosa porque os programadores são obrigados a indicar explicitamente os tipos em suas construções sintáticas:
 
@@ -39,91 +39,89 @@ Nos próximos capítulos, cada um desses grupos de tipos será descrito, bem com
 \define{Tipo composto}{define-compound-type}{Um tipo composto é um tipo que tem subtipos. Isso inclui qualquer tipo com \tref{parâmetros de tipo}{type-system-type-parameters} as \tref{funções}{types-function}.}
 
 
-\section{Basic Types}
+\section{Tipos básicos}
 \label{types-basic-types}
 
-\emph{Basic types} are \type{Bool}, \type{Float} and \type{Int}. They can easily be identified in the syntax by values such as
+Os \emph{tipos básicos} são \type{Bool}, \type{Float} and \type{Int}. Eles podem ser facilmente identificados na sintaxe por valores como
 
 \begin{itemize}
-	\item \expr{true} and \expr{false} for \type{Bool},
-	\item \expr{1}, \expr{0}, \expr{-1} and \expr{0xFF0000} for \type{Int} and
-	\item \expr{1.0}, \expr{0.0}, \expr{-1.0}, \expr{1e10} for \type{Float}.
+	\item \expr{true} e \expr{false} para \type{Bool},
+	\item \expr{1}, \expr{0}, \expr{-1} e \expr{0xFF0000} para \type{Int} e
+	\item \expr{1.0}, \expr{0.0}, \expr{-1.0}, \expr{1e10} para \type{Float}.
 \end{itemize}
 
-Basic types are not \tref{classes}{types-class-instance} in Haxe. They are implemented as \tref{abstract types}{types-abstract} and are tied to the compiler's internal operator-handling as described in the following sections.
+Tipos básicos não são \tref{classes}{types-class-instance} em Haxe. Eles são implementados como \tref{tipos abstratos}{types-abstract} e estão ligados ao manuseio de operadores interno ao compilador, sendo descritos nas seções seguintes.
 
-\subsection{Numeric types}
+\subsection{Tipos numéricos}
 \label{types-numeric-types}
 
-\define[Type]{Float}{define-float}{Represents a double-precision IEEE 64-bit floating point number.}
+\define[Tipo]{Float}{define-float}{Representa um número em ponto flutuante IEEE com 64 bits e precisão dupla.}
 
-\define[Type]{Int}{define-int}{Represents an integral number.}
-While every \type{Int} can be used where a \type{Float} is expected (that is, \type{Int} \emph{is assignable to} or \emph{unifies with} \type{Float}), the reverse is not true: Assigning a \type{Float} to an \type{Int} might lose precision and is not allowed implicitly.
+\define[Tipo]{Int}{define-int}{Representa um número inteiro.}
+
+Enquanto \type{Int} pode ser usado aonde se espera um \type{Float} (\type{Int} \emph{é atribuível a} ou \emph{unifica com} \type{Float}), o contrário não é verdade: atribuir um \type{Float} a um \type{Int} pode resultar em perda de precisão e não é implicitamente permitido.
 
 \subsection{Overflow}
 \label{types-overflow}
 
-For performance reasons, the Haxe Compiler does not enforce any overflow behavior. The burden of checking for overflows falls to the target platform. Here are some platform specific notes on overflow behavior:
+Por razões de desempenho, o Compilador de Haxe não define um comportamento particular de overflow. A responsabilidade de verificar overflows recai sobre a plataforma do target. Aqui se vêem algumas observações especificas do comportamento de overflow:
 
 \begin{description}
- \item[C++, Java, C\#, Neko, Flash:] 32-bit signed integers with usual overflow practices 
- \item[PHP, JS, Flash 8:] No native \emph{Int} type, loss of precision will occur if they reach their float limit (2\textsuperscript{52})
+ \item[C++, Java, C\#, Neko, Flash:] Inteiros de 32 bits com sinal e comportamento usual de overflow 
+ \item[PHP, JS, Flash 8:] Não possuem \emph{Int} nativo e haverá perda de precisão quando eles atingirem seu limite de ponto flutuante (2\textsuperscript{52})
 \end{description}
 
-Alternatively, the \emph{haxe.Int32} and \emph{haxe.Int64} classes can be used to ensure correct overflow behavior regardless of the platform at the cost of additional computations depending on the platform.
+Alternativamente, as classes \emph{haxe.Int32} e \emph{haxe.Int64} podem ser usadas para assegurar correto comportamento de overflow independente da plataforma, ao custo de eventuais cálculos adicionais.
 
-\subsection{Numeric Operators}
+\subsection{Operadores numéricos}
 \label{types-numeric-operators}
-
-\todo{make sure the types are right for inc, dec, negate, and bitwise negate}
-\todo{While introducing the different operations, we should include that information as well, including how they differ with the "C" standard, see http://haxe.org/manual/operators}
 
 \begin{center}
 \begin{tabular}{| l | l | l | l | l |}
 	\hline
-	\multicolumn{5}{|c|}{Arithmetic} \\ \hline
-	Operator & Operation & Argument 1 & Argument 2 & Return \\ \hline
-	\expr{++}& increment & \type{Int} & N/A & \type{Int}\\
+	\multicolumn{5}{|c|}{Aritméticos} \\ \hline
+	Operador & Operação & Argumento 1 & Argumento 2 & Retorno \\ \hline
+	\expr{++}& incremento & \type{Int} & N/A & \type{Int}\\
 	& & \type{Float} & N/A & \type{Float}\\
-	\expr{--} & decrement & \type{Int} & N/A & \type{Int}\\
+	\expr{--} & decremento & \type{Int} & N/A & \type{Int}\\
 	& & \type{Float} & N/A & \type{Float}\\
-	\expr{+} & addition & \type{Float} & \type{Float} & \type{Float} \\
+	\expr{+} & adição & \type{Float} & \type{Float} & \type{Float} \\
 	& & \type{Float} & \type{Int} & \type{Float} \\
 	& & \type{Int} & \type{Float} & \type{Float} \\
 	& & \type{Int} & \type{Int} & \type{Int} \\
-	\expr{-} & subtraction & \type{Float} & \type{Float} & \type{Float} \\
+	\expr{-} & subtração & \type{Float} & \type{Float} & \type{Float} \\
 	& & \type{Float} & \type{Int} & \type{Float} \\
 	& & \type{Int} & \type{Float} & \type{Float} \\
 	& & \type{Int} & \type{Int} & \type{Int} \\
-	\expr{*} & multiplication & \type{Float} & \type{Float} & \type{Float} \\
+	\expr{*} & multiplicação & \type{Float} & \type{Float} & \type{Float} \\
 	& & \type{Float} & \type{Int} & \type{Float} \\
 	& & \type{Int} & \type{Float} & \type{Float} \\
 	& & \type{Int} & \type{Int} & \type{Int} \\	
-	\expr{/} & division & \type{Float} & \type{Float} & \type{Float} \\
+	\expr{/} & divisão & \type{Float} & \type{Float} & \type{Float} \\
 	& & \type{Float} & \type{Int} & \type{Float} \\
 	& & \type{Int} & \type{Float} & \type{Float} \\
 	& & \type{Int} & \type{Int} & \type{Float} \\
-	\expr{\%} & modulo & \type{Float} & \type{Float} & \type{Float} \\
+	\expr{\%} & módulo & \type{Float} & \type{Float} & \type{Float} \\
 	& & \type{Float} & \type{Int} & \type{Float} \\
 	& & \type{Int} & \type{Float} & \type{Float} \\
 	& & \type{Int} & \type{Int} & \type{Int} \\	 \hline
-	\multicolumn{5}{|c|}{Comparison} \\ \hline
-	Operator & Operation & Argument 1 & Argument 2 & Return \\ \hline
-	\expr{==} & equal & \type{Float/Int} & \type{Float/Int} & \type{Bool} \\
-	\expr{!=} & not equal & \type{Float/Int} & \type{Float/Int} & \type{Bool} \\
-	\expr{<} & less than & \type{Float/Int} & \type{Float/Int} & \type{Bool} \\
-	\expr{<=} & less than or equal & \type{Float/Int} & \type{Float/Int} & \type{Bool} \\
-	\expr{>} & greater than & \type{Float/Int} & \type{Float/Int} & \type{Bool} \\
-	\expr{>=} & great than or equal & \type{Float/Int} & \type{Float/Int} & \type{Bool} \\ \hline
-	\multicolumn{5}{|c|}{Bitwise} \\ \hline
-	Operator & Operation & Argument 1 & Argument 2 & Return \\ \hline
-	\expr{\textasciitilde} & bitwise negation & \type{Int} & N/A & \type{Int} \\	
-	\expr{\&} & bitwise and & \type{Int} & \type{Int} & \type{Int} \\	
-	\expr{|} & bitwise or & \type{Int} & \type{Int} & \type{Int} \\	
-	\expr{\^} & bitwise xor & \type{Int} & \type{Int} & \type{Int} \\	
-	\expr{<<} & shift left & \type{Int} & \type{Int} & \type{Int} \\
-	\expr{>>} & shift right & \type{Int} & \type{Int} & \type{Int} \\
-	\expr{>>>} & unsigned shift right & \type{Int} & \type{Int} & \type{Int} \\ \hline
+	\multicolumn{5}{|c|}{Comparação} \\ \hline
+	Operador & Operação & Argumento 1 & Argumento 2 & Retorno \\ \hline
+	\expr{==} & igual & \type{Float/Int} & \type{Float/Int} & \type{Bool} \\
+	\expr{!=} & diferente & \type{Float/Int} & \type{Float/Int} & \type{Bool} \\
+	\expr{<} & menor que & \type{Float/Int} & \type{Float/Int} & \type{Bool} \\
+	\expr{<=} & menor ou igual a & \type{Float/Int} & \type{Float/Int} & \type{Bool} \\
+	\expr{>} & maior que & \type{Float/Int} & \type{Float/Int} & \type{Bool} \\
+	\expr{>=} & maior ou igual a & \type{Float/Int} & \type{Float/Int} & \type{Bool} \\ \hline
+	\multicolumn{5}{|c|}{Bitwise} \\ \hline  % FIXME traduzir bitwise
+	Operador & Operação & Argumento 1 & Argumento 2 & Retorno \\ \hline
+	\expr{\textasciitilde} & negação bitwise & \type{Int} & N/A & \type{Int} \\	
+	\expr{\&} & e bitwise & \type{Int} & \type{Int} & \type{Int} \\	
+	\expr{|} & ou bitwise & \type{Int} & \type{Int} & \type{Int} \\	
+	\expr{\^} & xor bitwise & \type{Int} & \type{Int} & \type{Int} \\	
+	\expr{<<} & shift à esquerda & \type{Int} & \type{Int} & \type{Int} \\  % FIXME traduzir shift?
+	\expr{>>} & shift à direita & \type{Int} & \type{Int} & \type{Int} \\
+	\expr{>>>} & shift à direita sem sinal & \type{Int} & \type{Int} & \type{Int} \\ \hline
 \end{tabular}
 \end{center}
 
