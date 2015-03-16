@@ -1,0 +1,181 @@
+\chapter{Haxelib}
+\label{haxelib}
+
+Haxelib é o gerenciado de bibliotecas que vem com qualquer distribuição do Haxe. Conectado a um repositório central, ele permite submeter e retirar bibliotecas e tem múltiplas funcionalidades além dessa. Bibliotecas disponíveis podem ser encontradas em \url{http://lib.haxe.org}.
+
+Uma biblioteca de Haxe é uma coleção de arquivos \ic{.hx}. Isso é, bibliotecas são distribuídas pelo código fonte por padrão, tornando fácil inspecionar e modificar seu comportamento. Cada biblioteca é identificada por um nome único, que é utilizado quando se informa o compilador do Haxe quais bibliotecas usar em uma dada compilação.
+
+\section{Usando a bilblioteca do Haxe com o compilador do Haxe}
+\label{haxelib-using-haxe}
+
+Qualquer biblioteca instalada do Haxe pode ser disponibilizada para o compilador através do argumento -lib<nome-da-biblioteca>. Isso é muito similar ao argumento \ic{-cp<path>}, mas espera um nome de biblioteca ao invés de um caminho de diretório. Esses comandos são explicados detalhadamente em \Fullref {compiler-usage}.
+
+Para nosso uso exemplificativo, escolhemos uma biblioteca muito simples de Haxe, chamada ``random''. Ela oferece um conjunto de métodos estáticos convenientes para conseguir diversos efeitos aleatórios (randômicos), como escolher um elemento de um array.
+
+\haxe{assets/HaxelibRandom.hx}
+
+A compilação disso sem qualquer argumento \ic{-lib} gera uma mensagem de erro \ic{Unknow identifier : Random} ao longo das linhas. Isso mostra que as bibliotecas instaladas não estão disponíveis para o compilador por padrão a não ser que sejam explicitamente adicionadas. Uma linha de comando que funcione para o programa acima é \ic{haxe -lib random -main Main --interp .
+
+    Se o compilador enviar um erro \ic{Error: Library random is not installed: run 'haxelib install random'} a biblioteca tem que ser instalada via comando \ic{haxelib} primeiro. Como a mensagem de erro sugere, isso é conseguido através do comando \ic{haxelib install random}. Aprenderemos mais sobre o comando haxelib em \Fullref{haxe-lib-using}.
+
+\subsection{haxelib.json}
+\label{haxelib-json}
+
+Cada biblioteca do Haxe exige um arquivo \ic{haxelib.json}, onde os seguintes atributos são definidos:
+
+\begin{description}
+    \item[name:] O nome da biblioteca. Deve conter pelo menos três caracteres entre os seguintes: \ic{\[A-Za-z0-9_-.\]}. Em particukar, espaços não são permitidos.
+    \item[url:] A url da biblioteca, i.e., onde mais informação pode ser localizada;
+    \item[license:] A licença sob a qual a biblioteca é publicada. Pode ser \ic{GPL}, \ic{LGPL}, \ic{BSD}, \ic{Public} (para domínio público) ou \ic{MIT}.
+    \item[tags:] um array de strings com rótulos que são usados para o website do repositório ordenar as bibliotecas.
+    \item[descrição:] A descrição do que á biblioteca está fazendo.
+    \item[versão:] Um string de versão da biblioteca. Isso é detalhado em \Fullref{haxelib-json-versioning}.
+    \item[releasenote:] Observações da publicação da versão em questão.
+    \item[contributors:] Um array de nomes de usuários que identifique os contribuídores para a biblioteca.
+    \item[dependencies:] Um objeto descrevendo as dependências da biblioteca. Isso é detalhado na seção \Fullref{haxelib-json-dependencies}.
+\end{description}
+
+A JSON seguinte é um simples exemplo de um haxelib.json:
+
+\begin{lstlisting}
+{
+    "name": "useless_lib",
+    "url" :
+        "https://github.com/jasononeil/useless/",
+    "license": "MIT",
+    "tags": ["cross", "useless"],
+    "description":
+        "This library is useless in the same way on
+         every platform",
+    "version": "1.0.0",
+    "releasenote":
+         "Initial release, everything is working
+          correctly",
+    "contributors": ["Juraj","Jason","Nicolas"],
+    "dependencies": {
+        "tink_macros": "",
+         "nme": "3.5.5"
+     }
+}
+\end{lstlisting}
+
+\subsection{Versionamento}
+\label{haxelib-json-versioning}
+
+A Haxelib usa uma versão simplificada do \href{(http://semver.org)}{SemVer}. O formato básico é este:
+
+\begin{lstlisting}
+major.minor.patch
+\end{lstlisting}
+
+As regras básicas são:
+
+\begin{itemize}
+    \item Versões major são incrementadas quando se quebra compatibilidade retroativa - de forma que códigos antigos não funcionarão com a nova versão da biblioteca.
+    \item Versões minor são incrementadas quando novas funcionalidades são adicionadas
+    \item Versões patch são para pequenas correções que não alteram a API pública. 
+    \item Quando uma versão menor é incrementada, o número patch é retornado para 0. Quando uma versão major é incrementada, tanto o número minor quanto o número patch são retornados para zero.
+\end{itemize}
+
+Exemplos:
+
+\begin{description}
+    \item [0.0.1:] Uma primeira divulgação. Qualquer coisa com um 0 para versão major pe sujeito a mudanças na próxima divulgação - nenhuma promessa de estabilidade de API!
+    \item [0.1.0:] Inclui uma nova funcionalidade! Incrementa a versão minor, zera a versão patch
+    \item [0.1.1:] Percebeu-se que a nova funcionalidade estava quebrada. Consertada agora, se incrementa o número patch
+    \item [1.0.0:] Nova versão major, assim se incrementa o número major e se zera os números minor e patch. Você promete aos seus usuários não quebrar essa API até que você pule para 2.0.0
+    \item [1.0.1:] Um conserto menor
+    \item [1.1.0:] Uma nova funcionalidade
+    \item [1.2.0:] Outra nova funcionalidade
+    \item [2.0.0:] Uma nova versão, que pode quebrar a compatibilidade com 1.0. Usuários devem ser cuidadosos ao se atualizarem.
+\end{description}
+
+
+Se essa divulgação é um pré-visão (Alfa, Beta ou Candidato a lançamento), você pode incluir iss, com um número opcional de divulgação:
+
+\begin{lstlisting}
+major.minor.patch-(alpha/beta/rc).release
+\end{lstlisting}
+
+Exemplos:
+
+\begin{description}
+    \item[1.0.0-alpha:] O alfa de 1.0.0 - use com cuidado, as coisas estão mudando
+    \item[1.0.0-alpha.2:] O segundo alfa
+    \item[1.0.0-beta:] Beta - as coisas estão se firmando, mas ainda sujeitas a alterações.
+    \item[1.0.0-rc.1:] O primeiro candidato a lançamento (rc=release candidate) para 1.0.0 - não se colocarão novas funcionalidades agora
+    \item[1.0.0-rc.2:] O segundo candidato a lançamento para 1.0.0
+    \item[1.0.0:] o lançamento final!
+\end{description}
+
+\subsection{Dependências}
+\label{haxelib-json-dependencies}
+
+A partir do Haxe 3.1.0, a haxelib suporta unicamente o casamento de versões exatas como dependências. Dependências são definidas como parte do \tref{haxelib.json}{haxelib-json} com o nome da biblioteca servindo como chave e a versão esperado (se requerido) como um valor no formato descrito em \Fullref{haxelib-json-versioning}.
+
+Já vimos um exemplo disso quando apresentamos o haxelib.json:
+
+\begin{lstlisting}
+"dependencies": {
+    "tink_macros": "",
+    "nme": "3.5.5"
+}
+\end{lstlisting}
+
+Isso adiciona duas dependências para a dada biblioteca Haxe:
+
+\begin{enumerate}
+    \item A biblioteca ``tink.macros'' pode ser usada em qualquer versão. Haxelib tentará, entãom sempre usar a última versão.
+    \item A bibiblioteca ``nme'' é necessária na versão ``3.5.5''. A Haxelib fará certo que essa exata versão seja usada, evitando potenciais mudanças drásticas com versões futuras.
+\end{enumerate}
+
+\section{extraParams.hxml}
+\label{haxelib-extraParams}
+
+Se você somar um arquivo chamado \ic{extraParams.hxml} a raiz da sua biblioteca (no mesmo nível que \ic{haxelib.json}) esses parâmetros serão automaticamente somados aos parâmetros de compilação quando alguém usar sua biblioteca com \ic{-lib}.
+
+\section{Usando a Haxelib}
+\label{haxelib-using}
+
+Se o comando \ic{haxelib} é executado sem quaisquer argumentos, ele imprime uma lista exaustiva dos argumentos disponíveis. Acesse o website \url{http://lib.haxe.org} para ver todas as bibliotecas disponíveis.
+
+Os seguintes comandos estão disponíveis
+
+\begin{description}
+	\item[Básicos]
+		\begin{description}
+			\item[\ic{haxelib install [nome-do-projeto] [versão]}] instala o projeto mencionado. Você pode opcionalmente especificar uma versão para ser instalada.
+			\item[\ic{haxelib update [nome-do-projeto]}] atualiza uma biblioteca singular para a sua última versão. 
+			\item[\ic{haxelib upgrade}] eleva todos os projetos instalados para suas últimas versões. Esse comando demanda uma confirmação para cada projeto que pode ser atualizado.
+			\item[\ic{haxelib remove nome-do-projeto [versão]}] removerá um projeto completo ou unicamente uma versão, se especificada.
+			\item[\ic{haxelib list}] lista todos os projetos instalados e suas versões. Para cada projeto a versão entre colchetes é a atual.
+			\item[\ic{haxelib set [nome-do-projeto] [versão]}] muda a versão atual de um dado projeto. A versão já deve estar instalada.
+		\end{description}
+		
+	\item[Informativos]
+		\begin{description}
+			\item[\ic{haxelib search [palavra]}] lista os projetos que tem ou um nome ou uma descrição que coincida com a palavra especificada.
+			\item[\ic{haxelib info [project-name]}] will give you information about a given project.
+			\item[\ic{haxelib user [nome-de-usuário]}] lista informação sobre um dado usuário da  Haxelib.
+			\item[\ic{haxelib config}] retorna o caminho do repositório da Haxelib. Isto é onde a Haxelib fica instalada por padrão.
+			\item[\ic{haxelib path [nome-do-projeto]}] retorna o caminho para as bibliotecas e suas dependecias (definidas em \ic{haxelib.xml}).
+		\end{description}
+		
+	\item[Para desenvolvimento]
+		\begin{description}
+			\item[\ic{haxelib submit [projeto.zip]}] submete um pacote à HaxeLib. Se o nome do usuário é desconhecido, você será primeiro solicitado a registrar uma conta. Se o usuário já existir, você será questionado por sua senha. Se o projeto não existe ainda, ele será cirado, mas nenhuma versão será adicionada. Você terá que submetê-la uma segunda vez para adicionar a primeira versão divulgada. Se você quiser mudar o url do projeto ou sua descrição, simplesmente modifique seu \ic{haxelib.xml} (mantendo a informação de versão inalterada) e submita novamente.
+			\item[\ic{haxelib register [nome-do-projeto]}] submete ou atualiza um pacote de biblioteca.
+            \item[\ic{haxelib local [nome-do-projeto]}] testa o pacote da biblioteca. Garanta que tudo (tanto a instalação quanto o uso) estão funcionando corretamente antes da submissão, visto que uma vez submetida, uma dada versão não pode ser atualizada.
+			\item[\ic{haxelib dev [nome-do-projeto] [diretório]}] definirá um diretório de desenvolvimento para o dado projeto. Para definir o diretório do projeto devolta ao loal globra, rode o comando e omita o diretório.
+            \item[\ic{haxelib git [nome-do-projeto] [caminho-para-clonar-no-git] [branch-do-git] [subdiretório]}] usa um repositório do git como biblioteca. Isso é útil para usar uma versão de desenvolvimento mais atual, uma variante(fork) do projeto original, ou para ter uma biblioteca particular que você não deseja publicar na Haxelib. Quando você usa \ic{haxelib upgrade}, quaisquer bibliotecas que são instaladas usando GIT puxarão automaticamente a última versão.
+        \end{description}
+		
+	\item[Outros]
+		\begin{description}
+			\item[\ic{haxelib setup}] define o caminho para o repositório. Para ver o atual, use \ic{haxelib config}.
+			\item[\ic{haxelib selfupdate}] atualiza a própria Haxelib. Solicitará a execução de \ic{haxe update.hxml} depois dessa atualização.
+			\item[\ic{haxelib convertxml}] converte o arquivo \ic{haxelib.xml} para \ic{haxelib.json}.
+			\item[\ic{haxelib run [nome-do-projeto] [parametros]}] executa a biblioteca específicada com parâmetros. Exige um arquivo Haxe/Neko \ic{run.n} précompilado no pacote da biblioteca.Isso é útil se você quer que usuários sejam capazes de fazer algum script para rodar após a instalação que configurará coisas adicionais no sistema. Seja cuidadoso em relação a confiabilidade do projeto que você está rodando, uma vez que o script pode danificar seu sistema.
+			\item[\ic{haxelib proxy}] define o proxy de Http.
+		\end{description}
+\end{description}
