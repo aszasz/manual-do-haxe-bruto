@@ -1,0 +1,463 @@
+%comit do arquivo original (24/FEV): bcd19df0b0b190b77d52bb03fd923d9c4a263883
+\chapter{Detalhes de Targets}
+\label{target-details}
+\state{NoContent}
+
+\section{Javascript}
+\label{target-javascript}
+\state{NoContent}
+
+\subsection{Começando com Javascript}
+\label{target-javascript-getting-started}
+
+O Haxe pode ser uma ferramenta poderosa para o desenvolvimento de aplicações Javascript. Vamos olhar para o nosso caso.
+Este é um exemplo muito simples mostrando o toolchain (cadeia de ferramentas)
+
+Cria uma nova pasta e salva essa classe como \ic{Main.hx}.
+
+\begin{lstlisting}
+import js.Lib;
+import js.Browser;
+class Main {
+    static function main() {
+        var button = Browser.document.createButtonElement();
+        button.textContent = "Click me!";
+        button.onclick = function(event) {
+            Lib.alert("Haxe é demais");
+        }
+        Browser.document.body.appendChild(button);
+    }
+}
+\end{lstlisting}
+
+Para compilar, ou execute isso pela linha de comando:
+
+\begin{lstlisting}
+haxe -js main-javascript.js -main Main -D js-flatten -dce full
+\end{lstlisting}
+
+.. ou crie e execute (com duplo clique) um arquivo chamado \ic{compile.hxml}. Nesse exemplo o arquivo .hxml deve estar no mesmo diretório que a a classe do exemplo.
+
+\begin{lstlisting}
+-js main-javascript.js
+-main Main
+-D js-flatten
+-dce full
+\end{lstlisting}
+
+A saída será um main-javacript.js, o qual cria e adiciona um botão clicável ao corpo do documento
+
+\paragraph{Rode o Javascript}
+
+Para exibir o a saída em um browser, crie um documento HTM chamado \ic{index.html} e o abra.'
+
+\begin{lstlisting}
+<!DOCTYPE html>
+<html>
+	<body>
+		<script src="main-javascript.js">
+	</body>
+</html>
+\end{lstlisting}
+
+\paragraph{Mais informação}
+
+\begin{itemize}
+	\item \href{http://api.haxe.org/js/}{Haxe Javascript API docs}
+	\item \href{https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference}{MDN JavaScript Reference}
+\end{itemize}
+
+\subsection{Usando as bibliotecas externas do Javascript}
+\label{target-javascript-external-libraries}
+
+A Biblioteca Padrão do Haxe vem com muitas classes externas (externs) para o target Javascript. Eles oferecem acessos para as APIs nativas de uma maneira com tipagem segura.
+O \tref{mecanismo de externs}{lf-externs} assume que os tipos definidos existem em tempo de execução mas assume nada sobre como e quando esses tipos são definidos.
+Para esclarecer, na maior parte dos casos nós temos que adicionar um \ic{<script>}-tag que liga (linka) a biblioteca externa manualmente para o documento HTML.
+
+Um exemplo de uma classe externa é a \href{https://github.com/HaxeFoundation/haxe/blob/development/std/js/JQuery.hx#L83}{jQuery class} da Biblioteca Padrão do Haxe.
+Para ilustrar, aqui está uma parte da classe externa:
+
+\begin{lstlisting}
+@:initPackage
+extern class JQuery implements ArrayAccess<Element> {
+	function addClass( className : String ) : JQuery;
+	function removeClass( ?className : String ) : JQuery;
+	function hasClass( className : String ) : Bool;
+	
+	@:overload(function(html:String):JQuery{})
+	@:overload(function(html:JQuery):JQuery{})
+	function html() : String;
+..
+\end{lstlisting}
+
+Observe que funções podem ser sobrecarregadas (overloaded) para aceitar diferentes tipos de argumentos e retornar valores, usando a metatag \expr{@:overload}. A sobrecarga de funções funciona unicamente em classes externas.
+Usando essa externa, podemos usar jQuery assim:
+
+\begin{lstlisting}
+new JQuery("#my-div").addClass("brand-success").html("haxe é demais!");
+\end{lstlisting}
+
+Além de externs, \tref{Typedefs}{type-system-typedef} podem ser outra ótima maneira de nomear (ou criar um alias para) estruturas complexas de Javascript ou JSON.
+
+O nome do pacotes e classe da classe extern deve ser o mesmo que o definido na biblioteca externa. Se esse não for o caso, reescreva o caminho de uma classe usando \expr{@:native}.
+
+\begin{lstlisting}
+package my.application.media;
+
+@:native('external.library.media.video')
+extern class Video {
+..
+\end{lstlisting}
+
+Em Haxe, é possível chamar uma função exposta graças a palavra-chave \expr{untyped}. Isso
+pode ser útil em alguns casos, se nós não queremos escrever 'externs'. Qualquer coisa não tipada que seja sintaxe é será gerada como está
+
+\begin{lstlisting}
+untyped window.trackEvent("page1");  
+\end{lstlisting}
+
+Usando a função mágica \expr{__js__} nós podemos injetar fragmentos de código Javascript puro à saída. Esse código não pode ser validado, então se aceita código inválido na saída, o que é a favor de erros.
+Isso poderia, por exemplo, escrever um comentário de Javascript na saída.
+
+\begin{lstlisting}
+untyped __js__('// haxe é demais!');
+\end{lstlisting}
+
+As opções de compilação padrão também provêem mais fontes de Haxe para ser adicionadas ao projeto:
+
+\begin{itemize}
+	\item Para adicionar uma  \tref{Bibliote de Haxe}{haxelib}, use \expr{-lib <library-name>}. Há muitos externs para bibliotecas nativas  populares.
+	\item Para adicionar outro caminho de classe, use \expr{-cp <diretório>}.
+	\item Para forçar todo um pacote a ser incluído no projeto, use \expr{--macro include('meupackage')} o que incluirá todas as classes declaradas em um dado pacote e subpacote.
+\end{itemize}
+
+\subsection{Javascript target Metatags}
+\label{target-javascript-metatags}
+
+Essa é a lista de metatags específicas de Javascript. Para mais informação, veja também a lista completa de todas \tref{Metatags internas do Haxe}{cr-metadata}.
+
+\begin{center}
+\begin{tabular}{| l | l | l |}
+	\hline
+	\multicolumn{3}{|c|}{Javascript metatags} \\ \hline
+	Metatag &  Descrição & Target \\ \hline
+	@:expose \_(?Name=Class path)\_  &  Faz a classe disponível no objeto \expr{window} ou \expr{exports} para o node.js  & js  \\
+\end{tabular}
+\end{center}
+
+\subsection{Expondo classe do  Haxe para Javascript}
+\label{target-javascript-expose}
+
+É possível tornar classes do Haxe ou campos estáticos disponíveis para o uso em Javascript
+puro.
+Para expor, adicione o metadado \expr{@:expose} às classes ou campos estáticos desejados.
+
+Esse exemplo expõe a classe de Haxe \ic{MyClass}.
+
+\haxe{assets/ClassExpose.hx}
+
+Ele gera a seguinte saída de Javascript:
+
+\begin{lstlisting}
+(function ($hx_exports) { "use strict";
+var MyClass = $hx_exports.MyClass = function(name) {
+	this.name = name;
+};
+MyClass.prototype = {
+	foo: function() {
+		return "Greetings from " + this.name + "!";
+	}
+};
+})(typeof window != "undefined" ? window : exports);
+\end{lstlisting}
+
+Ao passar 'globais' (como \ic{window} ou \ic{exports}) como parâmetros para as nossas funções anônimas no módulo de Javascript, elas ficam disponíveis, o que permite expor o módulo de Haxe gerado.
+
+Em Javascript puro é possível agora criar uma instância de uma classe e chamar suas funções públicas
+
+\begin{lstlisting}
+// Javascript code
+var instance = new MyClass('Mark');
+console.log(instance.foo()); // registra uma mensagem no console
+\end{lstlisting}
+
+O caminho do pacote da classe do Haxe será completamente exposto. Para renomear a classe ou definir um pacote diferente para a classe exposta, use \expr{@:expose("my.package.MyExternalClass")}
+
+\paragraph{Exposição superficial (Shallow expose)}
+
+Quando o código gerado pelo Haxe é parte de um projeto maior de Javascript e encapsulado em um envólucro maior não é sempre necessário expor os tipos de Haxe a variáveis globais.
+Compilando o projeto usando \ic{-D shallow-expose} permite que os tipos ou campos estáticos estejam disponíveis apenas no escopo do envólucro gerado.
+
+Quando o código é compilado usando
+ \ic{-D shallow-expose}, a saída gerada parecerá com isso:
+
+\begin{lstlisting}
+var $hx_exports = $hx_exports || {};
+(function () { "use strict";
+var MyClass = $hx_exports.MyClass = function(name) {
+	this.name = name;
+};
+MyClass.prototype = {
+	foo: function() {
+		return "Greetings from " + this.name + "!";
+	}
+};
+})();
+var MyClass = $hx_exports.MyClass;
+\end{lstlisting}
+
+Nesse padrão, uma delcaração de var é usada para expôr o módulo; ela não escreve no objeto 
+ \ic{window} or \ic{exports}. 
+
+\subsection{Carregando classes 'extern' usando a função "require"}
+\label{target-javascript-require}
+\since{3.2.0}
+
+Plataformas modernas de \target{Javascript}, tais como Node.js provêem uma maneira de carregar
+objttos de módulos externos usando a função "require". O Haxe suporta a geração automática de 
+declarações "require" para classes \expr{extern}.
+
+Essa funcionalidade pode ser habilitada  pela especificação do metadado \expr{@:jsRequire} para a classe 'extern'
+Se a nossa classe \expr{extern} representa um módulo inteiro, passamos um argumento único para o metadado \expr{@:jsRequire} especificando o nome do módulo para carregar:
+
+\haxe{assets/JSRequireModule.hx}
+
+Caso que a nossa classe \expr{extern} represente um objeto dentro de um módulo, o segundo argumento específica um objeto a carregar de um módulo: 
+
+\haxe{assets/JSRequireObject.hx}
+
+O segundo argumento é um caminho-com-pontos, de forma que podemos carregar sub-objetos em uma hierarquia.
+
+Se nós precisamos carregar objetos personalizados em tempo de execução, a função \expr{js.Lib.require} pode ser usada. Ela toma um \expr{String} como seu único argumento e retorna um \expr{Dynamic}, portanto é aconselhado que se atribua uma variável estritamente tipada.
+
+\section{Flash}
+\label{target-flash}
+\state{NoContent}
+
+\subsection{Começando com Flash}
+\label{target-flash-getting-started}
+
+O desenvolvimento de aplicações Flash é realmente fácil com Haxe. Vamos olhar para a nossa primeira amostra de código
+Esse é um exemplo básico mostrando muito da cadeia de ferramentas.
+
+Cie uma nova pasta e salve essa classe como \ic{Main.hx}.
+
+\begin{lstlisting}
+import flash.Lib;
+import flash.display.Shape;
+class Main {
+    static function main() {
+        var stage = Lib.current.stage;
+        
+        // cria um quadrado cinza centralizado 
+        var shape = new Shape();
+        shape.graphics.beginFill(0x333333);
+		shape.graphics.drawRoundRect(0, 0, 100, 100, 10);
+		shape.x = (stage.stageWidth - 100) / 2;
+		shape.y = (stage.stageHeight - 100) / 2;
+		
+		stage.addChild(shape);
+    }    
+}
+\end{lstlisting}
+
+Para compilar isso, ou rode o seguinte da linha de comando
+
+\begin{lstlisting}
+haxe -swf main-flash.swf -main Main -swf-version 15 -swf-header 960:640:60:f68712
+\end{lstlisting}
+
+.. ou crie e rode (duplo clique) um arquivo chamado \ic{compile.hxml}. Nesse exemplo o arquivo hxml deveria estar no mesmo diretório que a classe de exemplo.
+
+\begin{lstlisting}
+-swf main-flash.swf
+-main Main
+-swf-version 15
+-swf-header 960:640:60:f68712
+\end{lstlisting}
+
+A saída sera um main-flash.swf com tamanho 960x640 pixels e 60 FPS com cor de fundo laranja e um quadrado cinza no centro.
+
+\paragraph{Exibindo o Flash}
+
+Rode o SWF isolado usando o \href{https://www.adobe.com/support/flashplayer/downloads.html}{Standalone Debugger FlashPlayer}. 
+
+Para exibir o resultado em um browser usando o plugin Flash, crie um documento HTML chamado \ic{index.html} e o abra.
+
+\begin{lstlisting}
+<!DOCTYPE html>
+<html>
+	<body>
+		<embed src="main-flash.swf" width="960" height="640">
+	</body>
+</html>
+\end{lstlisting}
+
+\paragraph{Mais informação}
+
+\begin{itemize}
+	\item \href{http://api.haxe.org/flash/}{Haxe Flash API docs}
+	\item \href{http://help.adobe.com/en_US/FlashPlatform/reference/actionscript/3/}{Adobe Livedocs}
+\end{itemize}
+
+\subsection{Embutindo recursos (embedding resources)}
+\label{target-flash-resources}
+
+Embarcar recursos é diferente no Haxe, comparado a Actionscript 3. Ao invés de usar \ic{\[embed\]} (metatag-AS3) use \tref{metatags específicas do compilador Flash}{target-flash-metatags} like \ic{@:bitmap}, \ic{@:font}, \ic{@:sound} ou \ic{@:file}.
+
+\begin{lstlisting}
+import flash.Lib;
+import flash.display.BitmapData;
+import flash.display.Bitmap;
+
+class Main {
+  public static function main() {
+    var img = new Bitmap( new MyBitmapData(0, 0) );
+    Lib.current.addChild(img);
+  }
+}
+
+@:bitmap("relative/path/to/myfile.png") 
+class MyBitmapData extends BitmapData { }
+\end{lstlisting}
+
+\subsection{Usando bibliotecas externas de Flash}
+\label{target-flash-external-libraries}
+
+Para embutir bibliotecas externas \ic{.swf} ou \ic{.swc}, use as seguintes \href{http://haxe.org/documentation/introduction/compiler-usage.html}{opções de compilação}:
+
+\begin{description}
+	\item[\expr{-swf-lib <file>}] Embute uma biblioteca SWF ao SWF copilado.
+	\item[\expr{-swf-lib-extern <file>}] Adiciona a biblioteca SWF para verificação de tipos mas não a inclui no SWF compilado.
+\end{description}
+
+As opções de compilação padrão também provêem mais fontes de Haxe a serem adicionadas ao projeto: 
+\begin{itemize}
+	\item Para adicionar um outro caminho para a classe use \expr{-cp <directory>}.
+	\item Para adicionar uma \tref{Biblioteca Haxelib }{haxelib} use \expr{-lib <library-name>}.
+	\item Para forçar todo um pacote a ser incluído no projeto, use \expr{--macro include('mypackage')} o que incluirá todas as classes declaradas em um dado pacote e subpacotes. 
+\end{itemize}
+
+\subsection{Metatags do target Flash}
+\label{target-flash-metatags}
+
+Esta é a lista das metatags específicas de Flash, para uma lista completa veja \tref{Metatags incluídas no Haxe}{cr-metadata}.
+
+\begin{center}
+\begin{tabular}{| l | l | l |}
+	\hline
+	\multicolumn{3}{|c|}{Flash metatags} \\ \hline
+	Metatag &  Descrição  &  Target \\ \hline
+	@:bind  &  Sobrepõe a declaração de classes  Swf  &  flash \\
+	@:bitmap \_(caminho para o arquivo Bitmap)\_  &  \_Embute dados do bitmap indicado à classe (deve estender \expr{flash.display.BitmapData})   &  flash \\
+	@:debug  &  Força informações de debug a ser geradas no Swf mesmo sem \expr{-debug}   &  flash \\
+	@:file(Caminho para o arquivo)  &  Incluí um dado arquivo binário ao Swf-target e o associa com a classe  (deve estender \expr{flash.utils.ByteArray})  &  flash \\
+	@:font \_(TTF path Range String)\_  &  Embute uma dada TrueTypeFont à  classe (deve estender \expr{flash.text.Font})  &  flash \\
+	@:getter \_(Nome do campo de classe )\_  &  Gera uma função getter do dado campo   &  flash \\
+	@:noDebug &  Não gera informação de debug para o Swf mesmo que \expr{-debug} esteja habilitado   &  flash \\
+	@:ns  &  Internalmente usada pelo gerador de Swf para manipular namespaces   &  flash \\
+	@:setter \_(Nome do campo de classe)\_  &  Gera uma função 'setter' nativa no dado campo  &  flash \\
+	@:sound \_(caminho para o arquivo)\_  &  Inclui um dado arquivo \_.wav\_ ou \_.mp3\_ ao Swf target e o associa com a classe (must estender \expr{flash.media.Sound})  &  flash \\
+\end{tabular}
+\end{center}
+
+\section{Neko}
+\label{target-neko}
+
+\section{PHP}
+\label{target-php}
+
+\section{C++}
+\label{target-cpp}
+\state{NoContent}
+
+\subsection{Usando 'C++ Defines'}
+\label{target-cpp-defines}
+\begin{itemize}
+	\item ANDROID_HOST
+	\item ANDROID_NDK_DIR
+	\item ANDROID_NDK_ROOT
+	\item BINDIR
+	\item DEVELOPER_DIR
+	\item HXCPP
+	\item HXCPP_32
+	\item HXCPP_COMPILE_CACHE
+	\item HXCPP_COMPILE_THREADS
+	\item HXCPP_CONFIG
+	\item HXCPP_CYGWIN
+	\item HXCPP_DEPENDS_OK
+	\item HXCPP_EXIT_ON_ERROR
+	\item HXCPP_FORCE_PDB_SERVER
+	\item HXCPP_M32
+	\item HXCPP_M64
+	\item HXCPP_MINGW
+	\item HXCPP_MSVC
+	\item HXCPP_MSVC_CUSTOM
+	\item HXCPP_MSVC_VER
+	\item HXCPP_NO_COLOR
+	\item HXCPP_NO_COLOUR
+	\item HXCPP_VERBOSE
+	\item HXCPP_WINXP_COMPAT
+	\item IPHONE_VER
+	\item LEGACY_MACOSX_SDK
+	\item LEGACY_XCODE_LOCATION
+	\item MACOSX_VER
+	\item MSVC_VER
+	\item NDKV
+	\item NO_AUTO_MSVC
+	\item PLATFORM
+	\item QNX_HOST
+	\item QNX_TARGET
+	\item TOOLCHAIN_VERSION
+	\item USE_GCC_FILETYPES
+	\item USE_PRECOMPILED_HEADERS
+	\item android
+	\item apple
+	\item blackberry
+	\item cygwin
+	\item dll_import
+	\item dll_import_include
+	\item dll_import_link
+	\item emcc
+	\item emscripten
+	\item gph
+	\item hardfp
+	\item haxe_ver
+	\item ios
+	\item iphone
+	\item iphoneos
+	\item iphonesim
+	\item linux
+	\item linux_host
+	\item mac_host
+	\item macos
+	\item mingw
+	\item rpi
+	\item simulator
+	\item tizen
+	\item toolchain
+	\item webos
+	\item windows
+	\item windows_host
+	\item winrt
+	\item xcompile
+\end{itemize}
+
+\subsection{Usando 'Ponteiros C++'}
+\label{target-cpp-pointers}
+
+\section{Java}
+\label{target-java}
+
+\section{C\#}
+\label{target-cs}
+
+\section{Python}
+\label{target-python}
+\state{NoContent}
+\subsection{Carregando classes externas usando a função "require"
+
+
+
+
+
