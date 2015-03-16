@@ -1,16 +1,16 @@
-%commit do Manual original:  b6ae800cfd028b850bbe3a04889b1a7f04372082
+% upstream: b6ae800cfd028b850bbe3a04889b1a7f04372082
+
 \chapter{Introdução}
 \label{introduction}
-\state{NoContent}
 
 \section{O que é o Haxe}
 \label{introduction-what-is-haxe}
 
-O Haxe é uma linguagem de programação de alto nível e um compilador de código aberto. Ele permite a compilação de programas, escritos em sintaxe similar ECMAScript, em programas de outras linguagens alvo (N. do T.:  nos referimos a essas linguagens doravante por targets). Empregando o nível apropriado de abstração é possível manter uma única base de código que compila para múltiplos targets.
+O Haxe é uma linguagem de programação de alto nível e um compilador de código aberto. Juntos, eles permitem a compilação de programas, escritos em sintaxe similar ECMAScript, em várias linguagens de destino.\translatornote{nos referimos doravante a essas linguagens e plataformas simplesmente por \emph{targets}} Empregando o nível apropriado de abstração é possível manter uma única base de código que compila para múltiplos targets.
 
-O Haxe é fortemente tipado, mas o sistema de tipagem pode ser subvertido quando preciso. Utilizando informações de tipos, o sistema de tipagem do Haxe pode detectar erros em tempo de compilação que só seriam percebidos em tempo de compilação na linguagem target. Além do mais, informações de tipos podem ser usadas pelos geradores dos targets para a geração de código otimizado e robusto.
+O Haxe é fortemente tipado, mas o sistema de tipagem pode ser subvertido quando preciso. Utilizando informações de tipos, o sistema de tipagem do Haxe pode detectar erros em tempo de compilação que só seriam percebidos em tempo de execução no target. Além do mais, as informações de tipos podem ser usadas pelos geradores de cada targets para a obtenção de código otimizado e robusto.
 
-Atualmente, existem nove targets suportados, que possibilitam diferentes casos de uso com diferentes sistemas 
+Atualmente, existem nove targets suportados, que possibilitam diferentes casos de uso com diferentes sistemas:
 
 \begin{center}
 \begin{tabular}{| l | l | l |}
@@ -28,17 +28,17 @@ Atualmente, existem nove targets suportados, que possibilitam diferentes casos d
 \end{tabular}
 \end{center}
 
-O restante da \ref{introduction} dá uma breve visão geral de com o que um programa em Haxe se parece e como o Haxe evoluiu desde de sua criação em 2005.
+O restante da seção \ref{introduction} dá uma visão geral – mas abreviada – de com o que um programa em Haxe se parece e como o Haxe evoluiu desde de sua criação em 2005.
 
-\Fullref{types} introduz as sete espécies de tipos em Haxe e discute como eles interagem uns com os outros. A discussão continua em \Fullref{type-system}, onde funcionalidades como \emph{unificação}, \emph{parâmetros de tipo} e \emph{inferência de tipo} são explicadas.
+\Fullref{types} introduz as sete espécies de tipos em Haxe e discute como eles interagem uns com os outros. Isso continua em \Fullref{type-system}, onde funcionalidades como \emph{unificação}, \emph{parâmetros de tipo} e \emph{inferência de tipos} são explicadas.
 
-\Fullref{class-field} é totalmente sobre as estruturas de classes do Haxe e, entre outros tópicos, lida com \emph{propriedades}, \emph{campos alinhados} e \emph{funções genéricas}.
+\Fullref{class-field} é totalmente sobre as estruturas de classes do Haxe e, entre outros tópicos, lida com \emph{propriedades}, \emph{campos expandidos em linha}\translatornote{daqui em diante também referidos por \emph{inlined}} e \emph{funções genéricas}.
 
-Em \Fullref{expression} vemos como fazer que os programas realmente façam algo através do uso de \emph{expressões}.
+Em \Fullref{expression} vemos como fazer que programas realmente façam algo através do uso de \emph{expressões}.
 
-\Fullref{expression} descreve algumas das funcionalidades do Haxe em detalhe, tais como \emph{localização de padrões}, \emph{interpolação de strings} e \emph{eliminação de código morto}. Isso conclui a referência para linguagem Haxe.
+\Fullref{expression} descreve algumas das funcionalidades do Haxe em detalhe, tais como \emph{casamento de padrões},\translatornote{ou \emph{pattern matching}} \emph{interpolação de strings} e \emph{eliminação de código morto}. Isso conclui a referência para a linguagem Haxe.
 
-Continuamos com a referência para o compilador de Haxe, que primeiro trata do básico em \Fullref{compiler-usage} antes de prosseguir para a funcionalidades avançadas em \Fullref{cr-features}. Finalmente nos aventuramos no mundo estimulante das \emph{macros de Haxe} em \Fullref{macro} para ver como algumas tarefas comuns podem ser grandiosamente simplificadas.
+Continuamos com a referência para o compilador Haxe, que primeiro trata do básico em \Fullref{compiler-usage} prosseguindo depois para funcionalidades mais avançadas em \Fullref{cr-features}. Finalmente nos aventuramos no mundo estimulante das \emph{macros de Haxe} em \Fullref{macro}, para ver como algumas tarefas comuns podem ser grandiosamente simplificadas.
 
 No capítulo seguinte, \Fullref{std}, exploramos tipos importantes e conceitos da Biblioteca Padrão do Haxe. Nós então aprendemos sobre o gerenciador de pacotes Haxelib em \Fullref{haxelib}.
 
@@ -55,20 +55,20 @@ Utilizamos muito código fonte para manter uma conexão prática dos materiais t
 Código haxe aqui
 \end{lstlisting}
 
-Ocasionalmente, nós demonstramos como o código de Haxe é gerado, para o que usualmente exibimos o target \traget{Javascript}.
+Ocasionalmente, nós demonstramos como o código de Haxe é gerado, para o que usualmente exibimos o target \target{Javascript}.
 
-Além do mais, definimos um conjunto de termos nesse documento. Predominantemente, isso é feito quando se introduz um novo tipo ou quando um termo é específico ao Haxe. Nós não definimos todo novo aspecto que introduzimos, e.g., o que é uma classe, para evitar o inchamento do texto.
+Além do mais, definimos um conjunto de termos nesse documento. Predominantemente, isso é feito quando se introduz um novo tipo ou quando um termo é específico ao Haxe. Nós não definimos todo novo aspecto que introduzimos, e.g., o que é uma classe, para evitar o inchamento do texto. As definições se parecem com:
 
 \define{Nome definido}{define-definition}{Descrição da definição}
 
-Em alguns lugares, esse documento tem caixas de \emph{trívia}. Essas incluem informações laterais, tais como: porque certas decisões foram tomadas durante o desenvolvimento do Haxe, ou: porque uma funcionalidade em particular foi mudada nas versões anteriores do Haxe. Essas informações são geralmente sem importantância e podem ser puladas uma vez que pretenderm trazer apenas trivialidades:
+Em alguns lugares, esse documento tem caixas de \emph{trívia}. Essas incluem informações laterais, tais como: porque certas decisões foram tomadas durante o desenvolvimento do Haxe, ou porque uma funcionalidade em particular foi mudada nas versões anteriores do Haxe. Essas informações são geralmente sem importância e podem ser puladas uma vez que pretendem trazer apenas trivialidades:
 
 \trivia{Assunto da Trivia}{Informações históricas sobre o desenvolvimento da linguagem}
 
 \section{Autores e contribuições}
 \label{introduction-authors-and-contributions}
 
-A maior parte do conteúdo desse documento foi escrita por Simon Krajewski enquanto trabalhando para a Haxe Foundation. Gostaríamos de agradecer essas pessoas por suas conntribuições:
+A maior parte do conteúdo desse documento foi escrita por Simon Krajewski, enquanto trabalhando para a Haxe Foundation. Gostaríamos de agradecer essas pessoas por suas contribuições:
 
 \begin{itemize}
 	\item Dan Korostelev: Conteúdo adicional e edição
@@ -76,6 +76,7 @@ A maior parte do conteúdo desse documento foi escrita por Simon Krajewski enqua
 	\item Josefiene Pertosa: Edição
 	\item Miha Lunar: Edição
 	\item Nicolas Cannasse: Criador do Haxe
+	\translationextra{\item Arthur Szász: Primeiro esforço de tradução para o Português}
 \end{itemize}
 
 \section{Hello World}
@@ -85,32 +86,31 @@ O programa seguinte imprime "Hello World" depois de ser compilado e executado:
 
 \haxe{assets/HelloWorld.hx}
 
-Isso pode ser testado salvando o código acima em um arquivo chamado ic{HelloWorld.hx} e chamando o compilador do Haxe assim: \ic{haxe -main HelloWorld --interp}. Ele então gera a seguinte saída: \ic{HelloWorld.hx:3 Hello world}. Há diverssas coisas para aprender disso:
+Isso pode ser testado salvando o código acima em um arquivo chamado \ic{HelloWorld.hx} e invocando o compilador do Haxe assim: \ic{haxe -main HelloWorld --interp}. Ele então gera a seguinte saída: \ic{HelloWorld.hx:3: Hello world}. Há diversas coisas para aprender disso:
 
 \begin{itemize}
-	\item Programas de Haxe são salvos em arquivos com uma extensão \ic{.hx}
+	\item Programas de Haxe são salvos em arquivos com extensão \ic{.hx}
 	\item O compilador de haxe é uma ferramenta de linha de comando que pode ser chamada com parâmetros como \ic{-main} e \ic{--interp}
-	\item Programas em haxe tem classes (\type{HelloWorld}, com maíuscula), que tem funções (\expr{main}, com minúscula).
-	\item O nome do arquivo contendo a classe de Haxe main é o mesmo nome da próproa classe (nesse caso \type{HelloWorld.hx}).
+	\item Programas em haxe tem classes (\type{HelloWorld}, com maiúsculas), que tem funções (\expr{main}, em minúsculas).
+	\item O nome do arquivo contendo a classe de Haxe main é o mesmo nome da própria classe (nesse caso \type{HelloWorld.hx}).
 \end{itemize}
 
 \section{Histórico}
 \label{introduction-haxe-history}
-\state{Reviewed}
 
-O projeto foi iniciado em 22 de outubro de 2005 pelo desenvolvedor francês \emph{Nicolas Canasse}, como um sucessor ao popular compilador de ActionScript2, de código aberto, \emph{MTASC} (Motion-Twin Action Script Compiler) e a sua própria linguagem \emph{MTypes}, que era uma experiência com a aplicação de inferência de tipos a uma linguagem orientada a objetos. A paixão de longa data de Nicolas pela concepção de linguagens de programação e o surgimento de novas oportunidades para juntar diferentes tecnologias como parte de seu trabalho desenvolvendo jogos na \emph{Motion-Twin} o levaram a criação de uma linguagem totalmente nova.
+O projeto foi iniciado em 22 de outubro de 2005 pelo desenvolvedor francês \emph{Nicolas Cannasse}, como um sucessor ao popular compilador de ActionScript2 \emph{MTASC} (Motion-Twin Action Script Compiler), de código aberto, e a sua própria linguagem \emph{MTypes}, que era uma experiência com a aplicação de inferência de tipos a uma linguagem orientada a objetos. A paixão de longa data de Nicolas pela concepção de linguagens de programação e o surgimento de novas oportunidades para juntar diferentes tecnologias como parte de seu trabalho desenvolvendo jogos na \emph{Motion-Twin} o levaram a criação de uma linguagem totalmente nova.
 
-Escrita com X maiúsculo naquele tempo, a versão beta de haXe foi lançada em fevereiro de 2006, com os primeiros targets suportados sendo bytecode de AVM\footnote{Adobe Virtual Machine} e bytecode para Neko\footnote{http://nekovm.org}, a maquina virtual do próprio Nicolas.
+Escrita com X maiúsculo naquele tempo, a versão beta de haXe foi lançada em fevereiro de 2006, com os primeiros targets suportados sendo bytecode de AVM\footnote{Adobe Virtual Machine} e bytecode para \emph{Neko}\footnote{http://nekovm.org}, a maquina virtual do próprio Nicolas.
 
-Nicolas Canasse, quem permanece como líder do projeto do Haxe até esta data, continuou melhorando o Haxe com uma visão clara, levando à subsequente divulgação de Haxe 1.0 em maio de 2006. Essa primeira versão maior veio com suporte a geração de código para \target{Javascript} e já possuia algumas das funcionalidades que definem o Haxe hoje, como a inferência de tipos e a subtipagem estrutural.
+Nicolas Cannasse, quem permanece como líder do projeto do Haxe até esta data, continuou melhorando o Haxe com uma visão clara, levando à subsequente divulgação de Haxe 1.0 em maio de 2006. Essa primeira versão maior veio com suporte a geração de código para \target{Javascript} e já possuía algumas das funcionalidades que definem o Haxe hoje, como a inferência de tipos e a subtipagem estrutural.
 
 O Haxe 1 viu diversas modificações menores ao longo de dois anos, ganhando \target{Flash AVM2} como target junto com a ferramenta {haxelib} em agosto de 2006 e o target\target{Actionscript 3} em março de 2007. Durante esses meses, houve forte focalização na melhoria da estabilidade, do que resultaram diversas versões resolvendo pequenos bugs.
 
-Haxe 2.0 foi divulgado em julho de 2008, incluindo o target \target{PHP}, cortesia de \emph{Franco Ponticelli}. Um esforço similar de \emph{Hugh Sanderson} levou a adição do target \target{C++} em julho de 2009 com a versão 2.04
+Haxe 2.0 foi divulgado em julho de 2008, incluindo o target \target{PHP}, cortesia de \emph{Franco Ponticelli}. Um esforço similar de \emph{Hugh Sanderson} levou a adição do target \target{C++} em julho de 2009, junto com a versão 2.04
 
-Assim como o Haxe 1, o que seguiu foram diversas meses de versões para estabilidade. Em Janeiro de 2011 saiu a versão 2.07 com suporte a \emph{macros}. Por volta dessa época, \emph{Bruno Garcia} se juntou a equipe como mantenedor do target \target{Javascript}, que viu vastas melhorias nos lançamentos seguintes: 2.08 e 2.09.
+Assim como com o Haxe 1, o que seguiu foram diversos meses de atualizações de estabilidade. Em janeiro de 2011 foi anunciada a versão 2.07, com o suporte a \emph{macros}. Por volta dessa época, \emph{Bruno Garcia} se juntou a equipe como mantenedor do target \target{Javascript}, que viu vastas melhorias nos lançamentos seguintes: 2.08 e 2.09.
 
-Depois da versão 2.09, \emph{Simon Krajewski} se juntou ao time e o trabalho em direção ao Haxe 3 começou. Além disso, os targets \target{C#} e \target{Java} de \emph{Cauê Waneck} acharam seus caminhos para dentro dos builds do Haxe. Decidiu-se, então, fazer uma versão final do Haxe 2, que aconteceu em julho de 2012, com a divulgação do Haxe 2.10.
+Depois da versão 2.09, \emph{Simon Krajewski} se juntou ao time e o trabalho em direção ao Haxe 3 começou. Além disso, os targets \target{C\#} e \target{Java} de \emph{Cauê Waneck} acharam seus caminhos para dentro dos builds do Haxe. Decidiu-se, então, fazer uma versão final do Haxe 2, que aconteceu em julho de 2012, com a divulgação do Haxe 2.10.
 
-No final de 2012, a chave do Haxe 3 foi virada e a equipe do Compilador Haxe, agora amparada pela recém-fundada \emph{Haxe Foundation}\footnote{http://haxe-foundation.org}, se focou nesta próxima grande versão. Haxe 3 foi subsequentemente lançado em maio de 2013.
+No final de 2012, a chave para o Haxe 3 foi virada e a equipe do Compilador Haxe, agora amparada pela recém-fundada \emph{Haxe Foundation}\footnote{http://haxe-foundation.org}, se focou nesta próxima grande versão. O Haxe 3 foi subsequentemente lançado em maio de 2013.
 
