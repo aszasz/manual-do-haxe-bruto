@@ -14,3 +14,4 @@ latextemp/
 HaxeDoc.synctex.gz
 toc.sv
 md_epub/
+*.swp
