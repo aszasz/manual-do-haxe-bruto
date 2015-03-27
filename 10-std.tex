@@ -1,0 +1,958 @@
+% commit original em 23/mar/2015: 771e7438b9fda344cc3dbb23c9f8ac980c5d44e4
+\chapter{Biblioteca padrão}
+\label{std}
+
+\translationextra{N.do T.: Texto da Introdução ao Haxe e não do Manual}
+
+A Biblioteca Padrão do Haxe fornece ferramentas para uso geral sem intenção de ser uma coleção exaustiva de estruturas de dados e algoritmos. Uma distribuição de Haxe vem com um diretório \expr{std} contendo a Biblioteca Padrão do Haxe. Seu conteúdo pode ser categorizado como:
+
+\begin{itemize}
+    \item [Uso geral:] O diretório std em si contém poucas classes de primeiro nível como Array, Map ou String que podem ser usadas em todos os targets. O subdiretório haxe oferece estruturas de dados adicionais APIs de entrada e saída (input e output, io) e muitas outras ferramentas.
+
+    \item [Sistema:] o subdiretório sys contém APIs relacionadas a sistemas de arquivo e bancos de dados. Adicionalmente as classes de topo permitem várias interações com o sistema operacional. Elas também podem ser acessadas quando se compila para um target da categoria sys-category(C++,C#,Java,Neko,PHP).
+
+    \item [Específicas de targets:] Cada target do Haxe tem um subdiretório distinto contendo APIs específicas àquele target; Essas só podem ser acessadas quando se compila para o dado target.
+\end{itemize}
+
+API de uso geral:
+
+Nível superior:
+
+Array: Coleção tipada que define diversas operações de acordo com as especificações ECMA
+
+Datas, Ferramentas para datas: Operações relativas a datas e marcação de horário (timestamps)
+
+EReg: Expressões Regulares
+
+Lambda: Operações sobre iteráveis
+
+Map: estrutura de dados de mapeamento chave-para-valor
+
+Math: Funções matemáticas de acordo com as especifiações ECMA
+
+Reflect: reflexão relacionada a campos
+
+Std: Verificação de tipos em tempo de execução, análise sintática de números (parsing), conversão para Int e String
+
+String: operações básicas sobre Strings
+
+StringBuf: Otimizada para montagem de Strings
+
+StringTolls: Varias extensões a Strings
+
+Type: Reflexão relacionada a Type
+
+XML: XML entre plataformas
+
+O pacote haxe:
+
+haxe.Http: Requisições HTTP
+
+haxe.Json: Codificando e decodificando JSON
+
+haxe.Resource: Trabalha com recursos do Haxe
+
+haxe.Serializer: Serializa objetos arbitrários como String
+
+haxe.Template: Um sistema simples de templates (modelos, gabaritos)
+
+haxe.Timer: Execução repetida/adiada; cronômetro
+
+haxe.Unserializer: complemento do haxe.Serializer
+
+haxe.Utf8: Strings UTF8 entre plataformas
+
+haxe.crypto: vários algoritmos de encriptação
+
+haxe.macro: Tipos para trabalhar com macros de Haxe
+
+haxe.remoting: para criar aplicações remotas entre varios tipos de cliente e servidores
+
+haxe.rtti: Informações de tipo em tempo de execução
+
+haxe.unit: Ambiente de testes de unidades básicas
+
+haxe.web: Mapas de URLs para operações
+
+haxe.xml: ferramentas complementares de XML
+
+haxe.zip: suporte ao formato zip
+
+O pacote haxe.ds.package:
+
+haxe.ds.ArraySort: Ordenamento de array multiplataforma estável
+
+haxe.ds.BalancedTree: estrutura de dados de árvore equilibrada
+
+haxe.ds.EnumValueMap: Tipo Map com suporte para chaves de valores de enum
+
+haxe.ds.GenericStack: Estrutura de dados de stack que é otimizada em targets estáticos
+
+haxe.ds.IntMap: Tipo Map com suporte para chaves Int
+
+haxe.ds.ObjectMap: Tipo Map com suporte a chaves object
+
+haxe.ds.StringMap: Tipo Map com suporte a chaves String
+
+haxe.ds.Vector: estruturas de dado de tamanho fixo
+
+O pacote haxe.io 
+
+haxe.io.Bytes: Operações em bytes sobre representações nativas
+
+haxe.io.BytesBuffer: Otimizada para montagem do tipo Bytes (haxe.io.Bytes)
+
+haxe.io.Path: Operações sobre strings de caminhos
+
+API de Sistema:
+
+Disponíve em C++, C#, Java, Neko e PHP.
+
+Sys: Executa comandos nativos, interage com stdin, stdout e stderr; várias outras operações nativas.
+
+sys.FileSystem: Lê e modifica diretórios; obtém informações sobre arquivos e diretórios
+
+sys.db: APIs para trabalhar com bancos de dados MySQL e SQLite
+
+sys.io.File: Lê e escreve conteúdo de arquivos; copia arquivos
+
+sys.io.Process: usa processos nativos
+
+APIs específicas de targets:
+
+- cpp:
+ --cpp.Lib: Interações de baixo nível com o target cpp
+ --cpp.net: Ferramentas para interagur com redes e servidores em execução
+ --cpp.vm: API de threads, debugger, profiler, etc.
+ --cpp.zip: API para trabalhar com compressão zip
+
+- cs: API para o target C#
+
+- flash:
+ -- flash: Externalizações para a API de Flash
+ -- flasg.Lib: Interações básicas com a plataforma Flash
+ -- flash.Memory: Externalizações para a API Memory do Flash
+ -- flash.Vector: Externalização para Vectors de Flash
+
+- flash8:
+ -- flash8: Externalizações para API do Flash 8
+
+- java: API para o target Java
+
+- js:
+ --js.Browser: Atalhos para funções comuns de browsers
+ --js.Cookie: Assistentes para interagir com cookies HTTP no browser
+ --js.JQuery: Classes externalizadas e assistentes para JQuery
+ --js.Lib: Atalhos para alert(), eval() e debugger
+ --js.html: Externalizações para interagir com o DOM do browser
+
+- neko:
+ -- neko.Lib: Interações de baixo nível com a plataforma neko
+ -- neko.Web: Funciona com requisições e respostas HTTP
+ -- neko.net: Ferramentas para trabalhar com redes e servidores em execução -- neko.vm: API para aplicações multi-threaded
+ -- neko.zip: API para trabalar com compressão zip
+
+- php:
+ -- php.Lib: Interação de baixo nível com a plataforma PHP
+ -- php.Session: Funciona com seções nativas de PHP
+ -- php.Web:Funciona com requisições e resposta HTTP
+ -- php.db.PDO: driver adicional de PDO para interação com bancos de dados
+
+ 
+\translationextra{Fim do Texto da Introdução ao Haxe e não do Manual}
+
+
+class Main {
+    static public function main() { }
+}
+
+
+\section{String}
+\label{std-String}
+
+
+\define[Type]{String}{Um String é uma sequência de caracteres.}
+
+\section{Estruturas de dados}
+\label{std-ds}
+\state{NoContent}
+
+\subsection{Array}
+\label{std-Array}
+
+Um \type{Array} é uma coleção de elementos. Ele tem um \tref{parâmetro de tipo}{type-system-type-parameters}  que corresponde aos tipos desses elementos. Arrays podem ser criados de três formas:
+\begin{enumerate}
+    \item Usando seu constructor: \expr{new Array()}
+    \item Usando a \tref{sintaxe de declaração de array}{expression-array-declaration}: \expr{[1, 2, 3]}
+    \item Usando o \tref{preenchimento de array}{lf-array-comprehension}: \expr{[for (i in 0...10) if (i \% 2 == 0) i]}
+\end{enumerate}
+
+Arrays vem com uma \href{http://api.haxe.org/Array.html}{API} para atender a maioria dos casos de uso (use-cases). Adicionalmente eles permitem \tref{acesso a escrita e leitura dos arrays}{expression-array-access}:
+
+\haxe{assets/ArrayAccess.hx}
+
+Uma vez que o acesso a arrays in Haxe é ilimitado, isto é, se garante que le não lance uma mensagem de excessão, isso exige maior discussão:
+\begin{itemize}
+    \item Se um acesso de leitura é feito em um índice não existente, um valor dependente do target é retornado.
+    \item Se um acesso de escrita é feiuto com um índice positivo que é além do limite, null (ou o valor padrão (ver seção) de tipos básicos (ver seção) em targets estáticos (ver seção)) é inserido em todas as posições entre o último índice definido e o recém-escrito.
+    \item Se o acesso é feito com um índice negativo, o resultado é inespecífico.
+\end{itemize}
+
+Arrays definem um \tref{iterador}{lf-iterators} sobre seus elementos. Essa iteração é tipicamente otimizada pelo compilador para uso com \tref{loop \expr{while}}{expression-while}  para o índice do array:
+
+\haxe{assets/ArrayIterator.hx}
+
+O Haxe gera a seguinte saída em \target{Javascript} otimizado:
+
+\begin{lstlisting}
+Main.main = function() {
+    var scores = [110,170,35];
+    var sum = 0;
+    var _g = 0;
+    while(_g < scores.length) {
+        var score = scores[_g];
+        ++_g;
+        sum += score;
+    }
+    console.log(sum);
+};
+\end{lstlisting}
+
+O Haxe não permite arrays com tipos mistos ao menos que o tipo de parâmetro seja forçado como \tref{\type{Dynamic}}{types-dynamic}:
+
+\begin{lstlisting}
+class Main {
+    static public function main()
+        // Erro de compilação: Arrays de tipo misto só
+        // são permitidos se o tipo é forçado  para
+        // Array<Dynamic>
+        //var myArray = [10, "Bob",false];
+
+        // Array<Dynamic> with mixed types
+        var myExplicitArray:Array<Dynamic> =
+        [10, "Sally", true];
+    }
+}
+/end{lstlisting}
+
+\trivia{Arrays dinâmicos}{Em Haxe 2, declaração de arrays de tipo mistos eram permitidas. Em Haxe 3, arrays só podem ter tipos mistos se forem explicitamente declarados como \expr{Array<Dynamic>}.}
+
+
+\subsection{Vetor(haxe.ds.Vector)}
+\label{std-vector}
+
+Um \type{Vetor} é uma \emph{coleção} otimizada de elementos de tamanho fixo. Parecido com \tref{Array}{std-Array}, tem um \tref{parâmetro de tipo}{type-system-type-parameters} e todos os elementos do vetor devem ser do tipo especificado; ele pode ser \emph{iterado} com o uso de um \tref{loop for}{expression-for}  e acessado utilizando a \tref{sintaxe de array}{types-abstract-array-access}. Entretanto, diferente dos tipos \type{Array} e \type{List}, o comprimento de um vetor é especificado na sua criação e não pode ser mudado depois.
+
+\haxe{assets/Vector.hx}
+
+\type{haxe.ds.Vector} é implementado como um tipo abstrato (\ref{types-abstract}) sobre a implementação nativa do array para um dado target e pode ser mais rápido para coleções de tamanho fixo, porque a memória para armazenamento de seus elementos é pré-alocada.
+
+\subsection{Lista (haxe.ds.list)}
+\label{std-List}
+
+Uma lista (\type{List}) é uma \emph{coleção} para armazenamento de elementos. Na superfície uma lista é similar a um \Fullref{std-Array}. Entretando, a implementação subjacente é muito diferente, isso resulta em diversas diferenças de funcionamento:
+
+\begin{enumerate}
+    \item Uma lista não pode ser indexada com o uso de colchetes, i.e. [0].
+    \item Uma lista não pode ser inicializada.
+    \item Não há preenchimento de listas
+    \item Uma lista pode modificar/adicionar/subtrair elementos livremente enquanto é iterada.
+\end{enumerate}
+
+Veja a \href{http://api.haxe.org/List.html}{List API} para detalhes sobre os métodos de listas. Um simples exemplo para trabalhar com listas:
+
+\haxe{assets/ListExample.hx}
+
+\subsection{Pilha/Stack Genérico (GenericStack)}
+\label{std-GenericStack}
+
+Um \type{GenericStack}, como \type{Array} e \type{List} é um container para armazendagem de elementos. Ele tem um  \tref{parâmetro de tipo}{type-system-type-parameters} e todos os elementos do stack devem ser do tipo especificado. Veja a \href{http://api.haxe.org/haxe/ds/GenericStack.html}{API GenericStack}  para detalhes sobre seus métodos. Aqui um pequeno exemplo de um programa para a inicialização e uso de um \type{GenericStack}.
+
+\haxe{assets/GenericStackExample.hx}
+
+\trivia{Lista Rápida}{Em Haxe 2, a classe GenericStack era conhecida com FastList. Uma vez que seu comportamento é bem parecdio com um stack típico, o nome foi mudado para o Haxe 3}
+
+O \emph{Generic} em \type{GenericStack} é literal. É atribuído com o metadado \expr{:generic}. Dependendo do target, isso pode levar a melhores desempenhos em targets estáticos. Veja \Fullref{type-system-generic} para mais detalhes.
+
+\subsection{Map}
+\label{std-Map}
+
+Um\type{Map} é um contêiner composto de pares \emph{chave},\emph{valor}. Um \type{Map} também é normalmente tratado por array associativo, dicionário ou tabela de símbolos. O código seguinte dá um breve exemplo do funcionamento de maps:
+
+\haxe{ptassets/MapExample.hx}
+
+Veja a \href{http://api.haxe.org/Map.html}{API de Maps}  para detalhes sobre seus métodos.
+
+Debaixo do capô, um \type{Map} é um tipo abstrato (ver seção). Em tempo de compilação ele é convertido de uma diversos tipos especializados dependendo do tipo da \emph{chave}:
+
+\begin{itemize}
+    \item \type{String}: \type{haxe.ds.StringMap}
+    \item \type{Int}: \type{haxe.ds.IntMap}
+    \item \type{EnumValue}: \type{ haxe.ds.EnumValueMap}
+    \item \type{\{\}}: \type{haxe.ds.ObjectMap}
+\end{itemize}
+
+O tipo \type{Map} não existe em tempo de execução e foi substituído por um dos objetos acima.
+
+Map defince o \tref{acesso como array}{types-abstract-array-access} usando o tipo de sua chave.
+
+\subsection{Option}
+\label{std-Option}
+
+Um option é um \tref{enum}{types-enum-instance} na Biblioteca Padrão do Haxe; é definido assim:
+
+\begin{lstlisting}
+enum Option<T> {
+	Some(v:T);
+	None;
+}
+\end{lstlisting}
+
+Ele pode ser usado em várias situações, como para comunicar se um método tem ou não um retorno válido e, caso tenha, qual valor retornou:
+
+\haxe{assets/OptionUsage.hx}
+
+\section{Expressões Regulares}
+\label{std-regex}
+
+O Haxe tem suporte interno a \emph{expressões regulares} \footnote{http://pt.wikipedia.org/wiki/Express\%C3\%A3o_regular}. Elas podem ser usadas para verificar o formato de um string, transformar um string ou extrair dados regulares de um dado texto.
+
+    O Haxe tem uma sintaxe especial para a criação de expressões regulares. Nós podemos criar um objeto expressão regular digitando-a entre a {combinação de caracteres \expr{\textasctilde/} e uma barra simples \expr{/}:
+
+\begin{lstlisting}
+var r = ~/haxe/i;
+\end{lstlisting}
+
+Alternativamente, podemos criar uma expressão regular com a sintaxe normal:
+
+\begin{lstlisting}
+var r = new EReg("haxe", "i");
+\end{lstlisting}
+
+O primeiro argumento é uma string com um padrão de expressão regular, o segundo é um string com um sinalizador (flag, ver abaixo).
+
+Podemos usar padrões usuais de expressões regulares como:
+\begin{itemize}
+    \item \expr{.} qualquer caractere
+    \item \expr{*} repetir zero ou mais vezes
+    \item \expr{+} repetir uma ou mais vezes
+    \item \expr{?} opcional zero-ou-um
+    \item \expr{[A-Z0-9]} intervalos de caracteres
+  	\item \expr{[\textasciicircum\textbackslash r\textbackslash n\textbackslash t]} caractere fora do intervalo
+    \item \expr{(...)} parentes para localizar grupos de caracteres
+	\item \expr{\textasciicircum} começo do string (começo de uma linha em modo de localização multilinhas)
+	\item \expr{\$}fim do string (fim da linha no modo de localização multilinhas)
+    \item \expr{|}declaração "OU"
+\end{itemize}
+
+\translationextra{N.do T.:\expr{\textasciicircum= negação}: \textasciicircum c = não c, \textasciicircum (x-z) = diferente de x, y ou z}
+%acho que \r caractere de retorno de carro (carriage return)
+%\t caractere de tabulação (tab)
+%\n caractere de nova linha (que depende do OS?) 
+
+Por exemplo, a expressão regular seguinte localiza endereços de e-mail válidos:
+\begin{lstlisting}
+~/[A-Z0-9._\%-]+@[A-Z0-9.-]+\.[A-Z][A-Z][A-Z]?/i;
+\end{lstlisting}
+
+Por favor, observe que o \expr{i} ao final da expressão regular é um sinalizador (flag) que ativa a indiferença entre maiúsculas e minúsculas na localização.
+
+Os sinalizadores possíveis são os seguintes:
+\begin{itemize}
+    \item \expr{i}indiferença a maiúsculas e minúsculas
+    \item \expr{g} substituição global ou divisão, veja abaixo
+    \item \expr{m} modo de localização multilinha,\expr{\textasciicircum} e \expr{\$}  representam o começo e o final de uma linha
+    \item \expr{s} o ponto \expr{.} também ``casa'' com novas linhas \emph{ (apenas nos targets Neko, C++, PHP e Java)}
+    \item \expr{u} usa localização com UTF-8 \emph{(apenas targets Neko e C++)}
+\end{itemize}
+
+\subsection{Casamento de padrões (Matching)}
+\label{std-regex-match}
+
+Provavelmente um dos usos mais comuns para expressões regulares é a verificação de encaixe de um string a um determinado padrão específico. O método \expr{match} de um objeto expressão regular pode ser usado para fazer isso:
+
+\haxe{assets/ERegMatch.hx}
+
+\subsection{Grupos}
+\label{std-regex-groups}
+
+Informações específicas podem ser extraídas de um string coincidente com padrão através do uso de \emph{grupos} (\emph{groups}). Se \expr{match()} retornar true (verdadeiro), podemos pegar grupos usando o método \expr{matched(X)}, onde X é o número do grupo definido pelo padrão da expressão regular:
+
+\haxe{assets/ERegGroups.hx}
+
+Observe que os números dos grupos começam em 1 e que \expr{r.matched(0)} sempre retorna todo o substring localizado.
+
+\expr{r.matchedPos()} retornará a posição desse substring no string original:
+
+\haxe{assets/ERegMatchPos.hx}
+
+Adicionalmente, \expr{ r.matchedLeft()} e \expr{r.matchedRight()} podem ser usados para pegar substrings à esquerda e a direita do substring localizado:
+
+\haxe{assets/ERegMatchLeftRight.hx}
+
+\subsection{Replace}
+\label{std-regex-replace}
+
+Uma expressão regular também pode ser usada para substituir uma parte do string:
+
+\haxe{assets/ERegReplace.hx}
+
+Podemos usar \expr{\$X} para reutilizar um grupo localizado na substituição:
+
+\haxe{assets/ERegReplaceGroups.hx}
+
+\subsection{Split(Partilha)}
+\label{std-regex-split}
+
+Uma expressão regular pode também ser usada para partir um string em diversos substrings:
+
+\haxe{assets/ERegSplit.hx}
+
+\subsection{Map}
+\label{std-regex-map}
+
+O método \expr{map} de um objeto expressão regular pode ser usado para substituir substrings usando uma função personalizada. Essa função toma um objeto de expressão regular como primeiro argumento de forma que possamos usá-lo para tirar informações adicionais da correspondência sendo feita. Por exemplo
+
+\haxe{assets/ERegMap.hx}
+
+\subsection{Detalhes de Implementação}
+\label{std-regex-implementation-details}
+
+Expressões regulares são implementadas:
+
+\begin{itemize}
+    \item em JavaScript, a execução oferece a implementação com o objeto RegExp
+    \item em Neko e C++, a biblioteca PCRE é utilizada
+    \item em Flash, PHP, C# e Java, implementações nativas são usadas
+    \item em Flash 6/8, a implementação não está disponível
+\end{itemize}
+
+\section{Bibllioteca Matemática(Math)}
+\label{std-math}
+
+O Haxe inclui uma biblioteca matemática de ponto flutuante para algumas operações mateméticans comuns. A maioria das funções opera sobre e retorna \type{floats}. Entretanto um \type{Int} pode ser usado onde um \type{Float} é esperado, e o Haxe também converte \type{Int} para \type{Float} durante a maioria das operações numéricas (ver \Fullref{types-numeric-operators} para maiores detalhes)
+
+Aqui estão alguns exemplos de uso da biblioteca matemática. Ver \href{http://api.haxe.org/Math.html}{Math API} para todas as funções disponíveis.
+
+\haxe{assets/MathExample.hx}
+
+\subsection{Números especiais}
+\label{std-math-special-numbers}
+
+A biblioteca matemática tem definições para diversos números especiais:
+
+\begin{itemize}
+    \item NaN (Not a Number): retornado quando uma operação matematicamente incorreta é executado, e.g.,Math.sqrt(-1)
+    \item POSITIVE_INFINITE: divisão de um número positivo por zero
+    \item POSITIVE_NEGATIVE: divisão de um número negativo por zero
+	\item PI : 3.1415...
+\end{itemize}
+
+\subsection{Erros matemáticos}
+\label{std-math-mathematical-errors}
+
+Ainda que o neko possa manusear erros matemáticos com fluidez, como a a divisão por zero, isso não é verdade para todos os targets. Dependendo do target, erros matemáticos podem produzir excessões e ultimamente, erros.
+
+\subsection{Matemática com Inteiros}
+\label{std-math-integer-math}
+
+Se você está compilando para uma plataforma que pode utilizar operações com inteiros, e.g., divisões de inteiros, você deve envelopar isso no \emph{Std.int()} para melhor desempenho. O compilador do Haxe pode então, otimizar o resultado para operações inteiras. Um exemplo:
+
+\begin{lstlisting}
+	var intDivision = Std.int(6.2/4.7);
+\end{lstlisting}
+
+\subsection{Extensões}
+\label{std-math-extensions}
+
+É comum ver Extensões Estáticas \Fullref{lf-static-extension} usadas com a biblioteca matemática. Este código mostra um exemplo simples:
+
+\haxe{assets/MathStaticExtension.hx}
+\haxe{assets/MathExtensionUsage.hx}
+
+\section{Lambda}
+\label{std-Lambda}
+
+\define{Lambda}{define-lambda}{Lambda é um conceito de linguagem funcional dentro do Haxe que permite a você aplicar uma função a uma lista ou a \tref{iteradores}{lf-iterators}. A classe Lambda é uma coleção de métodos funcionais de forma a usar estilo de programação funcional com Haxe.}
+
+É idealmente usado com \expr{using Lambda} (ver \tref{Static Extension}{lf-static-extension}) e então atua como uma extensão aos tipos \type{Iterable}.
+
+Em plataformas estáticas, trabalhando com a estrutura \type{Iterable} pode ser mais lento do que desempenhando as operações diretamente nos tipos conhecidos, tasi como \type{Array} e \type{List}.
+
+\paragraph{Funções Lambda}
+
+A classe Lambda permite que nós operemos sobre todo um \type{Iterable} de uma vez.
+Isso é geralmente preferível a rotinas de loops uma vez que é menos inclinado a erros e mais fácil de ler.
+Para conveniência, as classes \type{Array} e \type{List} contém alguns dos métodos frequentemente usados da classe Lambda.
+
+É de ajuda olhar para um exemplo. A função exists é especificada como:
+
+\begin{lstlisting}
+static function exists<A>( it : Iterable<A>, f : A -> Bool ) : Bool
+\end{lstlisting}
+
+A maioria das funções Lambda são chamadas de formas similares. O primeiro argumento para todas as funções Lambdas é o iterável (\type{Iterable}) sobre o qual operar. Muitas também tomam uma função como argumento.
+
+\begin{description}
+	\item[\expr{Lambda.array}, \expr{Lambda.list}] Converte Iterable para tipo \type{Array} ou \type{List}. Sempre retorna uma nova instância.
+	\item[\expr{Lambda.count}] Conta o número de elemento. Se o iterável é um \type{Array} ou \type{List} é mais rápido usar sua propriedade lenght.
+    \item[\expr{Lambda.empty}] Determina se o iterável é vazio. Para todos iteráveis é melhor usar essa função, também é mais rápido do que comparar length (ou o resultado de Lambda.count) com zero.
+	\item[\expr{Lambda.has}] Determina se o elemento especificado está no Iterável.
+	\item[\expr{Lambda.exists}] Determina se um critério é satisfeito por um elemento.
+	\item[\expr{Lambda.indexOf}] Acha o índice do elemento especificado.
+	\item[\expr{Lambda.find}] Acha o primeiro elemento de uma dada função de busca.
+	\item[\expr{Lambda.foreach}] Determina se cada elemento satisfaz um critério.
+	\item[\expr{Lambda.iter}] Chama uma função para cada elemento.
+	\item[\expr{Lambda.concat}] Funde dois Iteráveis, retornando uma nova lista.
+	\item[\expr{Lambda.filter}] Acha os elementos que satisfazer um critério, retornando uma nova lista.
+	\item[\expr{Lambda.map}, \expr{Lambda.mapi}] Aplica uma conversão a cada elemento, retornando uma nova list.
+    \item[\expr{Lambda.fold}] ``Fold funcional'' também é conhecido como reduz, acumula, comprime ou injeta.
+\end{description}
+
+Esse exemplo demonstra o filtro Lambda e map sobre um conjunto de strings:
+
+\begin{lstlisting}
+using Lambda;
+class Main {
+    static function main() {
+        var words = ['car', 'boat', 'cat', 'frog'];
+
+		var isThreeLetters = function(word) return word.length == 3;
+		var capitalize = function(word) return word.toUpperCase();
+		
+		// Three letter words and capitalized. 
+		trace(words.filter(isThreeLetters).map(capitalize)); // [CAR,CAT]
+    }
+}
+\end{lstlisting} 
+
+Esse exemplo demontra as funções Lambda count, has, foreach and fold sobre um conjunto de inteiros.
+
+\begin{lstlisting}
+using Lambda;
+class Main {
+    static function main() {
+        var numbers = [1, 3, 5, 6, 7, 8];
+		
+		trace(numbers.count()); // 6
+		trace(numbers.has(4)); // false
+		
+        // test if all numbers are greater/smaller than 20
+		trace(numbers.foreach(function(v) return v < 20)); // true
+        trace(numbers.foreach(function(v) return v > 20)); // false
+		
+        // sum all the numbers
+		var sum = function(num, total) return total += num;
+		trace(numbers.fold(sum, 0)); // 30
+    }
+}
+\end{lstlisting} 
+
+\section{Template}
+\label{std-template}
+
+Haxe vem com um sistema padrão de template com uma sintaxe fácil de usar que interpretado por uma classe 'peso-leve' chamada \type{haxe.Template}.
+
+Um template é um string ou um arquivo que é usado para produzir qualquer espécie de saída de string dependendo da entrada. Aqui está um pequeno exemplo de template 
+
+\haxe{assets/Template.hx}
+
+O console irá executar trace \ic{Meu nome é Mark, 30 anos}.
+
+\paragraph{Expressões}
+Uma expressão pode ser colocada entre \ic{::}, a sintaxe permite as atuais possibilidades:
+
+\begin{description}
+	\item[\ic{::nome::}] a variável nome
+	\item[\ic{::expr.campo::}] acesso a campo
+	\item[\ic{::(expr)::}] a expressão expr é calculada
+	\item[\ic{::(e1 op e2)::}] a operação op é aplicada a e1 e a e2
+	\item[\ic{::(135)::}] o integer 135. Constantes float não são permitidas.
+\end{description}
+
+\paragraph{Condições}
+É possível testar condições usando \ic{::if flag1::}. Opcionalmente, a condição deve ser seguida por \ic{::elseif flag2::} ou \ic{::else::}. Encerre a condição com \ic{::end::}.
+
+\begin{lstlisting} 
+::if isValid:: valid ::else:: invalid ::end::
+\end{lstlisting} 
+
+Operadores podem ser usados, mas não lidam com precedência de operadores. Portanto é exigido cercar cada operação por parenteses \ic{()}. Atualmente os seguintes operadores são permitidos: \ic{+}, \ic{-}, \ic{*}, \ic{/}, \ic{>}, \ic{<},  \ic{>=}, \ic{<=}, \ic{==}, \ic{!=}, \ic{&&} and \ic{||}.
+
+Por exemplo \ic{::((1 + 3) == (2 + 2))::} exibirá true.
+
+\begin{lstlisting} 
+::if (points == 10):: Ótimo! ::end::
+\end{lstlisting} 
+
+Para comparar com um string use aspas duplas\ic{"} no template.
+\begin{lstlisting} 
+::if (nome == "Mark"):: Oi Mark ::end::
+\end{lstlisting} 
+
+\paragraph{Iterating}
+Itere em uma estrutura ao usar \ic{::foreach::}. Termine o loop com \ic{::end::}.
+\begin{lstlisting} 
+
+<table>
+	<tr>
+		<th>Nome</th>
+		<th>Idade</th>
+	</tr>
+	::foreach users::
+		<tr>
+			<td>::nome::</td>
+			<td>::idade::</td>
+		</tr>
+	::end::
+</table>
+\end{lstlisting} 
+
+\paragraph{Sub-templates}
+Para incluir templates em outros templates passe o string resultante do subtemplate como um parâmetro
+.
+\begin{lstlisting} 
+var users = [{nome:"Mark", idade:30}, {nome:"John", idade:45}];
+
+var userTemplate = new haxe.Template("::foreach users:: ::nome::(::idade::) ::end::");
+var userOutput = userTemplate.execute({users: users});
+
+var template = new haxe.Template("Os usuários são ::users::");
+var output = template.execute({users: userOutput});
+trace(output);
+\end{lstlisting} 
+O console executará o trace \ic{Os usuários são Mark(30) John(45)}.
+
+\paragraph{Macris de templates}
+
+Para chamar funções personalizadas enquanto partes do template estão sendo reinderizadas, forneça um objeto \expr{macro} como argumento de \expr{Template.execute}. A chave atuará como o nome da variável do template, o valor se referirá a uma função de retorno (call back function) que deve devolver um \type{String}. O primeiro argumento dessa macor é sempre um método \expr{resolve()} seguido pelos argumentos dados. A função resolve pode ser chamada para reter valores do contexto do template. Se \expr{macros} não tiver esse campo, o resultado é não especificado.
+
+O exemplo seguinte passa a si mesmo como contexto de função macro e executa \ic{display} do template.
+\haxe{assets/TemplateMacros.hx}
+O console executará o trace \ic{Os resultados: Mark correu 3.5 quilometros em 15 minutos}.
+
+\paragraph{Globals}
+Use o objeto \expr{Template.globals} para armazenar valores que deveriam ser aplicados ao largo de de todas as instâncias de \type{haxe.Template}. Isso tem menor prioridade que o argumento de contexto de \expr{Template.execute}.
+
+\paragraph{Using resources}
+
+Para separar o conteúdo do código, considera usar o \tref{sistema de embarque de recursos}{cr-resources}. 
+Coloque o conteúdo do template e um novo arquivo chamado \ic{sample.mtt}, e adicione \ic{-resource sample.mtt@my_sample} aos argumentos do compilador e retenha o conteúdo usando \expr{haxe.Resource.getString}.
+
+\haxe{assets/TemplateResource.hx}
+
+Quando executar o template system do lado servidor, você pode simplesmente usar \expr{neko.Lib.print} ou \expr{php.Lib.print} ao invés do trace para mostrar o template de HTML template para o usuário.
+
+
+\section{Reflexão}
+\label{std-reflection}
+
+O Haxe suporta reflexão de tipos e campos em tempo de execução. Cuidado especial deve ser tomado aqui porque a representação em tempo de execução geralmente vária de um target para outro. De forma a usar reflexão corretamente é necessário entender que tipos de operações são suportadas e quais não. Dada a natureza dinâmica da reflexão, isso nem sempre pode ser determinado em tempo de compilação.
+
+A API de reflexão consiste em duas classes:
+
+\begin{description}
+    \item[Reflect:] Uma API leve que funciona melhor em \tref{estruturas anônimas}{types-anonymous-structure}, com suporte limitado para \tref{classes}{types-class-instance}. 
+    \item[Type:] Uma API mais robusta para trabalhar com classes e \tref{enums}{types-enum-instance}.
+
+Os métodos disponíveis são detalhados nas API \href{http://api.haxe.org//Reflect.html}{Reflect} e \href{http://api.haxe.org//Type.html}{Type}.
+
+A reflexão pode ser uma ferramenta poderosa, mas é importante entender porque ela também pode causar problemas. Como um exemplo, diversas funções esperam um argumento \tref{String}{std-String}  e tentam resolvê-lo para um tipo ou campo. Isso é vunerável a erros de digitação:
+
+\haxe{assets/ReflectionTypo.hx}
+
+Entretanto, mesmo que não existam erros de digitação é fácil esbarrar em comportamentos inesperados:
+
+\haxe{assets/ReflectionMissingType.hx}
+
+O problema aqui é que o compilador nunca chega a `` ver'' realmente a tipo  \type{haxe.Template}, então não o compila para a saída. Além disso, mesmo que ele visse o tipo, poderiam aparecer problemas surgindo com a \tref{eliminação de código morto}{cr-dce}, onde tipos e campos que só são utilizados via reflexão sejam eliminados.
+
+Um outro conjunto de problemas deriva do fato que, por concepção, diversas funções de reflexão esperam argumentos do tipo type \tref{Dynamic}{types-dynamic}, implicando que o compilador não pode verificar se os argumentos passados estão corretos. O exemplo seguinte mostra um engano normal quando se trabalha com \expr{callMethod}:
+
+\haxe{assets/ReflectionMissingType.hx}
+
+A chamada comentada seria aceita pelo compilador porque ela atribui o string \expr{"f"} como argumento da função \expr{func}, especificada para ser do tipo \expr{Dynamic}.
+
+Um bom conselho para trabalhar com reflexão é envelopá-la em algumas poucas funções dentro da aplicação ou API que são chamadas por, de outra forma, código com tipagem segura. Um exemplo poderia ser parecido com isso:
+
+\haxe{assets/ReflectionWrap.hx}
+
+Ainda que o método reflective pudesse trabalhar inteiramente com reflexão (e o tipo Dynamic para tanto), seu tipo de retorno é uma estrutura tipada que as chamadas podem usar de uma maneira segura em relação a tipos. 
+
+\section{Serialização}
+\label{std-serialization}
+
+Muitos valores de tempo de execução podem ser seriados e deseriados usando as classes \type{haxe.Serializer} e \type{haxe.Unserializer}. Ambas suportam dois usos:
+
+\begin{enumerate}
+    \item Criação de uma instância e continuas chamadas do método \expr{serialize}/\expr{unserialize} para manusear múltiplos valores.
+    \item Chamada do seu método estático \expr{run} para serializar/deserializar um único valor.
+\end{enumerate}
+
+O exemplo seguinte mostra primeiro uso:
+
+\haxe{assets/SerializationExample.hx}
+ 
+O resultado da serialização (aqui armazendado na variável local \expr{s}) é um \tref{String}{std-String} que pode ser jogado para lá e para cá, mesmo remotamente. Seu formato é descrito em \Fullref{std-serialization-format}.
+
+\paragraph{Valores suportados}
+
+    \item \expr{null} 
+    \item \type{Bool}, \type{Int} e \type{Float} (incluindo infinitos e \expr{NaN})
+    \item \type{String}
+    \item \type{Date}
+    \item \type{haxe.io.Bytes} (codificados em base64)
+	\item \type{haxe.io.Bytes} (encoded as base64)
+	\item \tref{\type{Array}}{std-Array} e \tref{\type{List}}{std-List}
+	\item \type{haxe.ds.StringMap}, \type{haxe.ds.IntMap} e \type{haxe.ds.ObjectMap}
+	\item \tref{estruturas anônimas}{types-anonymous-structure}
+	\item Haxe \tref{instâncias de classe}{types-class-instance} de Haxe (não as nativas)
+    \item \tref{instâncias de enum}{types-enum-instance}
+\end{itemize}
+
+\paragraph{Configuração de serialização}
+
+A serialização pode ser configurada de duas maneiras. Para ambas, uma variável estática pode ser definida para influenciar todas as instâncias de \type{haxe.Serializer} e uma variável membro pode ser definida para influenciar apenas uma instância específica:
+
+\begin{description}
+    \item[\expr{USE_CACHE}, \expr{useCache}:]  useCache: Se verdadeira, objetos repetidos são seriado por referência. Isso pode evitar loops infinitos para dados recursivos ao custo de um tempo maior de serialização. Por padrão, esse valor é \expr{false}.
+    \item[\expr{USE_ENUM_INDEX}, \expr{useEnumIndex}:]  useEnumIndex:Se verdadeira, constructors de enum são seriados por seu índice em vez de seu nome. Isso pode tornar a serialização de strings mais curta, mas se quebra se constructors de enum são inseridos nos tipos antes da deserialização. Por padrão, esse valor é \expr{false}.
+\end{description}
+
+\paragraph{Comportamento de deserialização}
+
+Se o resultado de serialização é armazenado e depois usado para deserialização, cuidado deve ser tomado para manter a compatibilidade quando se trabalha com instâncias de enums e classes. É, então, importante entender exatamente como a deserialização é implementada.
+
+\begin{itemize}
+	\item  O tipo tem que estar disponível em tempo de execução aonde a deserialização é feita. Se a \tref{eliminação de código morto}{cr-dce} está ativa, um tipo que só é usado através de serialização pode ser removido.
+    \item Cada \type{Unserializer} tem uma variável membro \expr{resolver} que é usada para resolver classes e enums por nome. Na criação do \type{Unserializer}, isso é usado para definir \type{Unserializer.DEFAULT_RESOLVER.} Tanto ela quanto o membro da instância pode ser definidos para  definir um "resolver" personalizado.
+    \item Classes são resolvidas por nome, usando \expr{resolver.resolveClass(nome)}. A instância é, então, criada usando \expr{Type.createEmptyInstance}, o que implica que o constructor da classe não é chamado. Finalmente, os campos da instância são definidos de acorodo com o valor serializado
+    \item Enums são resolvidos por nome usando \expr{resolver.resolveEnum(nome)}. A instância do enum é, então, criada usando \expr{Type.createEnum}, usando os valores de argumento serializados, se disponíveis. Se os argumentos do constructor foram mudados desde a serialização, o resultado é não especificado.
+\end{itemize}
+
+\paragraph{(De)Serialização personalizada}
+
+Se uma classe defini o método membro \expr{hxSerialize}, esse método é chamado pelo serializador, permitindo uma serialização personalizada da classe. Da mesma forma, se uma classe define o método membro \expr{hxUnserialize}, ele é chamado pelo deserializador:
+
+\haxe{assets/SerializationCustom.hx}
+
+Nesse exemplo decidimos que vamos ignorar o valor membro da variável \expr{y} e não serializá-lo. Ao invés disso o padronizamos para \expr{-1} em \expr{hxUnserialize}. Ambos os métodos são anotados com o metadado \expr{:keep} para previnir que a \tref{eliminação de código morto}{cr-dce} os removam, uma vez que elas nunca são propriamente referenciadas no código.
+
+\subsection{Formato de Serialização}
+\label{std-serialization-format}
+
+Cada valor suportado é traduzido para um caracter de prefixo distinto, seguido pelos dados necessários.
+
+	\item[\expr{null}:] \expr{n}
+	\item[\type{Int}:] \expr{z} para zero, ou \expr{i} seguido do próprio integer (e.g. \expr{i456})
+    \item[\type{Float}:]
+		\begin{description}
+			\item[\expr{NaN}:] \expr{k}
+			\item[infinito negativo:] \expr{m}
+			\item[infinito positivo:] \expr{p}
+			\item[float normal:] \expr{d} seguido da exibição do float (e.g. \expr{d1.45e-8})
+		\end{description}
+    \item[\type{Bool}:] \expr{t} para \expr{true}(verdadeiro), \expr{f} para \expr{false}(falso)
+    \item[\type{String}:] \expre{y} seguido do comprimento do string codificado para url, seguido de dois pontos e o string codificado em url em si (e.g. \expr{y10:hi\%20there para "hi there".}.
+	\item[\type{String}(cacheado):] \expr{R} seguido pelo ID do cache (e.g. \expr{R456}). O cacheamento de string está sempre habilitado.
+    \item[Pares nome-valor:]um string serializado representando o nome, seguido pelo valor.
+    \item[estrutura:] \expr{o} seguido de uma lista de pares nome-valor, seguidos por \expr{g} (e.g. \expr{oy1:xi2y1:kng} para \expr{\{x:2, k:null\}})
+    \item[\type{List}:] \expr{l} seguido da lista dos itens seriados, seguido por \expr{h} (e.g. \expr{lnnh} para uma lista de dois valores nulos (\expr{null}))
+    \item[\type{Array}:] \expr{a} seguido por uma lista dos itens seriados, seguido por \expr{h}. Para múltiplos valores \expr{null} consecutivos, \expr{u} segudio pelo número de valores nulos é utilizado (e.g. \expr{ai1i2u4i7ni9h for [1,2,null,null,null,null,7,null,9]})
+    \item[Data (tipo\type{Date}):]\expr{v} seguido pela propria data (e.g. \expr{d2010-01-01 12:45:10})
+    \item[\type{haxe.ds.StringMap}:] \expr{b} seguido pelos pares nome-valor, seguido por \expr{h}  (e.g. \expr{by1:xi2y1:knh} for \expr{\{"x" => 2, "k" => null\}})
+    \item[\type{haxe.ds.IntMap}:] \expr{q} seguido pelos pares chave-valor, seguido por \expr{h}. Cada chave é representada como \expr{:<int>} (e.g. \expr{q:4n:5i45:6i7h} para \expr{\{4 => null, 5 => 45, 6 => 7\}})
+    \item[\type{haxe.ds.ObjectMap}:]\expr{M} seguido por pares valores seriados representado a chave e o valor, seguidos por \expr{h}
+    \item[\type{haxe.ds.Bytes}:] \expr{s} seguido pela extensão dos bytes codificados em base64, então\expr{:} e a representação de bytes usando os códigos \expr{A-Za-z0-9\%} (e.g. \expr{s3:AAA} para 2 bytes iguais a \expr{0}, \expr{s10:SGVsbG8gIQ} para \expr{haxe.io.Bytes.ofString("Hello !")})
+    \item[exception:] \expr{x} seguido do valor da exceção
+    \item[{instância de classe:] \expr{c} seguido do nome seriado da classe, seguido do pares nome-valor dos campos, seguido de  \expr{g} (e.g. \expr{cy5:Pointy1:xzy1:yzg} para \expr{new Point(0, 0)} (com dois campos integer \expr{x} and \expr{y})
+    \item[instância de enum (por nome):] \expr{w} seguido do nome do enum seriado, seguido pelo nome seriado do constructor, seguido pelo número de argumentos, seguido pelo valor dos argumentos (e.g. \expr{wy3:Fooy1:A0} para \expr{Foo.A} (sem argumentos), \expr{wy3:Fooy1:B2i4n} para \expr{Foo.B(4,null)})
+    \item[instância de enum (por índice):] \expr{j} seguido do nome seriado do enum, seguido por \expr{:}, seguido do índice do constructor, seguido pelo número de argumentos, seguido pelo valor dos argumentos (e.g. \expr{wy3:Foo0:0} para \expr{Foo.A} (sem argumentos), \expr{wy3:Foo1:2i4n} para \expr{Foo.B(4,null)})
+\item[personalizado(custom):] \expr{C} seguido pelo nome de classe, seguido pelo dado seriado, segudio por \expr{g}
+\item[referências ao cache:] \expr{r} seguido pelo índice do cache
+\end{description}
+
+\noindent Elementos em cache e constructors de enums são indexados a partir do zero.
+
+\section {Json}
+\label{std-Json}
+
+O Haxe oferece suporte interno para a (de)serialização de dados \emph{JSON}\footnote{http://pt.wikipedia/wiki/JSON} via classe \type{haxe.Json}
+
+\subsection{Decomposição sintática de JSON}
+
+Use o método estático \expr{haxe.Json.parse} para decompor sintaticamente dados \emph{JSON} e obter um valor de Haxe deles:
+
+\haxe{assets/JsonParse.hx}
+
+Observe que o tipo de objeto retornado por \expr{haxe.Json.parse} é \expr{Dynamic}, então, se a estrutura de nosso dado é bem conhecida, podemos querer especificar um tipo usando \tref{estruturas anônimas}{types-anonymous-structure}. Dessa maneira, podemos oferecer verificações em tempo de compilação para acessar nossos dados e, provavelmente, melhor geração de código, porque o compilador conhece os tipos em uma estrutura:
+
+\haxe{assets/JsonParseTyped.hx}
+
+
+\subsection{Codificando JSON}
+\label{std-Json-encoding}
+
+Use o método estático \expr{haxe.Json.stringify} para codificar um valor de Haxe em um string \emph{JSON}:
+
+\haxe{assets/JsonStringify.hx}
+
+\subsection{Detalhes de implementação}
+label{std-Json-implementation-details}
+
+A API \type{haxe.Json} usa automaticamente a implementação nativa dos targets onde está disponível, i.e., \emph{Javascript}, \emph{Flash} e \emph{PHP} e fornece sua própria implementação para outros targets.
+
+O uso da própria implementação do Haxe pode ser forçado com o argumento de compilação \expr{-D haxeJSON}. Isso também fornece a serialização de \tref{enums}{types-enum-instance} por seus índices, \tref{maps}{std-Map} com chaves string e instâncias de classes.
+
+Browsers mais velhos (Internet Explorer 7, por exemplo) podem não ter implementação nativa de \emph{JSON}. No caso de ser necessário suportá-los, nos podemos incluir uma, dentre as implementações de JSON disponíveis na internet, na página HTML. Alternativamente um argumento de compilação pr{ old_browser} pode ser usado, ele fará \type{haxe.Json} tentar usar o JSON nativo, mas puxa sua própria implementação no caso da nativa ser indisponível.
+
+\section{Xml}
+\label{std-Xml}
+
+\section{Input/Output}
+\label{std-input-output}
+
+\section{Sys/sys}
+\label{std-sys}
+
+\section{Remoting}
+\label{std-remoting}
+
+Haxe Remoting é uma forma de fazer comunicação entre duas plataformas diferentes. Com Haxe Remoting, aplicações podem: transmitir dados de maneira transparete, enviar dados e métodos de chamada entre os lados cliente e servidor.
+
+\subsection{Conexão de Remoting}
+\label{std-remoting-connection}
+
+Para usar o remoting, deve existir uma conexão estabelecida. Há dois tipos de conexões de Haxe Remoting
+\begin{description}
+    \item[\expr{haxe.remoting.Connection}] é usada para \emph{conexões síncronizadas}, onde os resultados podem ser diretamente obtidos quando se chama um método.
+	\item[\expr{haxe.remoting.AsyncConnection}] é usado para \emph{conesões assíncronas}, onde os resultados são eventos que acontecerão posteriormente no processo de execução.
+\end{description}
+
+\paragraph{Inicie uma conexão}
+Existem alguns constructors específicos de targets com propósitos diferentes, que podem ser usados para estabelecer uma conexão:
+
+\begin{description}
+	\item[Todos os targets:]
+		\begin{description}
+			\item[\expr{HttpAsyncConnection.urlConnect(url:String)}]  
+				Retorna para a URL dada uma conexão assíncrona que deve ligar a uma aplicação servidora do Haxe 
+		\end{description}
+		
+	\item[Flash:]
+		\begin{description}
+			\item[\expr{ExternalConnection.jsConnect(name:String, ctx:Context)}]  
+			    Permite uma conexão ao código de Haxe Javascript local. O código Haxe JS deve ser compilado com a classe ExternalConnection incluída. Isso só funciona com Flash Player 8 e acima
+			\item[\expr{AMFConnection.urlConnect(url:String)} e \expr{AMFConnection.connect( cnx : NetConnection )}]  
+                Permite uma conexão a um \href{http://en.wikipedia.org/wiki/Action_Message_Format}{AMF Remoting server} tal como um  \href{http://www.adobe.com/products/adobe-media-server-family.html}{Flash Media Server} ou \href{http://www.silexlabs.org/amfphp/}{AMFPHP}.
+			\item[\expr{SocketConnection.create(sock:flash.XMLSocket)}]  
+                Permite comuincações de remoting sobre um \type{XMLSocket}
+			\item[\expr{LocalConnection.connect(name:String)}]  
+				Permite comunicações remoting sobre uma \href{http://api.haxe.org/haxe/remoting/LocalConnection.html}{Flash LocalConnection}
+		\end{description}
+	\item[Javascript:]
+		\begin{description}
+			\item[\expr{ExternalConnection.flashConnect(name:String, obj:String, ctx:Context)}]  
+				Permite a conexão entre um dado Objeto Flash. O conteúdo Haxe Flash deve ser carregado e tem que incluir a classe \expr{haxe.remoting.Connection} class. Isso só funciona com Flash 8 ou maior 
+		\end{description}
+		
+	\item[Neko:]
+		\begin{description}
+			\item[\expr{HttpConnection.urlConnect(url:String)}]  
+                Funcionará como a versão assíncrona mas em modo sincronizado.
+			\item[\expr{SocketConnection.create(...)}]  
+                Permite comunicações em tempo real com um cliente Flash que esteja usando um \type{XMLSocket} para conectar ao servidor
+		\end{description}
+\end{description}
+
+\paragraph{Remoting context}
+
+Antes de se fazer a comunicação entre plataformas, um contexto de remoting (remoting context) tem que ser definido. Isso é uma API compartilhada que pode ser chamada pelo código do cliente na conexão.
+
+Esse exemplo de código servidor cria e compartilha uma API
+
+\begin{lstlisting}
+class Server {
+	function new() { }
+	function foo(x, y) { return x + y; }
+
+	static function main() {
+		var ctx = new haxe.remoting.Context();
+		ctx.addObject("Server", new Server());
+		
+		if(haxe.remoting.HttpConnection.handleRequest(ctx))
+		{
+			return;
+		}
+		
+		// handle normal request
+		trace("This is a remoting server !");
+	} 
+}
+\end{lstlisting}
+
+\paragraph{Usando a conexão}
+
+Usar uma conexão é bem conveniente. Uma vez que a conexão pe obtidad, use o clássico acesso-por-ponto para atribuir valor a um caminho e então use a \expr{call()} para chamar o método no contexto remoto e pegar o resultado.
+A conexão assíncrona toma uma parâmetro de função adicional que será chamado quando o resultado estiver disponível.
+
+Esse exemplo de código cliente se conecta ao contexto de remoting servidor e chama uma função \expr{foo()} de sua API.
+\begin{lstlisting}
+class Client {
+  static function main() {
+    var cnx = haxe.remoting.HttpAsyncConnection.urlConnect("http://localhost/");
+    cnx.setErrorHandler( function(err) trace('Error: \$err'); } );
+    cnx.Server.foo.call([1,2], function(data) trace('Result: \$data'););
+  }
+}
+\end{lstlisting}
+
+Para fazer isso funcionar para o target Neko, prepare um Neko Web Server, aponte a url no cliente para \ic{"http://localhost2000/remoting.n"} e compile o servidor usando \ic{-main Server -neko remoting.n}.
+
+\paragraph{Manuseio de erros}
+
+\begin{itemize}
+    \item Quando um erro ocorre em uma chamada assíncrona, o manuseador de erro (error handler) é chamado como visto no exemplo acima.
+	\item Quando um erro ocorre em uma chamada sincronizada, uma excessão é levantada do lado onde a chamada foi feita como se estivéssemos chamando um método local. 
+\end{itemize}
+
+\paragraph{Data serialization}
+
+O Haxe Remoting pode mandar muitos tipos diferentes de dados. Veja \tref{Serialização}{std-serialization}.
+
+\subsection{Detalhes de Implementação}
+\label{std-remoting-implementation-details}
+
+\paragraph{Especificidades de segurança de Javascript}
+
+A página-html envelopando o cliente js deve ser servido do mesmo domínio de onde o servidor está executando. A política de memsa origem restringe como um documento ou script carregados da mesma oirgem podem interagrir com um recurso de outra origem. A política de mesma origem é usada como uma maneira de prevenir alguns dos ataques de falsificação de requisição cruzada de sites.
+
+Para usar o remoting entre fronteiras de domínios, CORS (cross-origin resource sharing) precisa ser habilitado com a definição do cabeçalho \ic{X-Haxe-Remoting} no \ic{.htaccess}:
+
+\begin{lstlisting} 
+# Enable CORS
+Header set Access-Control-Allow-Origin "*"
+Header set Access-Control-Allow-Methods: "GET,POST,OPTIONS,DELETE,PUT"
+Header set Access-Control-Allow-Headers: X-Haxe-Remoting
+\end{lstlisting} 
+
+Veja  \href{http://pt.wikipedia.org/wiki/Pol\%C3\%ADtica_de_mesma_origem}{política de mesma origem} para mais informação sobre esse tópico.
+
+Também observe que isso significa que a página não pode ser servida diretamente do sistema de arquivos \ic{"file:///C:/example/path/index.html"}.
+
+\paragraph{Especificidades de segurança de Flash}
+
+Quando o Flash acessa um servidor de um domínio diferente, prepare um arquivo \ic{crossdomain.xml} no servidor, habilitando os cabeçalhos \ic{X-Haxe}.
+
+\begin{lstlisting} 
+<cross-domain-policy>
+	<allow-access-from domain="*"/> <!-- or the appropriate domains -->
+	<allow-http-request-headers-from domain="*" headers="X-Haxe*"/>
+</cross-domain-policy>
+\end{lstlisting} 
+
+\paragraph{Tipos de argumentos não são assegurados}
+
+Não há garantia de nenhuma espécie que os tipos dos argumentos serão respeitados quando um método é chamado usando remoting.
+Isso quer dizer que mesmo se os argumentos da função \expr{foo} são tipados para \type{Int}, o cliente ainda será capaz de usar strings quando chamar o método.
+Isso pode levar a questões de segurança em alguns casos. Quando em dúvida, verifique o tipo do argumento ao chamar a função, usando o método \expr{Std.is}.

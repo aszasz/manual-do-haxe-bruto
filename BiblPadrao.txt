@@ -1,0 +1,921 @@
+\chapter{Biblioteca padrão}
+
+N.do T.: Texto da Introdução ao Haxe e não do Manual
+
+A Biblioteca Padrão do Haxe fornece ferramentas para uso geral sem intenção de ser uma coleção exaustiva de estruturas de dados e algoritmos. Uma distribuição de Haxe vem com um diretório \expr{std} contendo a Biblioteca Padrão do Haxe. Seu conteúdo pode ser categorizado como:
+
+- Uso geral: O diretório std em si contém poucas classes de primeiro nível como Array, Map ou String que podem ser usadas em todos os targets. O subdiretório haxe oferece estruturas de dados adicionais APIs de entrada e saída (input e output, io) e muitas outras ferramentas.
+
+- Sistema: o subdiretório sys contém APIs relacionadas a sistemas de arquivo e bancos de dados. Adicionalmente as classes de topo permitem várias interações com o sistema operacional. Elas também podem ser acessadas quando se compila para um target da categoria sys-category(C++,C#,Java,Neko,PHP).
+
+- Específicas de targets: Cada target do Haxe tem um subdiretório distinto contendo APIs específicas àquele target; Essas só podem ser acessadas quando se compila para o dado target.
+
+API de uso geral:
+
+Nível superior:
+
+Array: Coleção tipada que define diversas operações de acordo com as especificações ECMA
+
+Datas, Ferramentas para datas: Operações relativas a datas e marcação de horário (timestamps)
+
+EReg: Expressões Regulares
+
+Lambda: Operações sobre iteráveis
+
+Map: estrutura de dados de mapeamento chave-para-valor
+
+Math: Funções matemáticas de acordo com as especifiações ECMA
+
+Reflect: reflexão relacionada a campos
+
+Std: Verificação de tipos em tempo de execução, análise sintática de números (parsing), conversão para Int e String
+
+String: operações básicas sobre Strings
+
+StringBuf: Otimizada para montagem de Strings
+
+StringTolls: Varias extensões a Strings
+
+Type: Reflexão relacionada a Type
+
+XML: XML entre plataformas
+
+O pacote haxe:
+
+haxe.Http: Requisições HTTP
+
+haxe.Json: Codificando e decodificando JSON
+
+haxe.Resource: Trabalha com recursos do Haxe
+
+haxe.Serializer: Serializa objetos arbitrários como String
+
+haxe.Template: Um sistema simples de templates (modelos, gabaritos)
+
+haxe.Timer: Execução repetida/adiada; cronômetro
+
+haxe.Unserializer: complemento do haxe.Serializer
+
+haxe.Utf8: Strings UTF8 entre plataformas
+
+haxe.crypto: vários algoritmos de encriptação
+
+haxe.macro: Tipos para trabalhar com macros de Haxe
+
+haxe.remoting: para criar aplicações remotas entre varios tipos de cliente e servidores
+
+haxe.rtti: Informações de tipo em tempo de execução
+
+haxe.unit: Ambiente de testes de unidades básicas
+
+haxe.web: Mapas de URLs para operações
+
+haxe.xml: ferramentas complementares de XML
+
+haxe.zip: suporte ao formato zip
+
+O pacote haxe.ds.package:
+
+haxe.ds.ArraySort: Ordenamento de array multiplataforma estável
+
+haxe.ds.BalancedTree: estrutura de dados de árvore equilibrada
+
+haxe.ds.EnumValueMap: Tipo Map com suporte para chaves de valores de enum
+
+haxe.ds.GenericStack: Estrutura de dados de stack que é otimizada em targets estáticos
+
+haxe.ds.IntMap: Tipo Map com suporte para chaves Int
+
+haxe.ds.ObjectMap: Tipo Map com suporte a chaves object
+
+haxe.ds.StringMap: Tipo Map com suporte a chaves String
+
+haxe.ds.Vector: estruturas de dado de tamanho fixo
+
+O pacote haxe.io 
+
+haxe.io.Bytes: Operações em bytes sobre representações nativas
+
+haxe.io.BytesBuffer: Otimizada para montagem do tipo Bytes (haxe.io.Bytes)
+
+haxe.io.Path: Operações sobre strings de caminhos
+
+API de Sistema:
+
+Disponíve em C++, C#, Java, Neko e PHP.
+
+Sys: Executa comandos nativos, interage com stdin, stdout e stderr; várias outras operações nativas.
+
+sys.FileSystem: Lê e modifica diretórios; obtém informações sobre arquivos e diretórios
+
+sys.db: APIs para trabalhar com bancos de dados MySQL e SQLite
+
+sys.io.File: Lê e escreve conteúdo de arquivos; copia arquivos
+
+sys.io.Process: usa processos nativos
+
+APIs específicas de targets:
+
+- cpp:
+ --cpp.Lib: Interações de baixo nível com o target cpp
+ --cpp.net: Ferramentas para interagur com redes e servidores em execução
+ --cpp.vm: API de threads, debugger, profiler, etc.
+ --cpp.zip: API para trabalhar com compressão zip
+
+- cs: API para o target C#
+
+- flash:
+ -- flash: Externalizações para a API de Flash
+ -- flasg.Lib: Interações básicas com a plataforma Flash
+ -- flash.Memory: Externalizações para a API Memory do Flash
+ -- flash.Vector: Externalização para Vectors de Flash
+
+- flash8:
+ -- flash8: Externalizações para API do Flash 8
+
+- java: API para o target Java
+
+- js:
+ --js.Browser: Atalhos para funções comuns de browsers
+ --js.Cookie: Assistentes para interagir com cookies HTTP no browser
+ --js.JQuery: Classes externalizadas e assistentes para JQuery
+ --js.Lib: Atalhos para alert(), eval() e debugger
+ --js.html: Externalizações para interagir com o DOM do browser
+
+- neko:
+ -- neko.Lib: Interações de baixo nível com a plataforma neko
+ -- neko.Web: Funciona com requisições e respostas HTTP
+ -- neko.net: Ferramentas para trabalhar com redes e servidores em execução -- neko.vm: API para aplicações multi-threaded
+ -- neko.zip: API para trabalar com compressão zip
+
+- php:
+ -- php.Lib: Interação de baixo nível com a plataforma PHP
+ -- php.Session: Funciona com seções nativas de PHP
+ -- php.Web:Funciona com requisições e resposta HTTP
+ -- php.db.PDO: driver adicional de PDO para interação com bancos de dados
+
+ 
+
+
+class Main {
+    static public function main() { }
+}
+
+
+\section{String}
+
+\definition{Type:String}{Um String é uma sequência de caracteres.}
+
+\section{Estruturas de dados}
+
+\subsection{Array}
+
+\Um Array é uma coleção de elementos. Ele tem um parâmetro de tipo que corresponde aos tipos desses elementos. Arrays podem ser criados de três formas:
+
+1. Usando seu constructor: new Array()
+
+2. Usando a sintaxe de declaração de array (ver seção): [1, 2, 3]
+
+3. Usando o preenchimento de array (ver seção): [for (i in 0...10) if (i % 2 == 0) i]
+
+Arrays vem com uma API para atender a maioria dos casos de uso. Adicionalmente eles permitem acesso a escrita e leitura dos arrays.
+
+class Main {
+    static public function main() {
+        var a = [1, 2, 3];
+        trace(a[1]); // 2
+        a[1] = 1;
+        trace(a[1]); // 1
+    }
+}
+
+Uma vez que o acesso a arrays in Haxe é ilimitado, isto é, se garante que le não lance uma mensagem de excessão, isso exige maior discussão:
+
+- Se um acesso de leitura é feito em um índice não existente, um valor dependente do target é retornado.
+
+- Se um acesso de escrita é feiuto com um índice positivo que é além do limite, null (ou o valor padrão (ver seção) de tipos básicos (ver seção) em targets estáticos (ver seção)) é inserido em todas as posições entre o último índice definido e o recém-escrito.
+
+- Se o acesso é feito com um índice negativo, o resultado é inespecífico.
+
+Arrays definem um iterador(ver seção) sobre seus elementos. Essa iteração é tipicamente otimizada pelo compilador para uso com loop while (ver seção) para o índice do array:
+
+class Main {
+    static public function main() {
+        var scores = [110, 170, 35];
+        var sum = 0;
+        for (score in scores) {
+            sum += score;
+        }
+        trace(sum); // 315
+    }
+}
+
+O Haxe gera o seguinte Javascript otimizado:
+
+Main.main = function() {
+    var scores = [110,170,35];
+    var sum = 0;
+    var _g = 0;
+    while(_g < scores.length) {
+        var score = scores[_g];
+        ++_g;
+        sum += score;
+    }
+    console.log(sum);
+};
+
+O Haxe não permite arrays com tipos mistos ao menos que o tipo de parâmetro seja forçado como Dynamic(ver seção):
+
+class Main {
+    static public function main()
+        // Erro de compilação: Arrays de tipo misto só
+        // são permitidos se o tipo é forçado  para
+        // Array<Dynamic>
+        //var myArray = [10, "Bob",false];
+
+        // Array<Dynamic> with mixed types
+        var myExplicitArray:Array<Dynamic> =
+        [10, "Sally", true];
+    }
+}
+
+\trivia{Arrays dinâmicos}{Em Haxe 2, declaração de arrays de tipo mistos eram permitidas. Em Haxe 3, arrays só podem ter tipos mistos se forem explicitamente declarados como Array<Dynamic>.
+
+\subsection{Vetor(haxe.ds.Vector)}
+
+Um vetor é uma coleção otimizada de elementos de tamanho fixo. Parecido com Arrays (ver seção), tem um parâmetro de tipo e todos os elementos do vetor devem ser do tipo especificado; ele pode ser iterado com o uso de um loop for (ver seção) e acessado utilizando a sintaxe de array (ver seção). Entretanto, diferente de arrays e listas, o comprimento de um vetor é especificado na sua criação e não pode ser mudado depois.
+
+class Main {
+    static function main() {
+        var vec = new haxe.ds.Vector(10);
+            for (i in 0...vec.length) {
+            vec[i] = i;
+        }
+
+    trace(vec[0]); // 0
+    trace(vec[5]); // 5
+    trace(vec[9]); // 9
+    }
+}
+
+haxe.ds.Vector é implementado como um tipo abstrato sobre a implementação nativa do array para um dado target e pode ser mais rápido para coleções de tamanho fixo, porque a memória para armazenamento de seus elementos é pré-alocada.
+
+\subsection{Lista (haxe.ds.list)}
+
+Uma lista é uma coleção para armazenamento de elementos. Na superfície uma lista é similar a um Array (ver seção). Entretando, a implementação subjacente é muito diferente, isso resulta em diversas diferenças de funcionamento:
+
+1. Uma lista não pode ser indexada com o uso de colchetes, i.e. [0].
+
+2. Uma lista não pode ser inicializada.
+
+3. Não há preenchimento de listas
+
+4. Uma lista pode modificar/adicionar/subtrair elementos livremente enquanto é iterada.
+
+Veja a API List (http://api.haxe.org/List.html para detalhes sobre os métodos de listas. Um simples exemplo para trabalhar com listas:
+
+class ListExample {
+    static public function main() {
+        var myList = new List<Int>();
+        for (ii in 0...5) myList.add(ii);
+        trace(myList); //{0, 1, 2, 3, 4}
+    }
+}
+
+\subsection{Pilha/Stack Genérico (GenericStack)}
+Um GenericStack, como Array e List é um container para armazendagem de elementos. Ele tem um parâmetro de tipo (ver seção) e todos os elementos do stack devem ser do tipo especificado. Veja a API GenericStack para detalhes sobre seus métodos. Aqui um pequeno exemplo de um programa para a inicialização e uso de um GenericStack.
+
+import haxe.ds.GenericStack;
+
+class GenericStackExample {
+    static public function main() {
+        var myStack = new GenericStack<Int>();
+        for (ii in 0...5) myStack.add(ii);
+        trace(myStack); //{4, 3, 2, 1, 0}
+        trace(myStack.pop()); //4
+    }
+}
+
+\trivia{Lista Rápida}{Em Haxe 2, a classe GenericStack era conhecida com FastList. Uma vez que seu comportamento é bem parecdio com um stack típico, o nome foi mudado para o Haxe 3}
+
+O Generic em GenericStack é literal. É atribuído com o metadado :generic. Dependendo do targe, isso pode levar a melhores desempenhos em targets estáticos. Veja Generic (ver seção).
+
+\subsection{Map}
+
+Um Map é um contêiner composto de pares chave, valor. Um Map também é normalmente tratado por array associativo, dicionário ou tabela de símbolos. O código seguinte dá um breve exemplo do funcionamento de maps:
+
+
+class Main {
+   static public function main() {
+       // Maps são inicializados como arrays,
+       // mas usam o operador '=>'. Maps podem ter seus
+       // tipos de calores chave, definidos explicitamente
+       var map1:Map<Int, String> = [1 => "one", 2=>"two"];
+
+       // ou pdem inferir os tipos de seus pares chave valor
+       var map2 = ["one"=>1, "two"=>2, "three"=>3];
+       $type(map2); // Map<String, Int>
+
+	// Chaves devem ser únicas
+	// Erro: Chave duplicada  
+        //var map3 = [1=>"dog", 1=>"cat"];
+
+        // Valores de Maps podem ser acessados 
+        // usando acessadores de  array
+        // accessors "[]"
+        var map4 = ["M"=>"Monday", "T"=>"Tuesday"];
+        trace(map4["M"]); //Monday
+        
+        // Maps iteram sobre os seus valores por padrão
+        var valueSum;
+        for (value in map4) {trace(value);} // Monday \n Tuesday
+
+        // Podem iterar sobre as chaves usando 
+        // método keys()
+        for (key in map4.keys()) {trace(key);} // M \n T
+
+        // Como arrays un novo Map pode ser
+        // criado usando preenchimento
+        var map5 = [ for (key in map4.keys())  key => "FRIDAY!!"];
+        trace(map5); // {M => FRIDAY!!, T => FRIDAY!!}
+    }
+}
+
+Veja a API de Map  (http://api.haxe.org/Map.html) para detalhes sobre seus métodos.
+
+Debaixo do capô,um Map é um tipo abstrato (ver seção). Em tempo de compilação ele é convertido de uma diversos tipos especializados dependendo do tipo da chave:
+
+- String: haxe.ds.StringMap
+
+- Int: haxe.ds.IntMap
+
+- EnumValue: haxe.ds.EnumValueMap
+
+{}:haxe.ds.ObjectMap
+
+O tipo Map não existe em tempo de execução e foi substituído por um dos objetos acima. Map defince o acesso como array (ver seção) usando o tipo de sua chave.
+
+\subsection{Option}
+
+Um option é um enum (ver seção) na Biblioteca Padrão do Haxe que é definido assim:
+
+enum Option<T> {
+    Some(v:T);
+    None;
+}
+
+Ele pode ser usado em várias situações, como para comunicar se um método tem ou não um retorno válido e, caso tenha, qual valor retornou:
+
+import haxe.ds.Option;
+
+class Main {
+    static public function main () {
+        var result = trySomething();
+        switch (result) {
+            case None:
+                trace("Got None");
+            case Some(s):
+                trace("Got a value: " +s);
+        }
+    }
+
+    static function
+    trySomething():Option<String> {
+        if (Math.random() > 0.5) {
+            return None;
+        } else {
+            return Some("Success");
+        }
+    }
+}
+
+\section{Expressões Regulares}
+
+O Haxe tem suporte interno a expressões regulares\footnote{http://pt.wikipedia.org/wiki/Express%C3%A3o_regular}. Elas podem ser usadas para verificar o formato de um string, transformar um string ou extrair dados regulares de um dado texto.
+
+O Haxe tem uma sintaxe especial para a criação de expressões regulares. Nós podemos criar um objeto expressão regular digitando-a entre a combinação de caracteres ~/ e uma barra simples /:
+
+var r = ~/haxe/i;
+
+Alternativamente, podemos criar uma expressão regular com a sintaxe normal:
+
+var r = new EReg("haxe","i");
+
+O primeiro argumento é uma string com um padrão de expressão regular, o segundo é um string com um sinalizador (flag, ver abaixo).
+
+Podemos usar padrões usuais de expressões regulares como:
+
+. (dot) qualquer caractere
+
+* repetir zero ou mais vezes
+
++ repetir uma ou mais vezes
+
+? opcional zero-ou-um
+
+[A-Z0-9] intervalos de caracteres
+
+[^\r\n\t] caractere fora do intervalo
+
+N do T{
+^ negação :^c = não c, ^x-z = diferente de x, y ou z
+
+acho que \r caractere de retorno de carro (carriage return)
+
+\t caractere de tabulação (tab)
+
+\n caractere de nova linha (que depende do OS?) 
+}
+
+(...) parentes para localizar grupos de caracteres
+
+^ começo do string (começo de uma linha em modo de localização multilinhas)
+
+$ fim do string (fim da linha no modo de localização multilinhas)
+
+| declaração "OU"
+
+
+Por exemplo, a expressão regular seguinte localiza endereços de e-mail válidos:
+
+~/[A-Z0-9._\¢-]+@[A-Z0-9.-]+\.[A-Z][A-Z][A-Z]?/i;
+
+Por favor, observe que o i ao final da expressão regular é um sinalizador (flag) que ativa a indiferença entre maiúsculas e minúsculas na localização.
+
+Os sinalizadores possíveis são os seguintes:
+
+i indiferença a maiúsculas e minúsculas
+
+g substituição global ou divisão, veja abaixo
+
+m modo de localização multilinha, ^ e $ representam o começo e o final de uma linha
+
+s o ponto . também localiza novas  linhas (apenas nos targets Neko, C++, PHP e Java)
+
+u usa localização com UTF-8 (apenas targets Neko e C++)
+
+\subsection{Localização}
+
+Provavelmente um dos usos mais comuns para expressões regulares é a verificação de encaixe de um string a um determinado padrão específico. O método match de um objeto expressão regular pode ser usado para fazer isso:
+
+class Main {
+    static function main() {
+        var r =  ̃/world/;
+        var str = "hello world";
+        // true : ’world’ foi encontrado no string
+        trace(r.match(str));
+        // false: 'world' não foi encontrado no string "hello !"
+        trace(r.match("hello !"));
+    }
+}
+
+\subsection{Grupos}
+
+Informações específicas podem ser extraídas de um string onde houve localização com o uso de groups. Se match() retornar true, podemos pegar o grupos usando o método matched(X), onde X é o número do grupo definidio pelo padrão da expressão regular:
+
+class Main {
+    static function main() {
+       var str = "Nicolas is 26 years old";
+       var r =  ̃/([A-Za-z]+) is ([0-9]+) years old/;
+       r.match(str);
+       trace(r.matched(1)); // "Nicolas"
+       trace(r.matched(2)); // "26"
+    }  
+}
+
+Observe que os números dos grupos começam em 1 e que r.matched(0) sempre retorna todo o substring localizado.
+
+r.matchedPos() retornará a posição desse substring no string original:
+
+class Main {
+    static function main() {
+       var str = "abcdeeeeefghi";
+       var r =  ̃/e+/;
+       r.match(str);
+       // "eeeee"
+       trace(r.matched(0));
+       // { pos : 4, len : 5 }
+       trace(r.matchedPos());
+    }
+}
+
+Adicionalmente, r.matchedLeft() e r.matchedRight() podem ser usados para pegar substrings à esquerda e a direita do substring localizado:
+
+class Main {
+     static function main() {
+         var r =  ̃/b/;
+         r.match("abc");
+         trace(r.matchedLeft()); // a
+         trace(r.matched(0)); // b
+         trace(r.matchedRight()); // c
+     }
+}
+
+\subsection{Replace}
+
+Uma expressão regular também pode ser usada para substituir uma parte do string:
+
+class Main {
+    static function main() {
+        var str = "aaabcbcbcbz";
+        // g : replace all instances
+        var r =  ̃/b[ˆc]/g;
+        // "aaabcbcbcxx"
+        trace(r.replace(str,"xx"));
+    }
+}
+
+Podemos usar $X para reutilizar um grupo localizado na substituição:
+
+class Main {
+    static function main() {
+        var str = "{hello} {0} {again}";
+        var r = ~ /{([a-z]+)}/g;
+        // "*hello* {0} *again*"
+        trace(r.replace(str,"*$1*"));
+    }
+}
+
+\subsection{Split(Partilha)}
+
+Uma expressão regular pode também ser usada para partir um string em diversos substrings:
+
+class Main {
+    static function main() {
+        var str = "XaaaYababZbbbW";
+        var r = ~/[ab]+/g;
+        // ["X","Y","Z","W"]
+        trace(r.split(str));
+    }
+}
+
+\subsection{Map}
+
+O método Map de um objeto expressão regular pode ser usado para substituir substrings usando uma função personalizada:
+
+class Main {
+    static function main() {
+        var r =  ̃/world/;
+        var s = "Hello, world!";
+        var s2 = r.map (  s, function(r) {return "Haxe";} );
+        trace(s2); // Hello, Haxe!
+}
+
+Essa função toma um objeto de expressão regular como primeiro argumento de forma que possamos usá-lo para tirar informações adicionais da correspondência sendo feita.
+
+\subsection{Detalhes de Implementação}
+
+Expressões regulares são implementadas:
+
+- em JavaScript, a execução oferece a implementação com o objeto RegExp
+
+- em Neko e C++, a biblioteca PCRE é utilizada
+
+- em Flash, PHP, C# e Java, implementações nativas são usadas
+
+- em Flash 6/8, a implementação não está disponível
+
+\section{Bibllioteca Matemática(Math)}
+
+O Haxe inclui uma biblioteca matemática de ponto flutuante para algumas operações mateméticans comuns. A maioria das funções opera sobre e retorna floats. Entretanto um Int pode ser usado onde um Float é esperado, e o Haxe também converte Int para Float durante a maioria das operações numéricas (verOperadores Numéricos (ver  seção) para maiores detalhes)
+
+Aqui estão alguns exemplos de uso da biblioteca matemática. Ver Math API (http://api.haxe.org/Math.html) para todas as funções disponíveis.
+
+class MathExample {
+     static public function main() {
+         var x = 1/2;
+         var y = 20.2;
+         var z = -2;
+         
+         trace(Math.abs(z)); //2
+         trace(Math.sin(x*Math.PI)); //1
+         trace(Math.ceil(y)); //21
+
+         // log é o log natural  
+         trace(Math.log(Math.exp(5))); //5
+
+        // Output for neko target, may vary
+        // depending on platform
+        Trace(1/0); //inf
+        Trace(-1/0); //-inf
+        Trace(Math.sqrt(-1)); //nan
+     }
+}
+
+\subsection{Números especiais}
+
+A biblioteca matemática tem definições para diversos números especiais:
+
+NaN (Not a Number): retornado quando uma operação matematicamente incorreta é executado, e.g.,Math.sqrt(-1)
+POSITIVE_INFINITE: divisão de um número positivo por zero
+POSITIVE_NEGATIVE: divisão de um número negativo por zero
+
+\subsection{Erros matemáticos}
+
+Ainda que o neko possa manusear erros matemáticos com fluidez, como a a divisão por zero, isso não é verdade para todos os targets. Dependendo do target, erros matemáticos podem produzir excessões e ultimamente, erros.
+
+\subsection{Matemática com Inteiros}
+
+Se você está compilando para uma plataforma que pode utilizar operações com inteiros, e.g., divisões de inteiros, você deve envelopar isso no Std.int() para melhor desempenho. O compilador do Haxe pode então, otimizar o resultado para operações inteiras. Um exemplo:
+
+var intDivision = Std.int(6.2/4.7);
+
+\subsection{Extensões}
+
+É comum ver Extensões Estáticas (ver seção) usadas com a biblioteca matemática. Este código mostra um exemplo simples:
+
+class MathStaticExtension {
+    /* Converts an angle in radians to degrees */
+    inline public static function
+    toDegrees (radians :Float) :Float
+    {  
+    return radians * 180/Math.PI;
+    }
+}
+
+using MathStaticExtension;
+class TestMath{
+    public static function main(){
+    var ang = 1/2*Math.PI;
+    trace(ang.toDegrees()); //90
+    }
+}
+
+\subsection{Lambda}
+
+\subsection{Reflexão}
+
+O Haxe suporta reflexão de tipos e campos em tempo de execução. Cuidado especial deve ser tomado aqui porque a representação em tempo de execução geralmente vária de um target para outro. De forma a usar reflexão corretamente é necessário entender que tipos de operações são suportadas e quais não. Dada a natureza dinâmica da reflexão, isso nem sempre pode ser determinado em tempo de compilação.
+
+A API de reflexão consiste em duas classes:
+
+Reflect: Uma API leve que funciona melhor em estruturas anônimas (ver seção)
+
+Type: Uma API mais robusta para trabalhar com classes e enums (ver seção)
+
+Os métodos disponíveis são detalhados nas APIs Reflect (http://api.haxe.org//Reflect.html) e Type (http://api.haxe.org//Type.html)
+
+Reflexão pode ser uma ferramenta poderosa, mas é importante entender porque ela também pode causar problemas. Como um exemplo, diversas funções esperam um argumento String (ver seção) e tentam resolvê-lo para um tipo ou campo. Isso é vunerável a erros de digitação:
+
+class Main {
+    static function main() {
+         trace(Type.resolveClass("Mian")); // null
+    }
+}
+
+Entretanto, mesmo que não existam erros de digitação é fácil esbarrar em comportamentos inesperados:
+
+class Main {
+   static function main() {
+       // null
+       trace(Type.resolveClass("haxe.Template"));
+   }
+}
+
+O problema aqui é que o compilador nunca chega a ver realmente a tipo jaxe.Template, então não o compila para o resultado. Além disso, mesmo que ele visse o tipo, poderiam aparecer problemas partindo da eliminação de código morto (ver seção) onde tipos e campos que só são utilizados via reflexão sejam eliminados.
+
+Um outro conjunto de problemas deriva do fato que, por concepção, diversas funções de reflexão esperam argumentos do tipo Dynamic, implicando que o compilador não pode verificar se os argumentos passados estão corretos. O exemplo seguinte mostra um engano normal quando se trabalha com callMethod:
+
+class Main {
+    static function main() {
+        // wrong
+        //Reflect.callMethod(Main, "f", []);
+        // right
+        Reflect.callMethod(Main, Reflect.field(Main, "f"), []);
+    }
+    static function f() {
+        trace(’Called’);
+    }
+}
+
+A chamada comentada poderia ser aceita pelo compilador porque ela atribui o string "f" como argumento da função func, especificada para ser do tipo Dynamic.
+
+Um bom conselho para trabalhar com reflexão é envelopá-la em algumas poucas funções dentro da aplicação ou API para que sejam chamadas por código com tipagem segura. Um exemplo segue:
+
+typedef MyStructure = {
+    name: String,
+    score: 12
+}
+
+class Main {
+     static function main() {
+     var data = reflective();
+     // Nesse ponto o dado já está convenientemente tipado como
+     // MyStructure
+}
+    static function reflective():MyStructure {
+        // Trabalho  com reflexão aqui para obter
+        // alguns valores que queremos retornar
+        return {
+            name: "Reflection",
+            score: 0
+        }
+    }
+}
+
+Ainda que o método reflective pudesse trabalhar inteiramente com reflexão (e o tipo Dynamic para tanto), seu tipo de retorno é uma estrutura tipada que as chamadas podem usar de uma maneira segura em relação a tipos. 
+
+
+\section{Serialização}
+
+Muitos valores de tempo de execução podem ser seriados e deseriados usando as classes haxe.Serializer e haxe.Unserializer. Ambas suportam dois usos:
+
+1. Criação de uma instância e continuas chamadas do método serialize/usserialize para manusear múltiplos valores.
+
+2. Chamada do seu método estático rum para seriar/deseriar um único valor.
+
+O exemplo seguinte mostra  primeiro uso:
+
+import haxe.Serializer;
+import haxe.Unserializer;
+
+class Main {
+    static function main() {
+        var serializer = new Serializer();
+        serializer.serialize("foo");
+        serializer.serialize(12);
+        var s = serializer.toString();
+        trace(s); // y3:fooi12
+
+        var unserializer = new Unserializer(s);
+        trace(unserializer.unserialize()); // foo
+        trace(unserializer.unserialize()); // 12
+    }
+}
+ 
+O resultado da serialização (aqui armazendado na variável local s) é um String (ver seção) que pode ser jogado para lá e para cá, mesmo remotamente. Seu formato é descrito em Formatos de serialização (ver seção).
+
+Valores suportados:
+
+- null 
+- Bool, Int e Float (incluindo infinitos e NaN)
+- String
+- Date
+- haxe.io.Bytes (codificados em base64)
+- Array (ver seção) e List (ver seção)
+- haxe.ds.StringMap, hase.ds.IntMap e haxe.ds.ObjectMap
+- estruturas anônimas (ver seção)
+- instâncias de classes haxe (ver seção) (e não instânciad de classes nativas)
+- instâncias de enums
+
+Configuração de serialização A serialização pode ser configurada de duas maneiras. Para ambas, uma variável estática pode ser definidad para influenciar todas as instâncias de haxe.Serializer e uma variável membro pode ser definida para influenciar apenas uma instância específica:
+
+USE_CACHE, useCache: Se verdadeira, objetos repetidos são seriado por referência. Isso pode evitar loops infinitos para dados recursivos ao custo de um tempo maior de serialização. Por padrão, esse valor é falso.
+
+USE_ENUM_INDEX, useEnumIndex:Se verdadeira, constructors de enum são seriados por seu índice em vez de seu nome. Isso pode tornar a serialização de strings mais curta, mas se quebra se constructors de enum são inseridos nos tipos antes da deserialização. Por padrão, esse valor é falso.
+
+Comportamento de deserialização Se o resultado de serialização é armazenado e depois usado para deserialização, cuidado deve ser tomado para manter a compatibilidade quando se trabalha com instâncias de enums e classes. É, então, importante entender exatamente como a deserialização é implementada.
+
+- O tipo tem que estar disponível em tempo de execução aonde a deserialização é feita. Se a eliminação de código morto (ver seção) está ativa, um tiṕ que só é usado através de serialização pode ser removido.
+
+- Cada Unserializer tem uma variável membro resolver que é usada para resolver classes e enums por nome. Na criação do Unserializer, isso é usado para definir Unserializer.DEFAULT_RESOLVER. Tanto ela quanto o membro da instância pode ser definidos para  definir um "resolver" personalizado.
+
+- Classes são resolvidas por nome, usando resolver.resolveClass(name). A instância é, então, criada usando Type.createEmptyInstance, o que implica que o constructor da classe não é chamado. Finalmente, os campos da instância são definidos de acorodo com o valor serializado
+
+- Enums são resolvidos por nome usando resolver.resolveEnum(name). A instância do enum é, então, criada usando Type.createEnum, usando os valores de argumento serializados, se disponíveis. Se os argumentos do constructor foram mudados desde a serialização, o resultado é não especificado.
+
+(De)Serialização personalizada Se uma classe deifini o método membro hxSerialize, esse método é chamado pelo serializador, permitindo uma serialização personalizada da classe. Da mesma forma, se uma classe define o método membro hxUnserialize, ele é chamado pelo deserializador:
+
+import haxe.Serializer;
+import haxe.Unserializer;
+
+class Main {
+    var x:Int;
+    var y:Int;
+
+    static function main() {
+        var s = Serializer.run(new Main(1, 2));
+        var c:Main = Unserializer.run(s);
+        trace(c.x); // 1
+        trace(c.y); // -1
+    }
+    function new(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+    @:keep
+    function hxSerialize(s:Serializer) {
+        s.serialize(x);
+        }
+    @:keep
+    function hxUnserialize(u:Unserializer) {
+        x = u.unserialize();
+        y = -1;
+    }
+}
+
+Nesse exemplo decidimos que vamos ignorar o valor membro da variável y e não serializá-lo. Ao invés disso o padronizamos para -1 em hxUnserializa. Ambos os métodos são anotados com o metadado :keep para previnir que a eliminação de código morto (ver seção) os removam, uma vez que elas nunca são propriamente referenciadas no código.
+
+\subsection{Formato de Serialização}
+
+Cada valor suportado é traduzido para um caracter de prefixo distinto, seguido pelos dados necessários:
+
+null: n
+
+Int: z para zero ou i seguido do próprio integer(e.g.i456)
+
+Float: NaN: k
+       infinito negativo: m
+       infinito positivo: p
+       float normal: d seguido da exibição do float (e.g d1.45e-8)
+
+Bool: t para verdadeiro (true) e f para falso (false)
+
+String: y seguido do comprimento do string codificado para url, seguido de dois pontos e o string codificado em url em si (e.g.:y10:hi%20there para "hi there")
+
+String(cacheado):R seguido pelo ID do cache (e.g. R456). O cacheamento de string está sempre habilitado.
+
+Pares nome-valor: um string serializado representando o nome, seguido pelo valor.
+
+estrutura: o seguido de uma lista de pares nome-valor, seguidos por g (e.g. oy1:xi2y1:kng para {x:2, k:null})
+
+List: l seguido da lista dos itens seriados, seguido por h (e.g lnnh para uma lista de dois valores nulos)
+
+Array: a seguido por uma lista dos itens seriados, seguido por h. Para múltiplos valores null consecutivos, u segudio pelo número de valores nulos é utilizado (e.g. ai1i2u4i7ni9h para [1,2,null,null,null,null,9])
+
+Data: v seguido pela propria data (e.g. d2010-01-01 12:45:10)
+
+haxe.ds.StringMap: b seguido pelos pares nome-valor, seguido por ha (e.g by1:xi2y1:knh para {"x" => 2, "k" => null})
+
+haxe.ds.IntMap: q seguido pelos pares chave-valor, seguido por ha. Cada chave é representada como :<int> (e.g. q:4n:5i45:6i7h para {4 => null, 5 => 45, 6 =>7})
+
+haxe.ds.ObjectMap: M seguido por pares valores seriados representado a chave e o valor, seguidos por h
+
+haxe.ds.Bytes: s seguido pela extensão dos bytes codificados em base64, então: e a representação de bytes usando os códigos A-Za-z0-9% (e.g. s3:AAA para 2 bytes igual a 0, s10:SGBsb8gI! para i haxe.io.Bytes.ofString("Hello !") )
+
+exception: x seguido do valor da exceção
+
+instância de classe: c seguido do nome seriado da classe, seguido do pares nome-valor dos campos, seguido de g (e.g. cy5:Pointy1:xzy1:yzg para Point(0,0) qye tenha dois campos integer x e y)
+
+instância de enum (por nome): w seguido do nome do enum seriado, seguido pelo nome seriado do constructor, seguido pelo número de argumentos, seguido pelo valor dos argumentos (e.g. wy3:Fooy1:A0 praa Foo.A (sem argumentos),  wy3:Fooy1:B2i4n para Foo.B(4,null) )
+
+instância de enum (por índice) j seguido do nome seriado do enum, seguido por :, seguido do índice do constructor, seguido pelo número de argumentos, seguido pelo valor (e.g. (como no original, precisa corrigir) wy3:Foo0:0 para Foo.A (sem argumentos), wy3:Foo1:2i4n para Foo.B(4,null) )
+
+personalizado(custom): C seguido pelo nome de classe, seguido pelo dado seriado, segudio por g.
+
+referências ao cache: r seguido pelo índice do cache;
+
+\section {Json}
+
+O Haxe oferece suporte interno para a (de)serialização de dados JSON\footnote{http://pt.wikipedia/wiki/JSON} via classe haxe.Json
+
+\subsection Decomposição sintática de JSON
+
+Use o método estático haxe.Json.parse para decompor sintaticamente dados JSON e obter um valor deles:
+
+class Main {
+    static function main() {
+        var s = ’{"rating": 5}’;
+        var o = haxe.Json.parse(s);
+        trace(o); // { rating: 5 }
+    }
+}
+
+Observe que o tipo de objeto retornado por haxe.Json.parse é Dynamic, então, se a estrutura de nosso dado é bem conhecida, podemos querer especificar um tipo usando estruturas anônimas. Dessa maneira, podemos oferecer verificações em tempo de compilação para acessar nosso dado e comumente otimizar a geração de código, porque o compilador conhece os tipos em uma estrutura:
+
+typedef MyData = {
+    var name:String;
+    var tags:Array<String>;
+}
+
+class Main {
+    static function main() {
+        var s = ’{
+            "name": "Haxe",
+            "tags": ["awesome"]
+            }’;
+        var o:MyData = haxe.Json.parse(s);
+        trace(o.name); // Haxe (a string)
+
+        // awesome (a string in an array)
+        trace(o.tags[0]);
+    }
+} 
+
+\subsection{Codificando JSON}
+
+Use o método estático haxe.Json.stringify para codificar um valor de Haxe em um string JSON:
+
+class Main {
+    static function main() {
+        var o = {rating: 5};
+        var s = haxe.Json.stringify(o);
+        trace(s); // {"rating":5}
+    }
+}
+
+
+\subsection{Detalhes de implementação}
+
+A API haxe.Json usa automaticamente a implementação nativa dos targets onde está disponível, i.e., Javascript, Flash e PHP e fornece sua própria implementação para outros targets.
+
+O uso da própria implementação do Haxe pode ser forçado com o argumento de compilação -D haxeJSON. Isso também fornece a serialização de enums (ver seção) por seus índices, maps (ver seção) com chaves string e instâncias de classes.
+
+Browsers mais velhos (Internet Explorer 7, por exemplo) podem não ter implementação nativa de JSON. No caso de ser necessário suportá-los, nos podemos incluir uma das implementações de JSON na página HTML. Alternativamente um argumento de compilação -D old_browser pode ser usado, ele  fará haxe.Json tentar usar o JSON nativo, mas puxar sua própria implementação no caso de ela não disponível.
+
+\subsection{Xml}
+
+\subsection{Input/Output}
+
+\subsection{Sys/sys}
+
