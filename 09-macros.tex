@@ -1,0 +1,313 @@
+\chapter{Macros}
+\label{macro}
+
+Macros são, sem nenhuma dúvida, a funcionalidade mais avançada do Haxe. Elas frequentemente são percebidas como uma magia sombria que apenas alguns eleitos são capazes de dominar, ainda que não exista nada de mágico(e certamente nada de sombrio) sobre elas.
+
+\define{Arvore Abstrata de Sintaxe (AST para  Abstract Sintax Tree)}{define-ast}{A AST resulta do processamento da separação das palavras (\emph{parsing}) do código fonte em uma estrutura tipada. Essa estrutura é exposta para as macros através dos tipos definidos no arquivo haxe/macro/Expr.hx da Biblioteca Padrão do Haxe}
+
+\input{assets/tikz/macro-compilation-role.tex}
+
+Um macro básica é uma \emph{transformação sintática}. Ela recebe zero ou mais \tref{expressões}{expression} e também retorna uma expressão. Se uma macro é chamada, ela efetivamente insere código no local de onde foi chamada. Com relação a isso, ela poderia ser comparada a um preprocessador como \expr{#define} in C++, mas uma macro de Haxe não é uma ferramenta de substituição de texto.
+
+Nós podemos certamente identificar diferentes espécies de macros, que são executadas em diferentes estágios da compilação:
+
+\begin{description}
+    \item[Macros de Inicialização:] Essas são fornecidas pela linha de comando usando o parâmetro de compilação \ic{--macro}. Elas são executadas depois que os argumentos de compilação foram processados e o \emph{contexto para tipificação} já foi criado, mas antes que qualquer tipificação seja feita (\Fullref{macro-initialization}).
+    \item[Macros de Build (Montagem)]: Essas são definidas para classes, enums e abstratos através do\tref{metadado}{lf-metadata}\expre{@:build} ou \expr{@:autobuild}. Elas são executadas por tipo, depois que o tipo foi definido (incluindo sua relação com outro tipos, como herança para classes) mas antes que os campos sejam tipados (Ver\Fullref{macro-type-building}).
+    \item[Macros de expressão:] Essa são funções normais que são executadas tão logo sejam tipadas.
+\end{description}
+
+
+\section{Contexto de macros}
+\label{macro-context}
+
+\define{Contexto de macro}{define-macro-context}{O contexto de macor é o ambiente no qual a macro é executada. Dependendo do tipo de macro, ele pode ser considerado como uma classe em montagem ou como uma função sendo tipificada. Informações de contexto podem ser obtidas através da API \ic{haxe.macro.Context}.}
+
+Macros de Haxe tem acesso a diferentes informações contextuais dependendo do tipo da macro. Além de acessar tais informações, o contexto também permite algumas modificaçãos tais como a definir um novo tipo ou registrar certas retrochamadas (callback). É importante entender que nem toda informação está disponível para todas as espécies de macro, como os exemplos seguintes demonstram:
+
+\begin{itemize}
+    \item Macros de inicialização vão achar que os métodos \expr{Context.getLocal*()} retornam \expr{null}. Não há tipo ou método local no contexto de uma macro de inicialização.
+    \item Apenas macros de build recebem um valor adequado de \expr{Context.getBuildFields()}. Não há campos em montagem para as outras espécies de macro.
+    \item Macros de build tem um tipo local (se incompletas), mas não tem métodos locais, então \expr{Context.getLocalMethod} retorna {null}.
+\end{itemize}
+
+A API de contexto é complementada pela API \expr{haxe.macro.Compiler} detalhada em \Fullref{macro-initialization}. Enquanto essa API está disponível para todas espécies de macros, cuidado deve ser tomado para qualquer modificação fora das macros de inicialização. Isso deriva da limitação natural da ordem de montagem não definida (ver seção), o que pode levar, por exemplo, a definição de um sinalizador (flag) através de Compiler.define() a ter efeito antes ou depois de uma verificação de \tref{compilação condicional}{lf-condition-compilation} aquele sinalizador.
+
+\section{Argumentos}
+\label{macro-arguments}
+
+Na maior parte do tempo, argumentos para macros são expressões representadas como uma instância de uma expressão de enum (enum \type{Expr}). Como tal, elas são separadas sintaticamente, mas não são tipadas, implicando que elas podem ser qualquer coisa que se conforme com as regras de sintaxe do Haxe. A macor pode então inspecionar suas estruturas, ou (tentar) conseguir seu tipo usando \expr{haxe.macro.Context.typeof()}
+
+É importante entender que argumentos para macros não tem garantia de serem valorados, então qualquer efeito colateral não tem garantia de ocorrer. Por outro lado, é importante entender que uma expressão como argumento pode ser duplicada por uma macro e usada multiplas vezes na expressão de retorno:
+
+\haxe{assets/MacroArguments.hx}
+
+A macro \expr{add} é chamada com argumento \expr{x++} e dessa forma retorna x++ + x++ usando a consolidação de expressão (ver seção), fazendo com que x seja incrementado duas vezes.
+
+\subsection{ExprOf}
+\label{macro-ExprOf}
+
+Uma vez que \type{Expr} é compatível com qualquer entrada possível, o Haxe fornece o tipo \type{haxe.macro.ExprOf<T>}. Na maioria das vezes, esse tipo é idêntico a \type{Expr}, mas ele permite restringir o tipo das expressões aceitas. Isso é útilquando se combinam macros com \tref{extensões estáticas}{if-static-extension}:
+
+\haxe{assets/ExprOf.hx}
+
+As duas chamadas diretas para \expr{identity} são aceitas, mesmo que o argumento seja declarado como \expr{ExprOf<String>}. Pode ser surpreendente que \type{Int} \expr{1} seja aceito, mas é uma consequência lógica do que foi explicado sobre \tref{argumentos de macros}{macro-arguments}: As expressões de argumento nunca são tipadas, então não é possível para o compilador verificar sua compatibilidade através da \tref{unificação}{type-system-unification}. 
+
+Isso é diferente para as duas próximas linhas que estão usando extensões estáticas (observe o \expr{using Main}): Para essas duas é mandatória a tipagem do lado esquerdo (\expr{"foo"} e \expr{1}) primeiro, de forma a dar sentido para o acesso ao campo \expr{identity}. Isso torna possível verificar tipos em relação aos tipos do argumento, o que faz com que \expr{1.identity()} não considerar \expr{Main.identity()} como um campo adequado.
+
+\subsection{Constantes expressões}
+\label{macro-constant-arguments}
+
+Uma macro pode ser declarada para esperar \tref{constantes}{expression-constants} como argumentos:
+
+\haxe{assets/MacroArgumentsConst.hx}
+
+Com isso não é necessário dar a volta em expressões uma vez que o compilador pode usar as constantes fornecidas diretamente.
+
+\subsection{Argumento final}
+\label{macro-rest-argument}
+
+Se o argumento final de uma macro é do tipo \type{Array<Expr>}, a macro aceita um número arbitrário de argumentos extras que estão disponíveis de dentro do array:
+
+import haxe.macro.Expr;
+
+\haxe{assets/MacroArgumentsRest.hx}
+
+
+
+\section{Consolidação (Reitification)}
+\label{macro-reification}
+
+\extratranslation{
+(N. do T.: Reitification pode ser traduzido eventualmente como reitificação, realização, concretização: significando tornar real algo que é abstrato)}
+
+O compilador do Haxe permite a consolidação  \emph{reification} de expressões,  tipos e classes para simplificar o trabalho com macros. A sintaxe para consolidação é \expr{macro expr}, onde \expr{expr} é qualquer expressão valida em Haxe.
+
+\subsection{Consolidação de expressões}
+\label{macro-reification-expression}
+
+A consolidação de expressões é usada para criar instâncias de \type{haxe.macro.Expr} de uma forma conveniente. O compilador do Haxe aceita a sintaxe usual do Haxe e a traduz em um objeto expressão. Ele suporta diversos mecânismos de escape, todos disparados pelo caractere \expr{\$}
+
+\begin{description}
+   	\item[\expr{\$\{\}} and \expr{\$e\{\}}:] \type{Expr -> Expr} Isso pode ser usado para compor expressões. A expressão delimitada por \expr{\{ \}} é executada, com seu valor sendo utilizado em seu lugar.
+    \item[\expr{\$a\{\}}:] \type{Expr -> Array<Expr>} Se usada em um local onde um \type{Array<Expr>} é esperado (por exemplo. chamada de argumentos ou elementos de bloco)  \expr{\$a\{\}} trata seu valor como se fosse aquele array. De outra forma ela gera uma declaração de array.
+    \item[\expr{\$b\{\}}:] \type{Array<Expr> -> Expr}  gera um bloco de expressões do array de expressões dado.
+    \item[\expr{\$i\{\}}:] \type{String -> Expr}Gera um identificador do string dado.
+	\item[\expr{\$p\{\}}:] \type{Array<String> -> Expr} Gera um campo expressão do array de strings dado.
+    \item[\expr{\$v\{\}}:] \type{Dynamic -> Expr} Gera uma expressão dependente do tipo de seu argumento. Isso só funciona garantidamente para \tref{tipos básicos}{types-basic-types} e \tref{instâncias de enums}{types-enum-instance}.
+\end{description}
+
+Adicionalmente o \tref{metadado}{lf-metadata} \expr{@:pos(p)} pode ser usado para mapear a posição da expressão anotada para \expr{p} ao invés do local onde é consolidada. 
+
+Esse tipo de consolidação só funciona em lugares onde a estrutura interna espera uma expressão. Isso exclui objeto.\expr{object.\$\{nomeDeCampo}\}, mas funciona para \expr{objeto.\$nomeDeCampo}. Isso é verdade em todos os lugares onde a estrutura interna espera um string:
+
+\begin{itemize}
+    \item acesso ao campo \expr{objeto.\$nome}
+    \item nome da variável \expr{var \$nome = 1};
+\end{itemize}
+\since{3.1.0}
+\begin{itemize}
+	\item nome de campo  \expr{\{ \$nome: 1\} }
+    \item nome de função \expr{function \$nome() \{ \}}
+    \item nome de variável no \expr{try e() catch(\$nome:Dynamic) \{\}}
+\end{itemize}
+
+
+\subsection{Consolidação (reificação) de tipos}
+\label{macro-reification-type}
+
+A consolidação de tipos é usada para criar instâncias de \type{haxe.macro.Expr.ComplexType} de uma forma conveniente. Ela é identificada por \expr{macro : Type}, onde Type pode ser qualquer expressão de caminho de tipo válido. Isso é similar a indicação de tipo explícito no código normal, por exemplo, para variáveis na forma \expre{var x:Type}.
+
+Cada constructor de \type{ComplexType} tem uma sintaxe distinta:
+
+\begin{description}
+	\item[\expr{TPath}:] \expr{macro : pack.Type}
+	\item[\expr{TFunction}:] \expr{macro : Arg1 -> Arg2 -> Return}
+	\item[\expr{TAnonymous}:] \expr{macro : \{ field: Type \}}
+	\item[\expr{TParent}:] \expr{macro : (Type)}
+	\item[\expr{TExtend}:] \expr{macro : \{> Type, field: Type \}}
+	\item[\expr{TOptional}:] \expr{macro : ?Type}
+\end{description}
+
+\subsection{Consolidação de classes}
+\label{macro-reification-class}
+
+Também é possível usar a consolidação para obger uma instância de \type{haxe.macro.Expr.TypeDefinition}. Isso é indicado pela sintaxe \expr{macro class}, como mostrado aqui:
+
+\haxe{assets/ClassReification.hx}
+
+A instância de \type{TypeDefinition} gerada é tipicamente passada para \expr{haxe.macro.Context.defineType} de forma a adicionar um novo tipo ao contexto de chamadas (e não ao próprio contexto da macro)
+Esse tipo de consolidação também pode ser útil para obter instâncias de \expr{haxe.macro.Expr.Field}, que estão disponíveis a partir do array \expr{fields} do \type{TypeDefinition} gerado.
+
+\section{Ferramentas}
+\label{macro-tools}
+
+A Biblioteca Padrão do Haxe vem com um conjunto de "classes-ferramentas" para simplificar o trabalho com macros. Essas classes funcionam bem como \tref{extensões estáticas}{lf-static-extension} e podem ser trazidas para o contexto ou individualmente ou como um todo através de \expr{using haxe.macro.Tools}. Essas classes são:
+
+\begin{description}
+    \item[\type{ComplexTypeTools}:] Permitem escrever instâncias de \type{ComplexType} em um formato legível para humanos. Também permitem determinar o \type{Type} correspondente a um \type{ComplexType}.
+    \item[\type{ExprTools}:] Permitem a escrita de instâncias de \expr{Expr} em um formato legível para humanos. Também permitem expressões de iteração e mapeamento.
+	\item[\type{TypeTools}:] Oferecem operações úteis sobre strings e expressçoes de strings no contexto de macros.
+    \item[\type{TypeTools}:] Permitem a escrita de instâncias de \type{Type} em formato legível para humanos. Também oferecem diversas operações sobre tipos, como \tref{unificação}{type-system-unification} ou conseguir o \type{ComplexType} correspondente.
+\end{description}
+
+\trivia{A biblioteca tinkerbell e porque Tools.hx funciona}{Aprendemos sobre as extensões estáticas que usar um \emph{módulo} implica em trazer todos os seus tipos para a o contexto de extensão estática. Disso resulta que, tal tipo pode bem ser um \tref{typedef}{type-system-typedef} para outro tipo. O compilador então considera essa parte tipificada de um módulo e estende a extensão estática concordantemente.
+
+Esse "truque" foi usado na biblioteca \emph{tinkerbell}\footnote{https://github.com/back2dos/tinkerbell} de Juraj Kirchheim exatamente com essa intenção. Tinkerbell ofereceu muitas ferramentas de macro bem antes de leas serem colocadas no Compilador do Haxe e na Biblioteca Padrão do Haxe. Ela permanece uma biblioteca primária para ferramentas de macro adicionais e oferece outras funcionalidades igualmente úteis.}
+
+\section{Montagem de tipos}
+\label{macro-type-building}
+
+Macros de montagem de tipo (Type Building) são diferentes de macros de expressões em diversas formas:
+\begin{itemize}
+    \item Elas não retornam expressões, mas um array de campos de classe. O seu tipo de retorno deve ser explicitamente definido para \type{Array<Haxe.macro.Expr.Field>}.
+    \item Seus \tref{contextos}{macro-context} não tem métodos locais nem variáveis locais.
+    \item Seus contextos tem campos de montagem (build), disponíveis apartir de \expr{haxe.macro.getBuildFields()}.
+    \item Elas não são chamadas diretamente, mas são argumentos para um m\tref{metadado}{lf-metadata} \expr{@:build} ou \expr{@:autobuild} em uma declaração de \tref{classe}{types-class-instance} ou \tref{enum}{types-enum-instance}.
+
+        O exemplo seguinte demonstra a montagem de tipo. Observe que ele é divido em dois arquivos por uma razão: Se um módulo contém uma função de \expr{macro}, ele tem que ser igualmente tipado dentro do contexto de macro. Isso  é frequentemente um problema para macros de montagem de tipos porque o tipo a ser montado só poderia ser carregado em seu estado incompleto, antes que a macro de montagem tenha sido executada. Nós recomendamos a definição de macros de montagem de tipos dentro de seu próprio módulo.
+
+\haxe{assets/TypeBuildingMacro.hx}
+\haxe{assets/TypeBuilding.hx}
+
+O método \expr{build} de \type{TypeBuildingMacro} executa três passos:
+
+\begin{enumerate}
+    \item Obtém os campos de montagem usando \expr{Context.getBuildFields()}.
+    \item Declara um novo campo \type{haxe.macro.expr.Field} usando o argumento de macro \expr{funcName} como nome do campo. Esse campo é uma \tref{variável}{class-field-variable} \type{String} com um valor padrão \expr{"my default"} (do campo \expr{kind}) e é público e estático (do campo \expr{acess}).
+    \item Adiciona o novo campo ao array de montagem de campos e o retorna.
+\end{enumerate}
+
+Essa macro é o argumento do metadado \expr{@:build} da classe \type{Main}. Tão logo esse tipo seja requerido, o compilador faz o seguinte:
+
+\begin{enumerate}
+    \item Analisa a sintaxe do arquivo com o módulo, incluindo os campos de classe.
+    \item Define o tipo, incluindo sua relação com outros tipos através de \tref{herança}{types-class-inheritance} e \tref{interfaces}{types-interfaces}.
+    \item Executa a macro de montagem de tipo de acordo com o metadado \expr{@:build}.
+    \item Continua  a tipificação de classes normalmente com os campos retornados pela macro de montagem de tipos.
+\end{enumerate}
+
+Isso permite adicionar e modificar campos de classe a vontade em uma macro de montagem de tipos. Em nosso exemplo a macro é chamada com um argumento \expr{"myFunc"}, fazendo \expr{Main.myFunc} um acesso de campo válido.
+
+Se uma macro de montagem de tipo não modificasse nada, a macro pode retornar \expr{null}. Isso indica ao compilador que nenhuma mudança é pretendida e é preferível o retornar \expr{Context.getBuildFields()}.
+
+\section[Montagem de enum}
+\label{macro-enum-building}
+
+A montagem de \tref{enums}{types-enum-instance} é análoga a montagem de classes com um mapeamento simples:
+
+\begin{itemize}
+    \item Constructors de enum sem argumentos são campos-variáveis \item{FVar}.
+    \item Constructors de enum com argumentos são campos-métodos FFun
+\end{description}
+
+\haxe{assets/EnumBuildingMacro.hx}
+\haxe{assets/EnumBuilding.hx}
+
+import haxe.macro.Context;
+import haxe.macro.Expr;
+
+Porque o enum \type{E} está marcado com um metadado \expr{:build}, a macro chamada monta dois constructors \expr{A} e \expr{B} ``nele''. O primeiro é adicionado com o kind sendo \expr{FVAr (null, null)} implicando que é um constructor sem argumentos. Para o último, usamos \tref{reification}{macro-reification-expression} para obter uma  instância de \type{haxe.macro.Expr.Function} com um único argumento \type{Int}.
+
+O método \expr{main} prova a estrutura do nosso enum gerado testando sua \tref{correspondência}{lf-pattern-matching}. Nós podemos ver que o tipo gerado é equivalente a isso
+
+\begin{lstlisting}
+enum E {
+    A;
+    B(value:Int);
+}
+\end{lstlisting}
+
+
+
+\subsection{@:autobuild}
+\label{macro-auto-build}
+
+Se uma classe tem o metadado \expr{:autobuild}, o compilador gera o metadado \expr{:build} em todas as classes que a estendem. Se uma interface tem o metadado \expr{:autobuild}, o compilador gera o metadado \expr{:build} em todas as classes que a implementam ou a estendem. Observe que \expr{:autobuild} não implica em \expr{:build} na própria classe/interface.
+
+\haxe{assets/AutoBuildingMacro.hx}
+\haxe{assets/AutoBuilding.hx}
+
+Isso gera saída durante a compilação:
+
+\begin{lstlisting}
+AutoBuildingMacro.hx:6:
+  fromInterface: TInst(I2,[])
+AutoBuildingMacro.hx:6:
+  fromInterface: TInst(Main,[])
+AutoBuildingMacro.hx:11:
+  fromBaseClass: TInst(Main,[])
+\end{lstlisting}
+
+É importante manter em mente que a ordem da execução dessas macros não é definida, o que é detalhado em \Fullref{macro-limitations-build-order}.
+
+
+
+\subsection{@:genericBuild}
+\label{macro-generic-build}
+\since{3.1.0}
+
+\tref{Macros de build}{macro-type-building} normais são rodadas por tipos e já são bastante poderosas. Em alguns casos é útil rodar uma macro de build por por \emph{utilização} de tipo, ao invés disso, i.e. em toda a ocasião que realmente aparece no código. Entre outras coisas, isso permite acessar os parâmetros de tipo concretos que aparecem no código.
+
+\expr{@:genericBuild} é usado justamente como \expr{@:build} ao adicioná-lo a um tipo com o argumento sendo uma chamada de macro:
+
+\haxe{assets/GenericBuild1.hx}
+
+Durante a execução esse exemplo gera a saída \ic{TAbstract(Int,[])} e \ic{TInst(String,[])}, indicando que está de fato ciente dos parâmetos de tipo concretos de \type{MyType}. A lógica de macro poderia usar esta informação para gerar um tipo personalizado (usando \expr{haxe.macro.Context.defineType}) ou fazer referência a um existente. Por brevidade, nós retornamos \expr{null} aqui, o que solicita ao compilador para \tref{inferir}{type-system-type-inference} o tipo.
+
+Em Haxe 3.1 o tipo de retorno de uma macro \expr{@:genericBuild} tem que ser um \type{haxe.macro.Type}. Haxe 3.2 permite (e prefere) retornar um \type{haxe.macro.ComplexType} ao invés disso, que é a representação sintática de um tipo. É mais facil de trabalhar com isso em muitos casos porque tipos podem ser simplesmente referenciados por seus caminhos.
+
+\paragraph{Const type parameter}
+
+O Haxe permite a passagens de \tref{expressões constantes}{expression-constants} como um parâmetro de tipo se o nome parâmetro de tipo é \expr{Const}. Isso pode ser utilizado no contexto de macros \expr{@:genericBuild} para passar informação da sintaxe diretamente para a macro:
+
+\haxe{assets/GenericBuild2.hx}
+
+Aqui a lógica de macro poderia carregar um arquivo e usar o seu conteúdo para gerar um tipo personalizado.
+
+
+\section{Limitações}
+\label{macro-limitations}
+\state{NoContent}
+
+\subsection{Macro dentro de macro}
+\label{macro-limitations-macro-in-macro}
+
+\subsection{Extensão estática}
+\label{macro-limitations-static-extension}
+
+Os conceitos de \tref{extensão estática}{lf-static-extensions} e macros são um tanto conflitantes: enquanto o primeiro exige um tipo conhecido de forma a determinar as funções utilizadas, macros são executadas antes da tipagem sobre a sintaxe pura. Não é, portanto, surpreendente que a combinação dessas duas funcionalidades pode levar a pontos de argumentação. O Haxe 3.0 tentaria converter expressões tipadas de volta a expressões sintáticas, o que não é sempre possível e pode perder informações importantes. Nós recomendamos o uso disso com cautela.
+
+\since{3.1.0}
+
+A combinação de extensões estáticas e macros foi retrabalhada para a versão 3.1.0. O compilador do Haxe nem mesmo tenta encontrar a expressão original para o argumento da macro e ao invés disso passa uma expressão especial \expr{@:this this}. Ainda que a estrutura da expressão não traga nenhuma informação, a expressão ainda pode ser tipada corretamente:
+
+
+\haxe{assets/MacroStaticExtension.hx}
+
+
+
+\subsection{Ordem de montagem}
+\label{macro-limitations-build-order}
+
+A ordem de montagem dos tipos não é especificada e isso se estende a ordem de execução das  \tref{macros de montagem}{macro-type-building}. Ainda que certas regras possam ser determinadas, nós recomendamos efusivamente que não se fie na ordem de execução das macros de montagem. Se a construção de tipos exige múltiplas passadas, isso não deve ser refletir diretamente no código da macro. De forma a evitar multiplas execuções de macros de montagem sobre o mesmo tipo, o estado pode ser armazendado em variáveis estáticas ou adicionados como \tref{metadados}{lf-metadata} ao tipo em questão:
+
+\haxe{assets/MacroBuildOrder.hx}
+
+Com ambas interfaces \type{I1} e \type{I2} tendo o metadado \expr{:autobuild}, a macro de montagem é executada duas vezes para a classe \type{C}. Previnimos o processo duplicado adicionando um metadado personalizado \expr{:processed} á classe, o que pode ser verificado durante a segunda execução da macro.
+
+
+\subsection{Parâmetros de tipo}
+\label{macro-limitations-type-parameters}
+
+
+\section{Macros de inicialização}
+\label{macro-initialization}
+
+Macros de inicialização são chamadas da linha de comando usando \expr{--macro callExpr(args)}. Isso registra uma uma retrochamada (callback) que o compilador executal depois de criar seu contexto, mas antes de tipificar o que foi passado como argumento para \expr{-main}. Isso, então, permite a configuração do compilador de algumas maneiras.
+
+Se o argumento para \expr{--macro} é uma chamada a um simples identificador, aquele identificador é procurado na classe {haxe.macro.Compiler} que é parte da Biblioteca Padrão do Haxe. A classe vem com diversas macros de incicialização que são detalhadas em sua \href{http://api.haxe.org//haxe/macro/Compiler.html}{API}.
+
+Como um exemplo, a macro \expr{include} permite a inclusão de um pacote inteiro para compilação, recursivamente se necessário. O argumento de linha de comando para isso seria \expr{--macro include ('some.pack', true)}.
+
+É claro que também é possível definir macros personalizadas de inicialização para executar diversas tarefas antes da compilação em si. Uma macro como essa seria chamada via \expr{--macro some.Class.theMacro(args)}. Um caso possível, uma vez que todas as macros compartilham o mesmo \tref{contexto}{macro-context}, uma macro de inicialização poderia atribuir o valor de um campo estático para que outras macros utilizem como configuração.
