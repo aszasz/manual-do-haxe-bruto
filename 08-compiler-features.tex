@@ -1,0 +1,436 @@
+% commit do original em 17/mar 8b2b2f8b6494ddb0d74a8f137088d7d1a505cdb6
+\chapter{Funcionalidades do compilador}
+\label{cr-features}
+\state{NoContent}
+
+\section{Metadados de compilação}
+\label{cr-metadata}
+
+Partindo do Haxe 3.0, você pode conseguir a lista dos metadados definidos pelo compilador executando \expr{haxe --help-metas}
+
+\begin{center}
+\begin{tabular}{| l | l | l |}
+	\hline
+	\multicolumn{3}{|c|}{Global metatags} \\ \hline
+	Metatag &  Descrição  &  Plataforma \\ \hline
+	@:abstract &  Determina a classe subjacente de implementação  como \tref{tipo abstrato}{types-abstract}  &  cs  java \\
+	@:access \_(Target path)\_  &   Força o acesso privado ao tipo ou campo do pacote, ver \tref{controle de acesso}{lf-access-control}  &  todas \\
+	@:allow \_(Target path)\_  &  Permite acesso privado do tipo ou campo do pacote, ver \tref{controle de acesso}{lf-access-control}  &  todas \\
+	@:annotation  &  Definições de anotações (\expr{@interface}) no imports de \expr{-java-lib} serão anotadas com esse metadado. Não tem efeito sobre tipos compilados pelo Haxe &  java \\
+    @:arrayAccess  &  Permite \tref{accesso como array}{types-abstract-array-access} em um (tipo) abstrato  &  todas \\
+	@:autoBuild \_(Build macro call)\_  &   Estende o metadado \expr{@:build} para todas as classes implementadoras ou exetensoras, ver  \tref{autobuild macro}{macro-auto-build}  &  todas \\
+	@:bind  &  Sobrescreve a declaração de classe Swf  &  flash \\
+	@:bitmap \_(Bitmap file path)\_  &  \_Embarca os bitmaps dados na classe (deve estender \expr{flash.display.BitmapData})   &  flash \\
+	@:build \_(Build macro call)\_  &   Monta uma classe ou enum a partir de uma macro, ver \tref{montagem de tipos}{macro-type-building}  &  todas \\
+	@:buildXml  &    &  cpp \\
+	@:classCode  &  Usada para injetar código nativo a plataforma em uma classe &  cs  java \\
+	@:commutative  &  Declara um operador de abstrato como comutativo  &  todas \\
+	@:compilerGenerated  &  Marca um campo como gerado pelo compilador. Não deveria ser usado pelo usuário final &  cs  java \\
+	@:coreApi &  Identifica essa classe como uma classe do cerne da API (força a verificação da API)  &  todas \\
+    @:coreType  &  Identica um tipo abstrato como {pertencente ao cerne (\tref{core type}{types-abstract-core-type}) de forma que não exija implementação  &  todas \\
+	@:cppFileCode  &     &  cpp \\
+	@:cppNamespaceCode  &    &  cpp \\
+    @:dce  &  Força a \tref{eliminção de código morto (DCE)}{cr-dce} mesmo quando \expr{-dce full} não é especificado  &  todas \\
+	@:debug  &  Força a geração de informação de debug a ser gerada no Swf mesmo sem \expr{-debug}   &  flash \\
+	@:decl   &     &  cpp \\
+	@:defParam  &    &  all \\
+	@:delegate  &  Automaticamente inserida por \expr{-net-lib} nos delegados   &  cs \\
+	@:depend  &     &  cpp \\
+	@:deprecated   &  Automaticamente inserida por  \expr{-java-lib} nos campos de classe anotados com a anotação \expr{@Deprecated}. Não tem efeito em timpos compilados pelo Haxe  &  java \\
+	@:event  &  Automaticamente inseridos por \expr{-net-lib} sobre eventos. Não tem efeitos sobre tipos compilados pelo Haxe   &  cs \\
+	@:enum  &  Define conjuntos finitos de valores nas definições de abstratos, ver \tref{abstratos de enums}{types-abstract-enum}  &  todas \\
+	@:expose \_(?Name=Class path)\_  &  Torna a classe disponível no objeto \expr{window}  ou em \expr{exports} para node.js, ver \tref{exposing Haxe classes for Javascript}{target-javascript-expose} &  js \\
+	@:extern  &  Marca o campo como um extern para que não seja gerado  &  all \\
+	@:fakeEnum \_(Type name)\_  &  Trata o enum como uma  coleção de valores do tipo especificado  &  all \\
+	@:file(File path)  &  Inclui um dado arquivo binário no target Swf e o associa com a classe  (deve estender \expr{flash.utils.ByteArray})  &  flash \\
+	@:final  &  Previne uma class classe de ser estendida  &  todas \\
+    @:font \_(TTF path Range String)\_  &  Embarca uma fonte TrueType dada na classe (deve estender \expr{flash.text.Font})  &  flash \\
+	@:forward \_(lista of nome de campo)\_  &  \tref{Encaminha o acesso de campo}{types-abstract-forward} ao typo subjacente  &  todas \\
+    @:from   &  Specifica que o campo do abstrato é uma operação cast (moldagem) a partir do tipo identificado na função, ver \tref{casts implícitos}{types-abstract-implicit-casts}  &  todas \\
+	@:functionCode  &     &  cpp \\
+	@:functionTailCode  &    &  cpp \\
+	@:generic &  Marca uma classe ou campo de classe como \tref{generic}{type-system-generic} para que cada combinação de parâmetro de tipo gere seu próprio tipo/campo  &  todas \\
+	@:genericBuild  & Monta instâncias de um tipo usando a macro especificada   &  todas \\
+	@:getter \_(nome do campo de classe)\_  &  Gera uma função 'getter' nativa para o campo dado &  flash \\
+	@:hack   &  Permite estender classes marcadas como \expr{@:final}  &  todas \\
+	@:headerClassCode  &    &  cpp \\
+	@:headerCode   &     &  cpp \\
+	@:headerNamespaceCode  &    &  cpp \\
+	@:hxGen  &  Anota que uma classe extern foi gerada pelo Haxe  &  cs  java \\
+    @:ifFeature \_(funcionalidade (feature))\_  &  Faz com que um campo seja mantido pelo \tref{DCE}{cr-dce} se a funcionalidade é dada como parte da compilação  &  todas \\
+	@:include &     &  cpp \\
+	@:initPackage  &    &  all \\
+	@:internal  &  Gera o campo/classe anotada com acesso \expr{internal}  &  cs  java \\
+	@:isVar  &  Força um campo físico a ser gerado para propriedades que de outra forma não o exigiriam  &  todas \\
+	@:keep   &  Faz com que um campo ou tipo seja mantido \tref{DCE}{cr-dce}  &  all \\
+	@:keepInit  &  Faz com que uma classe seja mantida pela \tref{DCE}{cr-dce} mesmo que todos os seus campos sejam removidos  &  todas \\
+	@:keepSub &  Estende o metadado \expr{@:keep} para todas as classes implementadoras ou estensoras  &  todas \\
+	@:macro  &  \_(deprecated)\_  &  todas \\
+	@:meta   &  Internamente usada para marcar um campo de classe como sendo o campo metadado &  todas \\
+	@:multiType \_(parâmetros de tipo relevantes)\_  &  Especifica que um abstrato escolhe seu this-type a partir de suas funções \expr{@:to}  &  todas \\
+	@:native \_(caminho do tipo de saída)\_  &  Reescreve o caminho de uma classe ou enum durante a geração  &  todas \\
+	@:nativeGen  &  Annotates that a type should be treated as if it were an extern definition - platform native  &  cs  java \\
+	@:noCompletion  &  Previne o compilador de sugerir o \tref{completamento}{cr-completion} sobre esse campo  &  todas \\
+	@:noDebug &  Não gera informação de debug para o Swf mesmo se \expr{-debug} está habilitado   &  flash \\
+	@:noDoc  &  Previne um tipo de ser incluído na geração automática de documentação &  todas \\
+	@:noImportGlobal  &  Previne um campo estático de ser importado como \expr{import Class.*}  &  todas \\
+	@:noPackageRestrict  &  Permite a um módulo ser acessado de todos os targets se localizado em seu primeiro tipo  &  todas \\
+	@:noStack &     &  cpp \\
+	@:noUsing &  Previne um campo de ser usado com \expr{using}  &  todas \\
+	@:notNull &  Declara que um tipo abstrato não aceita \tref{valores \expr{null}}{types-nullability}  &  all \\
+	@:ns  &  Internamente usado pelo gerador de Swf para manusear namespaces   &  flash \\
+    @:op \_(operação)\_  &   Declara um campo abstrato como um \tref{sobrescritor de operador}{types-abstract-operator-overloading}  &  todas \\
+	@:optional  &  Marca o campo de uma estrutura como opcional, ver \tref{argumentos opcionais}{types-nullability-optional-arguments}  &  todas \\
+	@:overload \_(especification de função)\_  &  Permite que o campo seja chamado com diferentes tipos de argumento. A especificação de função não pode ser uma expressão  &  todas \\
+	@:privateAccess  &  Permite o acesso  privado a tudo para a expressãp anotada  &  todas \\
+	@:property  &  Marca um campo de propriedade para ser compilado como uma propriedade nativa de C\# property   &  cs \\
+	@:protected  &  Marca um campo de classe como sendo protegido  &  todas \\
+	@:public  &  Marca um campo de classe como sendo público  &  todas \\
+	@:publicFields  &  Força todos os campos de classe das classes herdeiras a serem públicos & todas \\
+	@:readOnly  &  Gera um campo com a palavra-chave \expr{readonly} nativa &  cs \\
+	@:remove  &  Faz com que uma interface seja removida de todas as classes implementadoras antes da geração  &  todas \\
+    @:require \_(flag de compilação)\_  &  Permite acesso a um campo apenas se a {flag de compilação}{lf-condition-compilation} especificada está habilitada  &  all \\
+	@:rtti   &  Insere informações de tipo de tempo de execução, ver \tref{RTTI}{cr-rtti}  &  all \\
+	@:runtime  &    &  todas \\
+	@:runtimeValue  &  Marks an abstract as being a runtime value  &  all \\
+	@:setter \_(nome do campo de classe)\_  &  Gera uma função setter nativa para o dado campo &  flash \\
+	@:sound \_(caminho do arquivo)\_  &  Inclui um arquivo \_.wav\_ or \_.mp3\_ dado ao target Swf e o associa com a classe (deve estender \expr{flash.media.Sound})  &  flash \\
+	@:struct  &  Marca uma definição de classe como um struct  &  cs \\
+	@:suppressWarnings  &  Insere uma anotação SuppressWarnings para a classe Java gerada  &  java \\
+	@:throws \_(Type as String)\_  &  Insere uma declaração \expr{throws} à função gerada  &  java \\
+    @:to  &  Especifica que o campo do tipo abstrato (abstract) é uma operação cast (fusão) para o tipo identificado na função, ver \tref{casts implícitos}{types-abstract-implicit-casts} & todas \\
+    @:transient  &  Adiciona o sinalizador (flag) \expr{transient} ao campo de classe  &  java \\
+	@:unbound  &  Interno ao compilador para denotar variável global unbounded &  all \\
+	@:unifyMinDynamic  &  Permite a uma coleção de tipos que se unifique com Dynamic  &  todas \\
+	@:unreflective  &    &  cpp \\
+	@:unsafe  &  Declara uma classe pu um método com a flag \expr{unsafe} de C\#   &  cs \\
+	@:usage  &    &  todas \\
+	@:volatile  &    &  cs  java \\
+\end{tabular}
+\end{center}
+
+\section{Eliminação de código morto}
+\label{cr-dce}
+
+A eliminação de código morto ou \emph{DCE} (abreviando Dead Code Elimination) é uma funcionalidade que remove código não utilizado da saída. Depois de tipar, o compilador avalia os pontos de entrada (geralmente o método main) e recursivamente determina que tipos e campos são usados. Os campos utilizados são marcados adequadamente e os campos não marcados são removidos de suas classes.
+
+A DCE tem três modos que são definidos quando chamados pela linha de comando:
+
+\begin{description}
+    \item[dce std:] Apenas as classes na Biblioteca padrão são afetadas pelo DCE. Isso é o modo padrão para todos os targets.
+    \item[-dce no:] Nenhuma eliminação de código morto é executada.
+    \item[dce full:] Todas as classes são afetadas pelo DCE.
+\end{description}
+O algoritmo de DCE funciona bem com código tipado, mas pode falhar quando se usa  \tref{dynamic}{types-dynamic} e\tref{reflection}{std-reflection}. Isso pode exigir a marcação explícita de campos ou classes como sendo utilizadas, ao atribuir lhes os seguintes metadados:
+
+\begin{description}
+    \item[\expr{@:keep}:] Se for usado em uma classe, a classe e todos os seus campos não serão afetados pelo DCE.
+    \item[\expr{@:keepSub}:] Se usado em uma classe, funciona com \exor{@:keep} na classe anotada e em todas as suas subclasses.
+    \item[\expr{@:keepInit}:] Usualmente, uma classe que teve tosos os seus campos removidos pelo DCE (ou é vazia mesmo) é removida do resultado. Ao usar esse metadado, classes vazias são mantidas.
+\end{description}
+
+Se uma classe precisa ser marcada com \expr{@:keep} da linha de comando ao invés da edição de seu código fonte, há uma macro de compilação disponível para fazer isso: \expr{--macro keep('type dot path')}. Veja a href{http://api.haxe.org/haxe/macro/Compiler.html#keep}{APIhaxe.macro.Compiler.keep} para detalhes dessa macro. Ela irá marcar o pacote, módulo ou subtipo a ser mantido pelo DCE e incluí-los na compilação.
+
+O compilador automaticamente define um sinalizador (flag) de compilação \expr{dce} com valor entre \expr{ "std"}, \expr{"no"} ou \expr{"full"} dependendo do modo ativado. Isso pode ser usado epara a \tref{compilação condicional}{lf-condition-compilation}.
+
+\trivia{Revisão do DCE}{O DCE foi originalmente implementado no Haxe 2.07. Essa implementação foi considerada uma função a ser usada quando o código era explicitamente tipado. O problema com ela era que diversas funcionalidades, as mais importantes sendo as interfaces, faziam com que todos os campos de classe a serem tipados de forma a verificar a segurança-de-tipos. Isso subverteu o DCE efetivamente todo, demandando sua revisão para o Haxe 2.10}
+
+\trivia{DCE e try.haxe.org}{O DCE para \type{Javascript} viu vastas melhorias quando o website \url{http://try.haxe.org} foi divulgado. A recepção inicial do código gerado em \target{Javascript} foi variada, levando a uma seleção mais delicada de qual código deveria ser eliminado}
+
+\section{Completamento de texto}
+\label{cr-completion}
+
+Por conta do grande número de funcionalidades do Haxe e sua poderosa inferência de tipos, \href{http://haxe.org/documentation/introduction/editors-and-ides.html}{IDEs e editores de código} não podem lidar facilmente com o completamento de texto analisando sintaticamente os arquivos de Haxe. O Haxe oferece apoio ao completamento de expressões para IDEs construídos diretamente dentro do compilador graças ao parâmetro de linha de comando \ic{--display}
+
+Vamos dar uma olhada no seguinte exemplo:
+\begin{lstlisting}
+class Test {
+    public static function main() {
+        trace("Hello".|
+    }
+}
+\end{lstlisting}
+
+A barra vertical indica a posição do cursor depois que o ponto foi premido. Neste momento, é o trabalho da IDE chamar o compilador do Haxe com os parâmetros usuais de compilação, além de um adicional \ic{--display Test.hx@73}.
+
+Esse parâmetro determina o arquivo no qual nós queremos algum completamento de expressões e a posição em bytes (não em caractetes) do cursor no arquivo. No exemplo dado, você deve obter 73 se você contar caracteres com o CRLF de fins de linha do Windows 
+
+O Haxe desempenhará toda a análise sintática e tipagem como faria para a compilação normal, exceto que não gerará qualquer código. Se ele chega no byte 73 no arquivo \ic{Test.hx} durante a compilação, ele expõe a informação sobre o tipo da expressão à esquerda do ponto.
+
+No nosso caso, isso seria \type{String}. A exceção sendo que no caso de um objeto anônimo ou uma instância de classe, o compilador irá, ao invés, listar os diferentes campos em um XML e imprimí-los para uma possível saída. 
+
+
+\begin{lstlisting}
+<list>
+<i n="length"><t>Int</t><d>...</d></i>
+<i n="charAt"><t>index : Int -> String</t><d>...</d></i>
+<i n="charCodeAt"><t>index : Int -> Int</t><d>...</d></i>
+<i n="indexOf">
+  <t>value : String -> ?startIndex : Int -> Int</t>
+  <d>...</d>
+</i>
+...
+</list>
+\end{lstlisting}
+
+Nesse caso, todos os métodos e campos públicos de \type{String} são listados. Essa informação pode ser usada diretamente pela IDE para fornecer dicas de código e completamento de texto.
+
+\paragraph{Completamento de funções}
+Esse mecanismo de completamento funciona tanto com ponto quanto com parenteses de abertura, para que você possa conseguir informações de tipos sobre listas de campos e tipos de argumento de chamada de funções:
+
+\begin{lstlisting}
+class Test {
+    public static function main() {
+        trace("Hello".split(|
+    }
+}
+\end{lstlisting}
+
+Isso lhe dara o seguinte resultado: \expr{<type>delimiter : String -> Array<String></type>} \_(por favor, observe que o conteúdo do tipo não contém caracteres de escape de html-escaped na saída verdadeira)\_
+
+\paragraph{Completamento de pacotes}
+Ele também funciona para pacotes, escaneando os arquivos .hx disponíveis no caminho-de-classe:
+
+\begin{lstlisting}
+import haxe.|
+Retornará :
+
+<list>
+    <i n="BaseCode"><t></t><d></d></i>
+    <i n="EnumFlags"><t></t><d></d></i>
+    ...
+    <i n="io"><t></t><d></d></i>
+    <i n="macro"><t></t><d></d></i>
+    <i n="remoting"><t></t><d></d></i>
+    ...
+</list>
+\end{lstlisting}
+
+\paragraph{Manuseio de erros}
+Quando executado em modo de completamento de texto, o compilador não exibirá erros, mas ao invés disso, tentará ignorá-los ou se recuperar a partir deles.
+
+Se um erro sem recuperação ocorre enquanto se obtém a completagem de texto, o compilador de Haxe imprimirá a mensagem de erro ao invés da saída de completagem. Você pode, então, tratar qualquer saída não XML como uma mensagem de erro que impede a completagem.
+
+\paragraph{Servidor de cache de compilação}
+\since{2.09}
+
+Para conseguir a melhor velocidade tanto para compilação quanto para completagem, você pode usar o parâmetro de linha de comando \ic{--wait} para iniciar um servidor de compilação Haxe; Você também pode usar \ic{-v} para fazer o servidor imprimir um log. Aqui está um exemplo:
+
+\begin{lstlisting}
+haxe -v --wait 6000
+\end{lstlisting}
+
+Você pode, então, concectar ao servidor Haxe, enviar parâmetros de linha de comando seguidos por um byte 0 e, então, ler a resposta (sejam resultados de completagem de texto ou erros)
+
+Use o parâmetro de linha de comando \ic{--connect} para fazer com que o Haxe envie seus comandos de compilação para o servidor ao invés de executá-los diretamente:
+
+\begin{lstlisting}
+haxe --connect 6000 myproject.hxml
+\end{lstlisting}
+
+Por favor, observe que você pode usar o parâmetro \ic{--cwd} na primeira linha de comando enviada para mudar o diretório atual de trabalho do servidor de Haxe. Usualmente caminhos de classe e outros arquivos são relativos ao seu projeto.
+
+\paragraph{Como ele funciona}
+O servidor de compilação fará cache das seguintes coisas:
+
+\begin{description}
+    \item[arquivos analisados sintaticamente (``parseados'')] os arquivos só serão ``parseados'' novamente se eles forem modificados ou se havia um erro de análise
+    \item[chamadas a haxelib] os resultados anteriores das chamadas a haxelib serão reutilizados(apenas para completagem: eles serão ignorados quando se faz uma compilação
+	\item[módulos tipados] módilos de compilação serão armazenados depois de uma compilação com sucesso e podem ser reutilizados depois em compilações/completagem se nenhuma de suas dependências tiverem sido modificadas
+\end{description}
+
+Voê pode conseguir leituras precisas dos tempos gastos pelo compilador e como o servidor de compilação os afetam inserindo \ic{--times} na linha de comando. 
+
+\paragraph{Protocolo}
+Como o próximo exemplo de Haxe/Neko mostra, você pode simplesmente conectar na porta do servidor e mandar todos os comandos (um por linha) terminando com um caractere binário 0. Você pode, então, ler os resultados
+
+Macros de outros comandos podem fazer logs de eventos que não são erros. Da linha de comando, nós podemos ver a diferença entre o que é impresso em \ic{stdout} e o que é impresso em \ic{stderr}. Esse não é o caso no modo de socket. De forma a diferenciar entre os dois, mensagens de log (não erros) são prefixados com um caracter \ic{\\x01} e todos os caracteres de newline na mensagem são repostos pelo mesmo caractere \ic{\\x01}.
+
+Warnings e outras mensagens também podem ser considerados erros, mas não erros fatais. Se um erro fatal ocorreu, uma única linha de mensagem \ic{\\x02} será enviada.
+
+Aqui está algum código que se conectará ao servidor e lidará com detalhes do protocolo:
+
+\begin{lstlisting}
+class Test {
+    static function main() {
+		var newline = "\textbackslash\ n";
+        var s = new neko.net.Socket();
+        s.connect(new neko.net.Host("127.0.0.1"),6000);
+        s.write("--cwd /my/project" + newline);
+        s.write("myproject.hxml" + newline);
+        s.write("\textbackslash\ 000");
+		
+        var hasError = false;
+        for (line in s.read().split(newline))
+		{
+            switch (line.charCodeAt(0)) {
+				case 0x01: 
+					neko.Lib.print(line.substr(1).split("\textbackslash\ x01").join(newline));
+				case 0x02: 
+					hasError = true;
+				default: 
+					neko.io.File.stderr().writeString(line + newline);
+            }
+		}
+        if (hasError) neko.Sys.exit(1);
+    }
+}
+\end{lstlisting}
+
+\paragraph{Efeito em macros}
+O servidor de compilação pode ter alguns efeitos colaterais na \tref{execução de macros}{macro}.
+
+\subsection{Acesso a campos}
+\label{cr-completion-field-access}
+
+\subsection{Chamada de argumentos}
+\label{cr-completion-call-arguments}
+
+\subsection{Uso}
+\label{cr-completion-usage}
+
+\subsection{Posição}
+\label{cr-completion-position}
+
+\subsection{Nível superior}
+\label{cr-completion-toplevel}
+
+\section{Recursos}
+\label{cr-resources}
+\flag{fold}{true}
+
+O Haxe oferece um sistema de embarcação de recursos simples que pode ser usado par embarcar arquivos diretamente na aplicação compilada.
+
+Enquanto pode não ser otimizado embarcar coisas grandes como imagens ou música no arquivo da aplicação, isso vem a ser conveniente para embarcar pequenos recursos como configurações ou dados XML.
+
+\subsection{Embarcação(embedding) de recursos}
+\label{cr-resources-embed}
+
+Arquivos externos podem ser embarcados usando o argumento de compilação \emph{-resource}
+
+\todo{what to use for listing of non-haxe code like hxml?}
+\begin{lstlisting}
+-resource hello_message.txt@welcome
+\end{lstlisting}
+
+O string depois do símbolo \emph{@} é o \emph{identificador do recurso} que é usado no código para acolher o recurso. Se for omitido (bem como o \emph{@}) o nome do arquivo se tornará o identificador do recurso.
+
+\subsection{Acolhimento de recursos de texto}
+\label{cr-resources-getString}
+
+Para acolher o conteúdo de um recurso embarcado, utilizamos o método estático \emph{getString} de \type{haxe.Resource} e passando lhe um \emph{identificador de recursos}:
+
+\haxe{assets/ResourceGetString.hx}
+
+O código acima ira exibir o conteúdo do arquivo \emph{hello_message.txt} que incluímos anteriormente usando wellcome como identificador
+
+\subsection{Acolhimento de recursos binários}
+\label{cr-resources-getBytes}
+
+Ainda que não seja recomendado embarcar grandes arquivos binários na aplicação, ainda pode ser útil embarcar dados binários. A representação binária de um recurso embarcado pode ser acessada com o método estático \emph{getBytes} de \type{Haxe.Resource}:
+
+\haxe{assets/ResourceGetBytes.hx}
+
+O tipo do retorno do método \emph{getBytes} é \type{haxe.io.Bytes}, que é um objeto que fornece acesso a bytes individuais dos dados.
+
+\subsection{Detalhes de implementação}
+\label{cr-resources-impl}
+
+O Haxe usa a embarcação de recursos nativa da plataforma target se houver uma, se não fornece sua própria implementação.
+
+\begin{itemize}
+    \item Recursos em \emph{Flash} são embarcados como definições de ByteArray
+    \item Recursos em \emph{C#} são incluídos no assembly compilado.
+    \item Recursos em \emph{Java} são empacotados na arquivo JAR resultante
+    \item Recursos em \emph{C++} são armazenados nas constantes de array de bites globais.
+    \item Recursos em \emph{Javascript} são seriados no formato de serialização do Haxe e armazenados no campo estático da classe \type{haxe.Resource.
+    \item Recursos em \emph{Neko} são armazenados como strings em um campo estático da classe \type{haxe.Resource}
+\end{itemize}
+
+
+
+\section{Informação de tipos em tempo de execução}
+\label{cr-rtti}
+
+O compilador do haxe gera informação de tipos em tempo de execução (RTTI - runtime type information) para classes que são marcadas com o metadado \expr{:rtti}  ou para classes que estendam classes com essa marcação. Essa informação é armazenada como um string XML em um campo estático \expr{__rtti} e pode ser processado através da \type{haxe.rtti.XmlParser}. A estrutura resultante é descrita em  \Fullref{cr-rtti-structure}.
+
+\since{3.2.0}
+
+O tipo \type{haxe.rtti.Rtti} foi introduzido de forma a simplificar o trabalho com RTTI. A extração dessa informação é agora muito fácil:
+
+\haxe{assets/RttiUsage.hx}
+
+\subsection{A estrutura da informação de tipos em tempo de execução}
+\label{cr-rtti-structure}
+
+\paragraph{Informação geral de tipos}
+
+\begin{description}
+    \item[path:] O \tref{caminho de tipo}{define-type-path} para o tipo
+    \item[module:] O caminho de tipo do \tref{módulo}{define-module}que contém o tipo
+    \item[file:] O caminho com barras (\slash) completo para o arquivo .hx que vonté o tipo. Esse pode ser \expr{null} no caso de não existir o arquivo, e.g., se o tipo é definindo através de uma \tref{macro}{macro}.
+    \item[params:] Um array de strings representando os nomes dos \tref{parâmetros de tipo}{type-system-type-parameters} que o tipo tem. A partir do Haxe 3.2.0, isso não inclui as \tref{restrições}{type-system-type-parameter-constraints}.
+    \item[ doc:] A documentação do tipo. Essa informação só é disponível se o \tref{sinalizador de compilação}{define-compiler-flag} \expr{-D use_rtti_doc} estiver em ação. De outra forma, ou se o tipo não tiver documentação, o valor é \expr{null}
+    \item[isPrivate:] Se o tipo é ou não \tref{privado}{define-private-type}.
+    \item[platforms:] Uma lista de strings representando os targets onde o tipo está disponível
+     \item[meta:] Os metadados com que o tipo foi marcado.
+\end{description}
+  
+\paragraph{Informaçao de tipo para classes}
+\label{cr-rtti-class-type-information}
+
+\begin{description}
+    \item[isExtern:] Se a classe é ou não \tref{externalizada}{lf-externs}.
+    \item[isInterface:] Se a classe é ou não é uma \tref{interface}{types-interfaces}.
+    \item[superClass:] A classe pai da classe defininda por seu caminho de tipo e lista de parâmetros de tipo.
+    \item[interfaces:] A lista de interfaces definidas por seu caminho de tipo e lista de parâmetros de tipo
+    \item[fields:] A lista de seus \tref{campos de classe }{class-field} membros descritas em\Fullref{cr-rtti-class-field-information}.
+    \item[statics:] A lista de campos de classe estáticos, descrita em \Fullref{cr-rtti-class-field-information}.
+    \item[tdynamic:] O tipo que está \tref{implementado dinamicamente}{types-dynamic-implemented} pela classe, ou \expr{null} se o tipo não existe.
+\end{description}
+
+\paragraph{Informação de tipo enum}
+
+begin{description}
+    \item[isExtern:] Se o enum é ou não \tref{extern}{lf-externs}.
+    \item[constructors:] A lista dos constructors do enum
+\end{description}
+
+\paragraph{Informações para tipo abstratos}
+
+\begin{description}
+    \item[to:] um array contendo \tref{casts implicitos}{types-abstract-implicit-casts} para qual o tipo se converte.
+    \item[from:] um array contendo \tref{casts implícitos}{types-abstract-implicit-casts} a partir do qual o tipo se converte. 
+    \item[impl:] A \tref{informação de tipo de classe}{cr-rtti-class-type-information} da classe de implementação.
+    \item[athis:] O \tref{tipo subjacente}{define-underlying-type} do abstrato.
+\end{description}
+
+	
+\paragraph{Informações para campos de clase}
+\label{cr-rtti-class-field-information}
+
+\begin{description}
+    \item[name:] O nome do campo.
+    \item[type:] o tipo do campo
+    \item[isPublic:] Se o campo é ou não \tref{público}{class-field-visibility}.
+    \item[isOverride:] Se o campo \tref{sobrescreve}{class-field-override} ou não outro campo.
+    \item[doc:] A documentação do campo. Essa informação só é disponível se o  \tref{sinalizador de compilação}{define-compiler-flag} \expr{-D use_rtti_doc} estiver em ação. De outra forma, ou se o tipo não tiver documentação, o valor é \expr{null}.
+    \item[get:] O \tref{comportamento de acesso de leitura}{define-read-access} do campo.
+    \item[set:] O \tref{comportamento de acesso à escrita}{define-write-access} no campo.
+    \item[params:] um array de strings representando os nomes dos \tref{parâmetros de tipo}{type-system-type-parameters} que o campo tem . A partir do Haxe 3.2.0, isso não inclui as \tref{restrições }{type-system-type-parameter-constraints}.
+    \item[platforms:] Uma lista de strings representando os targets onde o campo está disponível.
+    \item[meta:] Os metadados com os quais o campo foi marcado.
+    \item[line:] O número da linha onde o campo é definido. Essa informação só está disponível se o campo tem uma expressão. De outra forma é \expr{null}.
+    \item[overloads:] Uma lista dos overloads disponíveis para os campos, ou \expr{null} se não existe overload.
+\end{description}
+
+\paragraph{Informações para constructors de enum}
+\label{cr-rtti-enum-constructor-information}
+
+\begin{description}
+    \item[name:] O nome do constructor.
+    \item[args:] a lista dos argumentos que o constructor tem, ou \expr{null} se não há argumentos disponíveis.
+    \item[doc:] A documentação do constructor. Essa informação só está disponível se o \tref{sinalizador de compilação}{define-compiler-flag} \expr{-D use_rtti_doc} estiver em ação. De outra forma, ou se o tipo não tiver documentação, o valor é \expr{null}
+    \item[platforms:] Uma lista de strings representando os targets onde o campo está disponível.
+    \item[meta:] Os metadados com os quais o constructor foi marcado.
+\end{description}
