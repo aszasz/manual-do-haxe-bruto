@@ -1,0 +1,40 @@
+\chapter{Uso do compilador}
+\label{compiler-usage}
+
+\paragraph{Uso básico}
+
+O compliador de Haxe é tipicamente invocado a partir da linha de comando com vários argumentos que tem que responder duas questões:
+
+begin{itemize}
+	\item O que deve ser compilado?
+    \item O que deve ser o resultado de saída?
+\end{itemize}
+
+Para responder a primeira pergunta, é normalmente suficiente oferecer um caminho de classe via o argumento \ic{-cp caminho_de_arquivo}, junto com a classe main a ser compilada pelo argumento \ic{-main pacote.modulo.classe}. O compilador do Haxe resolve, então, o arquivo da classe main e começa a compilação.
+
+A segunda questão usualmente se resume a fornecer um argumento especificando o target desejado. Cada target do Haxe tem uma opção de linha de comando, como \ic{-js nome_do_arquivo} para Javascript e \ic{-php diretório} para PHP. Dependendo  da natureza do target, o valor do argumento é ou um nome de arquivo (para \ic{-jf}, \ic{-swf} e \ic{-neko}) ou um caminho para um diretório.
+
+\paragraph{Argumentos comuns} 
+ 
+\emph{Input:}
+
+\begin{description}
+    \item[\ic{-cp caminho}] Adiciona um caminho de classe onde arquivos fonte ou pacotes  (subdiretórios) \ic{.hx} podem ser encontrados.
+    \item[\ic{lib nome_da_biblioteca}] Adiciona uma biblioteca \Fullref{Haxelib}.
+    \item[\ic{-main pacote.módulo.classe}] Define a classe main.
+\end{description}
+
+\emph{Output:}
+
+\begin{description}
+    \item[\ic{-js nome_arquivo}] Gera o código fonte em \tref{Javascript}{target-javascrip no arquivo especificado.
+    \item[\ic{as3 diretório}] Gera o código fonte de Actionscript 3 no diretório especificado.
+    \item[\ic{swf nome_arquivo}] Gera o arquivo especificado como uma .swf de \tref{Flash}{target-flash}.
+    \item[\ic{-neko nome_arquivo}] Gera um binário de \tref{Neko}{target-neko} como o arquivo especificado.
+    \item[\ic{php diretório}] Gera código fonte \tref{PHP}{target-php} no diretório especificado.
+    \item[\ic{cpp diretório}] Gera código fonte em \tref{C++}{target-cpp} no diretório especificado e o compila usando um compilador de C++ nativo.
+    \item[\ic{cs diretório}] Gera código fonte \tref{C\#}{target-cs} no diretório especificado.
+    \item[\ic{java diretório}] Gera código fonte em Generates \tref{Java}{target-java} no diretório especificado e o compila usando o Compilador Java.
+    \item[\ic{python nome_arquivo}] Gera código fonte em \tref{Python}{target-python} no arquivo especificado.
+\end{description}
+
