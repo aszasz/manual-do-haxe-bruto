@@ -1,4 +1,4 @@
-% commit original em 23/mar/2015: 771e7438b9fda344cc3dbb23c9f8ac980c5d44e4
+% commit original em 31/mar/2015: 16df30d7af6844f06f42252c189c830b4e1cc790
 \chapter{Biblioteca padrão}
 \label{std}
 
@@ -956,3 +956,59 @@ Quando o Flash acessa um servidor de um domínio diferente, prepare um arquivo \
 Não há garantia de nenhuma espécie que os tipos dos argumentos serão respeitados quando um método é chamado usando remoting.
 Isso quer dizer que mesmo se os argumentos da função \expr{foo} são tipados para \type{Int}, o cliente ainda será capaz de usar strings quando chamar o método.
 Isso pode levar a questões de segurança em alguns casos. Quando em dúvida, verifique o tipo do argumento ao chamar a função, usando o método \expr{Std.is}.
+
+\section{Testes de unidades}
+\label{std-unit-testing}
+
+A Biblioteca Padrão do Haxe fornece classes básicas de teste de unidades a partir do pacote \type{haxe.unit}. 
+
+\paragraph{Criando de novos casos de teste}
+
+Primeiro, crie uma nova classe que estenda \type{haxe.unit.TestCase} e adicione os seus próprios métodos de teste. Todo nome de método de teste deva começar com ``\ic{test}''.
+
+\haxe{assets/UnitTestCase.hx}
+
+\paragraph{Executando testes de unidades}
+Para executar o teste, uma instância de \type{haxe.unit.TestRunner} tem que ser criada. Adicione o \expr{TestCase} usando o métpodo \expr{add} e chame \expr{run} para iniciar o teste.
+
+\haxe{assets/UnitTestRunner.hx}
+
+O resultado do teste parece com isso:
+\begin{lstlisting} 
+Class: MyTestCase
+.
+OK 1 tests, 0 failed, 1 success
+\end{lstlisting} 
+
+\paragraph{Funções de teste}
+A classe \type{haxe.unit.TestCase} vem com três funções de teste.
+
+\begin{description}
+	\item[\expr{assertEquals(a, b)}] obtém sucesso se  \ic{a} e \ic{b} são iguais, onde \ic{a} é o valor testado e \ic{b} é o valor esperado.
+    \item[\expr{assertTrue(a)}] obtém sucesso se \ic{a} é \expr{true} (verdadeiro)
+    \item[\expr{assertFalse(a)}] obtém sucesso se \ic{a} é \expr{false} (falso)
+\end{description}
+
+\paragraph{Inserção e Remoção (Setup and tear down)}
+
+Para executar o código antes ou depois do teste, sobrescreva as funções \expr{setup} e \expr{tearDown} no \expr{TestCase}. 
+
+\begin{description}
+	\item[\expr{setup}] é chamada antes das rodadas de teste.
+	\item[\expr{tearDown}] é chamada depois das rodadas de teste.
+\end{description}
+
+\haxe{assets/UnitTestSetup.hx}
+
+\paragraph{Comparação de Objetos Complexos}
+
+Com objetos complexos pode ser difícil gerar os valores esperados para comparar com os reais. Também pode ser um problema que \expr{assertEquals} não faz uma comparação profunda. Um contorno a esses problemas é usar um string como o valor esperado e compará-lo com o valor real convertido a string usando \expr{Std.string}. Abaixo está um exemplo trivial usando um array.
+
+\begin{lstlisting} 
+public function testArray() {
+  var actual = [1,2,3];
+  assertEquals("[1, 2, 3]", Std.string(actual));
+}
+\end{lstlisting} 
+
+
