@@ -1,42 +1,36 @@
-% upstream: 113076f2e493405ebdb71eb8123364c75520afc3
+\chapter{Tipos}% upstream: commit 79adb3f36faa851206ab38c055e80645cfd73628 on Oct 15, 2016 
+\label{types}%ideally we try to keep the line number in sync with the original file to make reference easier. This is (at this point) a pure translation not a version.
 
-\chapter{Tipos}
-\label{types}
+O Compilador de Haxe emprega um detalhado sistema de tipos que ajuda a detectar erros de tipagem em um programa durante a compilação. Um erro de tipagem é uma operação inválida sobre um dado tipo como a divisão por um String, a tentativa de acesso a um campo de um Integer ou a chamada a uma função com menos (ou mais) argumentos que o necessário.
 
-O Compilador de Haxe emprega um detalhado sistema de tipos que ajuda a detectar erros relacionados a tipagem em um programa no momento da compilação. Um erro de tipagem é uma operação inválida para um dado tipo, como a divisão por um String, o acesso ao campo de um Integer ou a chamada a uma função com menos (ou mais) argumentos que o necessário.
-
-Em algumas linguagens essa segurança adicional é custosa porque os programadores são obrigados a indicar explicitamente os tipos em suas construções sintáticas:
+Em algumas linguagens essa segurança adicional é custosa porque os programadores são forçados a indicar explicitamente os tipos em suas construções sintáticas:
 
 \begin{lstlisting}
-var myButton:MySpecialButton =
-  new MySpecialButton(); // As3
-MySpecialButton* myButton =
-  new MySpecialButton(); // C++ 
+var myButton:MySpecialButton = new MySpecialButton(); // As3
+MySpecialButton* myButton = new MySpecialButton(); // C++ 
 \end{lstlisting}
-
-As indicações explicitas de tipos não são requeridas em Haxe, porque o compilador pode inferir o tipo:
+As indicações explicitas de tipos não são requeridas em Haxe, porque o compilador pode \emph{inferir} o tipo:
 
 \begin{lstlisting}
 var myButton = new MySpecialButton(); // Haxe
 \end{lstlisting}
+Exploraremos a inferência de em detalhes depois em \Fullref{type-system-type-inference}. Por hora, é suficiente dizer que a variável \expr{myButton} no código acima é reconhecida como uma \emph{instância da classe} type{ MySpecialButton}.
 
-A inferência de tipos será explorada em detalhes em \Fullref{type-system-type-inference}. Por hora, basta saber que a variável \expr{myButton} no código acima é sabidamente uma \emph{instância da classe} \type{MySpecialButton}. 
-
-O sistema de tipos do Haxe reconhece sete grupos de tipos:
+O sistema de tipos de Haxe reconhece sete grupos de tipos\translatenote{a palavra type pode aparecer nessa tradução, ao invés de tipo, se facilitar a compreensão. Nesse caso texto dirá algo como ``o type convertido''}:
 
 \begin{description}
- \item[\emph{Instância de classe}:] um object de uma dada classe ou interface
- \item[\emph{Instância de enum}:] um valor de uma enumeração do Haxe  % FIXME traduzir "enum"
+ \item[\emph{Instância de classe}:] um objeto de uma dada classe ou interface
+ \item[\emph{Instância de enumeração}:] um valor de uma enumeração de Haxe 
  \item[\emph{Estrutura}:] uma estrutura anônima, i.e., uma coleção de campos com nomes
  \item[\emph{Função}:] um tipo composto de vários vários argumentos e um retorno
  \item[\emph{Dinâmico}:] um tipo coringa que é compatível com qualquer tipo
- \item[\emph{Abstrato}:] um tipo no momento de compilação representado outro diferente na execução
- \item[\emph{Monomorfo}:] um tipo desconhecido que pode posteriormente se tornar um tipo diferente
+ \item[\emph{Abstrato}:] um tipo no momento de compilação representado outro tipo diferente na execução
+ \item[\emph{Monomorfo}:] um tipo desconhecido que deve mais tarde se tornar um tipo diferente
 \end{description}
 
 Nos próximos capítulos, cada um desses grupos de tipos será descrito, bem como as relações entre eles.
 
-\define{Tipo composto}{define-compound-type}{Um tipo composto é um tipo que tem subtipos. Isso inclui qualquer tipo com \tref{parâmetros de tipo}{type-system-type-parameters} as \tref{funções}{types-function}.}
+\define{Tipo composto}{define-compound-type}{Um tipo composto é um tipo que tem subtipos. Isso inclui qualquer tipo com \tref{parâmetros de tipo}{type-system-type-parameters} e as \tref{funções}{types-function}.}
 
 
 \section{Tipos básicos}
@@ -50,7 +44,7 @@ Os \emph{tipos básicos} são \type{Bool}, \type{Float} and \type{Int}. Eles pod
 	\item \expr{1.0}, \expr{0.0}, \expr{-1.0}, \expr{1e10} para \type{Float}.
 \end{itemize}
 
-Tipos básicos não são \tref{classes}{types-class-instance} em Haxe. Eles são implementados como \tref{tipos abstratos}{types-abstract} e estão ligados ao manuseio de operadores interno ao compilador, sendo descritos nas seções seguintes.
+Tipos básicos não são \tref{classes}{types-class-instance} em Haxe. Eles são implementados como \tref{tipos abstratos}{types-abstract} e estão amarrados ao "gerenciamento de operadores" interno ao compilador, como descrito nas seções seguintes.
 
 \subsection{Tipos numéricos}
 \label{types-numeric-types}
@@ -58,23 +52,26 @@ Tipos básicos não são \tref{classes}{types-class-instance} em Haxe. Eles são
 \define[Tipo]{Float}{define-float}{Representa um número em ponto flutuante IEEE com 64 bits e precisão dupla.}
 
 \define[Tipo]{Int}{define-int}{Representa um número inteiro.}
-
-Enquanto \type{Int} pode ser usado aonde se espera um \type{Float} (\type{Int} \emph{é atribuível a} ou \emph{unifica com} \type{Float}), o contrário não é verdade: atribuir um \type{Float} a um \type{Int} pode resultar em perda de precisão e não é implicitamente permitido.
+Enquanto todo \type{Int} pode ser usado onde se espera um \type{Float} (\type{Int} \emph{é atribuível a} ou \emph{unifica com} \type{Float}), o contrário não é verdade: a atribuição de um \type{Float} a um \type{Int} pode tirar precisão e não é permitida implicitamente.
 
 \subsection{Overflow}
 \label{types-overflow}
 
-Por razões de desempenho, o Compilador de Haxe não define um comportamento particular de overflow. A responsabilidade de verificar overflows recai sobre a plataforma do target. Aqui se vêem algumas observações especificas do comportamento de overflow:
+Por razões de desempenho, o Compilador de Haxe não define um comportamento particular de overflow\translatenote{a condição a que se refere aqui como overflow é a codição que se atinge quando o resultado de uma operação é maior do que o espaço de memória destinado a guardá-lo, algumas publicações em português utilizam transbordamento e outras estouro, optamos  por manter o termo original overflow, como o fazem outras tantas publicações.}. A responsabilidade de verificar overflows recai sobre a plataforma do target. Aqui se vêem algumas observações especificas do comportamento de overflow:
 
 \begin{description}
  \item[C++, Java, C\#, Neko, Flash:] Inteiros de 32 bits com sinal e comportamento usual de overflow 
- \item[PHP, JS, Flash 8:] Não possuem \emph{Int} nativo e haverá perda de precisão quando eles atingirem seu limite de ponto flutuante (2\textsuperscript{52})
+ \item[PHP, JS, Flash 8:] Não possuem tipo \emph{Int} nativo e haverá perda de precisão quando eles atingirem seu limite de ponto flutuante (2\textsuperscript{52})
 \end{description}
 
-Alternativamente, as classes \emph{haxe.Int32} e \emph{haxe.Int64} podem ser usadas para assegurar correto comportamento de overflow independente da plataforma, ao custo de eventuais cálculos adicionais.
+Alternativamente, as classes \emph{haxe.Int32} e \emph{haxe.Int64} podem ser usadas para assegurar correto comportamento de overflow em qualquer plataforma, ao custo de eventuais cálculos adicionais.
 
 \subsection{Operadores numéricos}
 \label{types-numeric-operators}
+
+\todo{make sure the types are right for inc, dec, negate, and bitwise negate}
+\todo{While introducing the different operations, we should include that information as well, including how they differ with the "C" standard, see http://haxe.org/manual/operators}
+Esta é a lista de operadores numéricos em Haxe, agrupados por prioridade decrescente.
 
 \begin{center}
 \begin{tabular}{| l | l | l | l | l |}
@@ -113,39 +110,49 @@ Alternativamente, as classes \emph{haxe.Int32} e \emph{haxe.Int64} podem ser usa
 	\expr{<=} & menor ou igual a & \type{Float/Int} & \type{Float/Int} & \type{Bool} \\
 	\expr{>} & maior que & \type{Float/Int} & \type{Float/Int} & \type{Bool} \\
 	\expr{>=} & maior ou igual a & \type{Float/Int} & \type{Float/Int} & \type{Bool} \\ \hline
-	\multicolumn{5}{|c|}{Bitwise} \\ \hline  % FIXME traduzir bitwise
+	\multicolumn{5}{|c|}{Bit-a-bit} \\ \hline
 	Operador & Operação & Argumento 1 & Argumento 2 & Retorno \\ \hline
-	\expr{\textasciitilde} & negação bitwise & \type{Int} & N/A & \type{Int} \\	
-	\expr{\&} & e bitwise & \type{Int} & \type{Int} & \type{Int} \\	
-	\expr{|} & ou bitwise & \type{Int} & \type{Int} & \type{Int} \\	
-	\expr{\^} & xor bitwise & \type{Int} & \type{Int} & \type{Int} \\	
+	\expr{\textasciitilde} & negação bit-a-bit & \type{Int} & N/A & \type{Int} \\	
+	\expr{\&} & e bit-a-bit & \type{Int} & \type{Int} & \type{Int} \\	
+	\expr{|} & ou bit-a-bit & \type{Int} & \type{Int} & \type{Int} \\	
+	\expr{\^} & xor bit-a-bit & \type{Int} & \type{Int} & \type{Int} \\	
 	\expr{<{}<} & shift à esquerda & \type{Int} & \type{Int} & \type{Int} \\  % FIXME traduzir shift?
 	\expr{>{}>} & shift à direita & \type{Int} & \type{Int} & \type{Int} \\  % FIXME disable ligatures for \expr and other tt typesetting
 	\expr{>{}>{}>} & shift à direita sem sinal & \type{Int} & \type{Int} & \type{Int} \\ \hline
 \end{tabular}
 \end{center}
 
+\paragraph{Igualdade}
+
+\emph{Para enumerações(Enums):}
+\begin{description}
+	\item[Enumerações sem parâmetros] sempre representam os mesmos valores, então \expr{MyEnum.A == MyEnum.A}. 
+    \item[Enumerações com parâmetros] podem ser comparadas com \expr{a.equals(b)} (que é um forma curta para \expr{Type.enumEquals()}).
+\end{description}
+
+\emph{Dinâmicos(Tipo Dynamic)}
+Comparações envolvendo ao menos um valor Dynamic não são especificadas e "específicas a plataforma".
+
 \subsection{Bool}
 \label{types-bool}
 
-\define[Type]{Bool}{define-bool}{Represents a value which can be either \emph{true} or \emph{false}.}
+\define[Type]{Bool(Booleano)}{define-bool}{Representa um valor que pode ser ou \emph{true} ou \emph{false} (verdadeiro ou falso)}
 
-Values of type \type{Bool} are a common occurence in \emph{conditions} such as \tref{\expr{if}}{expression-if} and \tref{\expr{while}}{expression-while}. The following \emph{operators} accept and return \type{Bool} values:
+Valores do tipo \type{Bool} são uma ocorrência comum em \emph{condicionais} como \tref{\expr{if}}{expression-if} e \tref{\expr{while}}{expression-while}. Os \emph{operadores} seguintes aceitam e retornam valores \type{Bool}:
 
 \begin{itemize}
-	\item \expr{\&\&} (and)
-	\item \expr{||} (or)
-	\item \expr{!} (not)
+    \item \expr{\&\&} (e)
+	\item \expr{||} (ou)
+	\item \expr{!} (não)
 \end{itemize}
 
-Haxe guarantees that compound boolean expressions are evaluated from left to right and only as far as necessary at run-time. For instance, an expression like \expr{A \&\& B} will evaluate \expr{A} first and evaluate \expr{B} only if the evaluation of \expr{A} yielded \expr{true}. Likewise, the expressions \expr{A || B} will not evaluate \expr{B} if the evaluation of \expr{A} yielded \expr{true}, because the value of \expr{B} is irrelevant in that case. This is important in cases such as this:
+O Haxe garante que as expressões booleanas compostas são avaliadas da esquerda para a direita e apenas até onde for necessário em tempo de execução. Por exemplo, uma expressão como \expr{A \&\& B}resolverá primeiro \expr{A}, e resolverá \expr{B} apenas se \expr{A} for verdadeira. Da mesma forma, expressões como \expr{A || B} não resolverão B se \expr{A} for verdadeira. Isso é importante em casos como:
 
 \begin{lstlisting}
-if (object != null && object.field == 1)
-  { ... }
+if (object != null && object.field == 1) { }
 \end{lstlisting}
 
-Accessing \expr{object.field} if \expr{object} is \expr{null} would lead to a run-time error, but the check for \expr{object != null} guards against it.
+Acessar \expr{object.field} se \expr{object} for \expr{null} levaria a um erro em tempo de execução, mas a verificação de \expr{object!=null} previne isso.
 
 
 
@@ -153,16 +160,15 @@ Accessing \expr{object.field} if \expr{object} is \expr{null} would lead to a ru
 \subsection{Void}
 \label{types-void}
 
-\define[Type]{Void}{define-void}{Void denotes the absence of a type. It is used to express that something (usually a function) has no value.}
+\define[Type]{Void}{define-void}{Void indica a ausência de um tipo. É usado para expressar que algo (normalmente uma função) não tem um valor}
 
-\type{Void} is a special case in the type system because it is not actually a type. It is used to express the absence of a type, which applies mostly to function arguments and return types.
-We have already ``seen'' Void in the initial ``Hello World'' example:
+\type{Void} é um caso especial no sitema de tipos porque não é em si um tipo. Ele é usado para expressar a ausência de um tipo. Já vimos Void no exemplo inicial ``Hello World'':
 \todo{please review, doubled content}
 
 \haxe{assets/HelloWorld.hx}
 
-The function type will be explored in detail in the section \Fullref{types-function} but a quick preview helps here: The type of the function \expr{main} in the example above is \type{Void->Void}, which reads as ``it has no arguments and returns nothing''.
-Haxe does not allow fields and variables of type \type{Void} and will complain if an attempt at declaring such is made:
+O tipo função será explorado em detalhe na seção \Fullref{types-function}, mas uma rápida visão é útil aqui: O tipo da função \expr{main} no exemplo anterior é \type{Void-->Void}, que se lê: ``não tem argumentos e nem valor de retorno''.
+Haxe não permite campos e variáveis do tipo \type{Void} e reclamará se uma tentativa de os declarar assim for feita:
 \todo{review please, sounds weird}
 
 \begin{lstlisting}
@@ -173,38 +179,38 @@ var x:Void;
 
 
 
-\section{Nullability}
+\section{Nulabilidade}
 \label{types-nullability}
 
-\define{nullable}{define-nullable}{A type in Haxe is considered \emph{nullable} if \expr{null} is a valid value for it.}
+\define{nullable}{Um tipo em Haxe é considerado \emph{nullable}\translatenote{a pronúncia é nu-la-bol, a tradução seria ``nulável'', mas usaremos o termo em inglês}se \expr{null} é um valor válido para ele}
 
-It is common for programming languages to have a single, clean definition for nullability. However, Haxe has to find a compromise in this regard due to the nature of Haxe's target languages: While some of them allow and; in fact, default to \expr{null} for anything, others do not even allow \expr{null} for certain types. This necessitates the distinction of two types of target languages:
+É comum que linguagens de programação tenham uma única definição clara de nulabilidade. No entanto, o Haxe tem que se comprometer em relação a esse assunto devido a natureza das linguagens dos targets: Enquanto algumas delas permitem e, de fato, padronizam \expr{null} para tudo, outras nem mesmo permitem \expr{null} para certos tipos. Isso gera a necessidade de criar a distinção entre dois tipos de targets:
 
-\define{Static target}{define-static-target}{Static targets employ their own type system where \expr{null} is not a valid value for basic types. This is true for the \target{Flash}, \target{C++}, \target{Java} and \target{C\#} targets.}
+\define{Target estático}{define-static-target}{Targets estáticos empregam sistemas de tipificação onde \expr{null} é um valor inválido para os tipos básicos. Esse é o caso de \target{Flash}, \target{C++}, \target{Java} and \target{C\#}.}
 
-\define{Dynamic target}{define-dynamic-target}{Dynamic targets are more lenient with their types and allow \expr{null} values for basic types. This applies to the \target{JavaScript}, \target{PHP}, \target{Neko} and \target{Flash 6-8} targets.}
+\define{Target dinâmico}{define-dynamic-target}{Dynamic targets are more lenient with their types and allow \expr{null} values for basic types. This applies to the \target{JavaScript}, \target{PHP}, \target{Neko} and \target{Flash 6-8} targets.}
 
-There is nothing to worry about when working with \expr{null} on dynamic targets; however, static ones may require some thought. For starters, basic types are initialized to their default values.
+Não há nada para se preocupar quando se trabalha com \expr{null} sobre targets dinâmicos; no entanto targets estáticos demandam alguma atenção. Para começar, tipos básicos são inicializados com seus valores padrão.
 \todo{for starters...please review}
 
-\define{Default values}{define-default-value}{
-	Basic types have the following default values on static targets:
+\define{Valores default}{define-default-value}{
+	Tipos básicos tem os seguintes valores default em targets estáticos:
 	\begin{description}
 		\item[\type{Int}:] \expr{0}
-		\item[\type{Float}:] \expr{NaN} on \target{Flash}, \expr{0.0} on other static targets
+		\item[\type{Float}:] \expr{NaN} on \target{Flash}, \expr{0.0} nos outros targets estáticos
 		\item[\type{Bool}:] \expr{false}
 	\end{description}
 }
 
-As a consequence, the Haxe Compiler does not allow the assignment of \expr{null} to a basic type on static targets. In order to achieve this, the basic type has to be wrapped as \type{Null$<$T$>$}:
+Como consequência o Compilador de Haxe não permite que se atribua \expr{null} a um tipo básico em targets estáticos. Para conseguir isso, o tipo básico tem que ser envelopado como \type{Null$<$T$>$}:
 
 \begin{lstlisting}
-// error on static platforms
+// error em plataformas estáticas
 var a:Int = null;
-var b:Null<Int> = null; // allowed
+var b:Null<Int> = null; // permitido
 \end{lstlisting}
 
-Similarly, basic types cannot be compared to \expr{null} unless wrapped:
+Similarmente, tipos básicos não podem ser comparados a \expr{null}, a não ser que sejam envelopados:
 
 \begin{lstlisting}
 var a : Int = 0;
@@ -214,6 +220,7 @@ var b : Null<Int> = 0;
 if( b != null ) { ... } // allowed
 \end{lstlisting}
 
+Essa restrição se estende a todas as situações onde acontece a \tref{unificação}{type-system-unification} 
 This restriction extends to all situations where \tref{unification}{type-system-unification} is performed.
 
 \define[Type]{\expr{Null<T>}}{define-null-t}{On static targets the types \type{Null<Int>}, \type{Null<Float>} and \type{Null<Bool>} can be used to allow \expr{null} as a value. On dynamic targets this has no effect. \type{Null<T>} can also be used with other types in order to document that \expr{null} is an allowed value.}
