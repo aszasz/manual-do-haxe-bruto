@@ -1,26 +1,15 @@
-Manual do Haxe
-==============
+Manual do Haxe - Tradução sem formatação
+===================
 
-A tradução bruta do manual original (no estado de jan/2015) está no arquivo `Manual_do_Haxe.txt`
+Este repositório contem a tradução do manual original *sem formatação* no estado em que estava em jan/2015 e algum outro material do site da Haxe Foundation traduzido.
 
-Há um programa em Haxe, usado na geração das páginas do site do Haxe que gera arquivos .md (markdown) a partir de arquivos .tex (e também o .pdf)
+Le lá para cá (estamos agora em fev/2017) o Manual cresceu consideravelmente e considerou a migração de .tex para outros formatos.
 
-Para contribuir, inclua novos capítulos com a formatação necessária no .tex, mimicando os arquivos .tex do [repositório do original](https://github.com/HaxeFoundation/HaxeManual)
+O esforço de tradução para o português está em um [fork](https://github.com/aszasz/manual-do-haxe) do _Haxe Manual_, porque suspeitamos que fique mais fácil lidar com os avanços tanto do original quanto da tradução .
 
-Nos arquivos .tex `\labels` e `\defines` e as referências a eles devem ser mantidos com os nomes do original (em inglês e com hífens)
+Esse material aqui está sendo mantido para ajudar a completar aquele outro... a medida em que for passado para o outro, pretendemos eliminá-lo daqui.
 
-Cada arquivo criado ou alterado precisa ter registrado o último commit do Manual original com o qual está sincronizado (combinemos por hora na primeira linha, como comentário do Tex `%`)
+A versão bruta, resultante do esforço no começo de 2015 está no arquivo "Manual\_do\_Haxe.txt" os demais arquivos numerados são desmembramentos dese arquivo com a inclusão eventual de alguma formatação.  
 
-Extratos de código podem ser referenciados e eventualmente traduzidos na pasta assets (copiada do original em jan/2015); nenhuma figura foi traduzida (elas são criadas em arquivos .tex também) 
-
-
-
-
-Tradução e Expansão
--------------------
-
-A literalidade da tradução bruta feita varia ao longo do texto, mas os capítulos formatados em .tex tem intenção de serem tão literais quanto possível, visando preservar o conteúdo original incluindo a estrutura das frases.
-
-Blocos de comentários ou explicações além do original são certamente benvindos, mas devem ser sinalizados com `\translationextra{}` para controle do que é material original e o que é extensão. Notas do tradutor também podem ser incluídas, preferencialmente com o uso da macro `\translatornote{}`.
-
+(Os capítulos 6 a 12 tem algum começo de formatação, os de 3 a 5 não exisitam em jan/2015... 1 e 2 já foram portados para o novo repositório)
 
