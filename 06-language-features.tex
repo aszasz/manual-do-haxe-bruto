@@ -1,0 +1,800 @@
+% commit original em 18/mar/2015 b7604e06222c7846f3fa4331d18741545db624dc:
+\chapter{Funcionalidades da Linguagem}
+\label{lf}
+\state{NoContent}
+
+\section{Compilação Condicional}
+\label{lf-condition-compilation}
+
+O Haxe permite compilação condicional com o uso de \expr{#if}, \expr{#elseif} e \expr{#else} e com a verificação de sinalizadores de compilação (compiler flags).
+
+\definition{Sinalizador de compilação}{define-compiler-flag}{Um sinalizador (flag) de compilação é um valor configurável que pode influênciar o processo de compilação. Tais sinalizadores podem ser definidos pela chamada através da linha de comando com \expr{-D chave=valor} ou apenas \expr{-D chave}, caso em que o valor assume valor-padrão \expr{"1"}. O compilador também define diversos sinalizadores internamente para passar informação entre diferentes passos de compilação.}
+
+O exemplo seguinte mostra um exemplo de uso de compilação condicional
+
+\extratranslation{(N do T: Exemplo de chamada do compilador haxe ... -D debug debug_level=2)}
+
+\haxe{assets/ConditionalCompilation.hx}
+
+Compilando isso sem sinalizadores de compilação, deixaria apenas a linha \expr{trace("ok");} no corpo do método main. Os outros ramos são descartados durante o processamento do arquivo. Ainda assim, esses ramos devem conter sintaxe válida, mas o código não é verificado quanto a tipos.
+
+As condições depois de \expr{#if} e \expr{#elseif} permitem as seguintes expressões:
+
+\begin{itemize}
+    \item Qualquer identificador é substituído pelo valor do sinalizador de compilação com o mesmo nome. Observe que \expr{-D flag-qualquer} a partir da linha de comando leva os sinalizadores \expr{flag-qualquer} e \expr{flag\_qualquer} a serem definidas.
+    \item Os valores constantes de tipos \type{String}, \type{Int} e \type{Float} são usados diretamente.
+    \item Os operadores booleanos \expr{\&\&} (e), \expr{||} (ou) e \expr{!} (não) funcionam como esperado.
+    \item Os operadores \expr{==}, \expr{!=}, \expr{>},\expr{>=}, \expr{<}, \expr{<=} podem ser usados para comparar valores.
+    \item Parenteses \expr{()} podem ser usados para agrupar expressões como de costume.
+\end{itemize}
+
+O analisador de sintaxe (parser) do Haxe não separa \expr{flag-qualquer} como um único símbolo (token) e ao invés disso o lê como um operador binário de subtração \expr{flag - qualquer} Em casos como esse a versão com sublinhado \expŕ{flag_qualquer} tem que ser usada.
+
+\paragraph{Sinalizadores internos do Compilador}
+
+Uma lista exaustiva de todas as definições internas pode ser obtida com a chamada do Compilador do Haxe com o argumento \expr{--help-defines}. O compilador permite múltiplos sinalizadores \expr{-D} por compilação.
+
+Veja também a \tref{Lista de Sinalizadores de Compilação list}{lf-condition-compilation-flags}.
+\subsection{Sinalizadores Globais do Compilador}
+\label{lf-condition-compilation-flags}
+
+A partir do Haxe 3.0, você pode obter a lista dos \tref{sinalizadores de compilação}{lf-condition-compilation} suportados ao rodar \expr{haxe --help-defines}
+
+\begin{center}
+\begin{tabular}{| l | l |}
+	\hline
+	\multicolumn{2}{|c|}{Global Compiler Flags} \\ \hline
+	Flag &  Description \\ \hline
+	\expr{absolute-path} &  Escreve o caminho absoluto para o arquivo no local de saída \\
+	\expr{advanced-telemetry}  &  Permite que o SWF seja medido com a ferramenta Monocle  \\
+	\expr{as3} &  Definido quando exportando código fonte flash9 as3 \\
+	\expr{check-xml-proxy}  &  Verifica os campos usados do proxy xml  \\
+    \expr{core-api}  &  Definido no contexto da api do cerne (api do core) \\
+	\expr{cppia}  &  Gera o cpp instruction assembly experimental \\
+	\expr{dce}  &  O atual modo de  \tref{Eliminação de Código Morto}{cr-dce} \\
+	\expr{dce-debug}  &  Mostra o log da \tref{Eliminação de Código Morto}{cr-dce} \\
+	\expr{debug}  &  Ativado quando compilando com \expr{-debug} \\
+    \expr{display}  &  Ativado durante a \tref{completagem de texto}{cr-completion} \\
+	\expr{dll-export}  &  Linkagem experimental de GenCPP \\
+	\expr{dll-import}  &  Linkagem experimental de GenCPP \\
+	\expr{doc-gen}  & Não aplica remoções/mudanças de forma a gerar a documentação corretamente \\
+	\expr{dump}  &  Descarrega a AST tipada completa para debugagem interna \\
+	\expr{dump-dependencies}  &  Descarrega as dependências das classes \\
+	\expr{fdb}  &  Habilita informações completas do debug de flash ao FDB para debugagem interativa \\
+	\expr{flash-strict}  &  Tipagem mais estrita para debugar o target flash \\
+	\expr{flash-use-stage}  &  Mantém o estágio inicial da biblioteca SWF \\
+	\expr{format-warning}  &  Escreve um warning para cada string formatado. para compatibildade com 2.x \\
+	\expr{gencommon-debug}  &  Interno ao GenCommon \\
+	\expr{haxe-boot}  &  Da o nome 'haxe' para a classe de boot do flash boot ao invés do nome gerado \\
+	\expr{haxe-ver}  &  O valor atual da versão do Haxe \\
+	\expr{hxcpp-api-level}  &  Fornecido para compatibilidade entre as versões hxcpp \\
+	\expr{include-prefix}  &  Prefixa o caminho para os arquivos include gerados \\
+	\expr{interp}  &  O código é compilado para ser executado com \expr{--interp} \\
+	\expr{java-ver=[version:5-7]}  & Determina a versão de Java para ser usada de target \\
+	\expr{js-classic}  &  Não usa uma função wrapper nem o modo strict na exportação de JS \\
+	\expr{js-es5}  &  Gera JS para corridas de acordo com ES5 \\
+	\expr{js-flatten}  &  Gera classes to use fewer object property lookups \\
+	\expr{macro} & Definido quando compilamos código no \tref{contexto de macro}{macro} \\
+	\expr{macro-times} & Exibe o tempo por macro quando usado com \expr{--times} \\
+	\expr{neko-source} & Exporta fonte neko source ao invés de bytecode \\
+	\expr{neko-v1} &  Mantém compatibilidade com  Neko 1.x \\
+	\expr{net-target=<nome>}  &  Define o target .NET target. Assume o padrão para net. xbox, micro \_(Micro Framework\_, compact \_(Compact Framework)\_ são alguns valores válidos \\
+	\expr{net-ver=<version:20-45>}  &  Define a versão de .NET a servir de target \\
+	\expr{network-sandbox}  &  Usa a sandbox da rede local ao invés do acesso local de arquivo \\
+	\expr{no-compilation}  &  Desabilita a compilação final de CPP \\
+	\expr{no-copt}  &  Desabilita a otimização de completagem de texto \_(para debug)\_ \\
+	\expr{no-debug}  &  Remove todas as macros de debug macros da saída de cpp \\
+	\expr{no-deprecation-warnings} & Não vaisa se campos anotados com \expr{@:deprecated} são usados \\
+	\expr{no-flash-override}  &  Muda a sobrescrição sobre algumas classes básicas para métodos com sufixo HX apenas no flash \\
+	\expr{no-inline}  &  Desabilita \tref{inlining}{class-field-inline} \\
+    \expr{no-macro-cache}  &  Desabilita o armazenamento de contexto de macros \\
+	\expr{no-opt}  &  Desabilita otimizações \\
+	\expr{no-pattern-matching}  &  Desabilita \tref{pattern matching}{lf-pattern-matching} \\
+	\expr{no-root}  &  Interno ao GenCS  \\
+	\expr{no-swf-compress}  &  Desabilita a compressão de saídas SWF \\
+	\expr{no-traces}  &  Desabilita todas as chamadas a \expr{trace} \\
+	\expr{php-prefix}  &  Compilado com \expr{--php-prefix} \\
+	\expr{real-position}  &  Desabilidta o mapeamento de origem do haxe para o target C\# \\
+	\expr{replace-files}  &  Interno ao GenCommon \\
+	\expr{scriptable}  &  Interno ao GenCPP \\
+	\expr{shallow-expose}  &  Expõe tipos ao escopo envolvente do limite do Haxe sem escrever no objeto window \\
+	\expr{source-map-content}  &  Inclui as origens hx como parte do mapa fonte de JS \\
+	\expr{swc}  &  Exporta um SWC ao invés de um SWF \\
+	\expr{swf-compress-level=<level:1-9>}  &  Define o tanto de compressão para a saída SWF \\
+    \expr{swf-debug-password=<yourPassword>}  &  Define uma senha para debugar. O campo senha é encriptado usando o algorimto MD5 e previne debugagem não autorizada do se swf. Sem esse sinalizador \expr{-D fdb} não usará senha \\
+	\expr{swf-direct-blit}  &  Usa aceleração de hardware para processar gráficos com blit \\
+	\expr{swf-gpu}  &  Usa funcionalidades de composição de  GPU ao desenhar gráficos \\
+	\expr{swf-mark}  &  Interno ao GenSWF8 \\
+	\expr{swf-metadata=<file.xml>}  &  Inclui o conteúdo de \expr{<file.xml>} como metadata no  swf. \\
+	\expr{swf-preloader-frame}  &  Insere o primeiro frame vazio no swf. Para ser usado junto com \expr{-D flash-use-stage} e \expr{-swf-lib} \\
+	\expr{swf-protected}  &  Compila o private do Haxe como protected no SWF ao invés de public \\
+    \expr{swf-script-timeout}  &  Tempo máximo de processamento (em segundos) do ActionScript antes que a caixa de diálogo ``stuck'' seja exibida \\
+    \expr{swf-use-doabc}  &  Usa o tag de swf \expr{DoAbc} ao invés de \expr{DoAbcDefine} \\
+	\expr{sys}  &  Definido para todas as plataformas de sistema \\
+	\expr{unsafe}  &  Permite código inseguro quando o target é  C\# \\
+	\expr{use-nekoc}  &  Usa o compliador nekoc ao invés do interno \\
+	\expr{use-rtti-doc}  &  Permite acesso a documentação durante a compilação \\
+	\expr{vcproj}  &  Interno ao GenCPP \\
+\end{tabular}
+\end{center}
+
+\section{Externs}
+\label{lf-externs}
+
+Externs podem ser usados para descrever interações específicas com um target com tipagem segura. Eles são definidos como classes normais, exceto que:
+
+\begin{itemize}
+    \item a palavra-chave \expr{class} é precedida pela palavra-chave \expr{extern}.
+    \item \tref{métodos}{class-field-method} não tem expressões e
+    \item todos os tipos dos argumentos e do retorno são explícitos.
+\end{itemize}
+
+Um exemplo normal da \tref{Biblioteca Padrão do Haxe}{std} é a classe Math, como o seguinte extrato mostra:
+
+\begin{lstlisting}
+extern class Math
+{
+	static var PI(default,null) : Float;
+	static function floor(v:Float):Int;
+}
+\end{lstlisting}
+
+Vemos que a externs podem definir tanto métodos quanto variáveis (na verdade, \expr{PI} é declarado como uma \tref{propriedade}{class-field-property} somente-leitura). Uma vez que essa informação está disponível para o compilador, ela permite acessos a campo de acordo com isso e também conhece os tipos:
+
+\haxe{assets/Extern.hx}
+
+Isso funciona porque o tipo do retorno do método \expr{floor} é declarado como \type{Int}. 
+
+A Biblioteca Padrão do Haxe vem com muitas externalizações para os targets \target{Javascript} e \target{Flash}. Elas permitem o acesso às APIs nativas de uma maneira segura em relação aos tipos e são ferramentas úteis para a concepção de APIs de alto-nível. Também há externalizações para muitas bibliotecas populares na \tref{haxelib}{haxelib}.
+
+Os \target{Flash}, \target{Java} e \target{C\#} permitem a inclusão direta de bibliotecas nativas a partir da \tref{linha de comando}{compiler-usage}. Detalhes específicos são explicados nas respectivas seções \Fullref{target-details}.
+
+Alguns targets como \target{Python} ou \target{JavaScript} podem exigir o ``import'' de código adicional que carregue uma classe \expr{extern} de um módulo nativo. O Haxe oferce maneiras de declarar essas dependências também descritas nas seções respectivas de \Fullref{target-details}.
+
+\paragraph{Argumentos Rest e escolha de tipos}
+\since{3.2.0}
+
+O pacote haxe.extern provê dois tipos que ajudam o mapeamento da semântica nativa ao Haxe:
+
+\begin{description}
+	\item[\type{Rest<T>}:] Esse tipo pode ser usado como um argumento final de função para permitir a passagem de um número arbitrário de argumentos de chamada adicionais. O parâmetro de tipo que pode ser usado para restringir esses argumentos a um tipo específico.
+	\item[\type{EitherType<T1,T2>}:] Esse tipo permite o uso de qualquer dos seus parâmetros de tipo, representando assim uma escolha de tipos. Ele pode ser aninhado para permitir mais do que dois tipos diferentes de tipos.
+\end{description}
+
+Demonstramos o uso neste exemplo de código:
+
+\haxe{assets/RestAndEitherType.hx}
+
+\section{Estensão Estática}
+\label{lf-static-extension}
+
+\define{Extensão estática}{define-static-extension}{Uma extensão estática permite uma pseudo-extensão dos tipos existentes sem modificar sua fonte. No Haxe isso é conseguido através da declaração de um método estático com um primeiro argumento do tipo que se pretende estender e então trazendo para a definição da classe (a ser estendida) para o contexto através de \expr{using}.
+
+Extensões estáticas podem ser uma ferramenta poderosa que permite aumentar os tipos sem verdadeiramente mudá-los. O exemplo seguinte demonstra o uso:
+
+\haxe{ptassets/StaticExtension.hx}
+
+Claramente, \type{Int} não oferece um método nativo \expr{triplo}, ainda assim esse programa compila e dá o resultado \expr{36}, como esperado. Isso porque a chamada para \expr{12.triplo()} é transformada em \expr{IntExtender.triplo(12)}. Existem três requerimentos para isso:
+
+\begin{enumerate}
+    \item Tanto o literal \expr{12} e o primeiro argumento de \expr{triplo} são do tipo \type{Int}.
+    \item A classe \type{IntExtender} é trazida para o contexto através de \expr{using Main.IntExtender} 
+    \item \type{Int} não tem um campo \expr{triplo} por si só (se tivesse, esse campo tomaria a prioridade sobre a extensão estática).
+\end{enumerate}
+
+Extensões estáticas são geralmente considerados adoçantes sintáticos (syntactic sugar) e, de fato, são; vale apena observar que elas podem ter um efeito dramático na legibilidade do código: Ao invés de chamadas aninhadas no formato \expr{f1(f2(f3(f4(x))))}, o encadeamento de chamada na forma \expr{x.f4().f3().f2().f1()} pode ser usado.
+
+Seguindo as regras previamente descritas em \Fullref{type-system-resolution-order}, múltiplas expressões \expr{using} são verificadas de baixo para cima, com os tipos de cada módulo, bem como com os campos de cada tipo sendo verificados de cima para baixo. A utilização de um módulo (em oposição a um tipo específico de um módulo, ver\Fullref{type-system-modules-and-paths}) como uma extensão estática traz todos os seus tipos ao contexto.
+
+\subsection{Na Biblioteca Padrão do Haxe}
+\label{lf-static-extension-in-std}
+
+Diversas classes na Biblioteca Padrão do Haxe são adequadas para o uso de extensões estáticas. O próximo exemplo mostra o uso de \type{StringTools}:
+
+\haxe{assets/StaticExtension2.hx}
+
+Ainda que \type{String} não tenha uma funcionalidade \expr{replace} por si próprio, a extensão estática \expr{using StringTools} fornece um. Como normalmente, o resultado em \target{Javascript} esclarece a transformação:
+
+\begin{lstlisting}
+Main.main = function() {
+	StringTools.replace("adc","d","b");
+}
+\end{lstlisting}
+
+As seguintes classes da Biblioteca padrão são concebidas para ser usadas como extensões estáticas:
+
+\begin{description}
+    \item[\type{StringTools}:] Fornece funcionalidades estendidas sobre os strings, como substituição ou eliminação de espaços.
+    \item[\type{Lambda}:] Fornece métodos funcionais sobre iteráveis.
+    \item[\type{haxe.EnumTools}:] Fornece funcionalidades sobre a informação de tipos em enums e em suas instâncias.
+    \item[\type{haxe.macro.Tools}:] Fornece diferentes extensões para trabalhar com macros (ver \Fullref{macro-tools}).
+\end{description}
+        
+\trivia{using ``using''}{Como a palavra \expr{using} foi adicionada a linguagem, se tornou comum em inglês aparecerem problemas na utilização da expresão ``usando using'' (``using using''), razão pela qual o autor do manual optou por chamar a funcionalidade por sua definição formal: Extensão Estática}
+
+\section{Correspondência de padrões (Pattern Matching)}
+\label{lf-pattern-matching}
+\state{NoContent}
+
+\subsection{Introdução}
+\label{lf-pattern-matching-introduction}
+
+Pattern matching é o processo de ramificação dependendo da correspodência de um dado valor a padrões, possivelmente complicados. No Haxe, toda correspondência de padrões é feita dentro de uma expressão \tref{\expr{switch} expression}{expression-switch} onde as expressões \expr{case} individuais representam os padrões. Aqui exploraremos a sintaxe de diferentes padrões usando essa estrutura de dados como o exemplo corrente:
+
+\haxe[firstline=1,lastline=4]{ptassets/PatternMatching.hx}
+
+\extratranslation{Tree = árvore, Leaf = folha, Node = Nó; l por left:esquerda, r por right:direita}
+
+O básico da correspondência de padrões inclui:
+
+\begin{itemize}
+    \item Padrões sempre serão correspondidos de cima para baixo.
+    \item O mais alto dos padrões que casar com o valor de entrada terá sua expressão executada.
+    \item Um padrão \expr{_} corresponde com qualquer coisa, então \expr{case _}: é igual a \expr{default:}
+\end{itemize}
+
+\subsection{Correspondência de Enum}
+\label{lf-pattern-matching-enums}
+
+Enums podem ser correspondidos por seus constructors de uma maneira natural:
+
+\haxe[firstline=8,lastline=26]{ptassets/PatternMatching.hx}
+
+
+A correspondência de nós será feita de cima para baixo e escolherá a primeira alternativa em que houver o casamento. A interpretação passo a passo ajuda a entender o processo:
+
+case Leaf(_): correspondência não bate, porque myTree é um nó
+
+case Node(_,Leaf(_)): falha porque a sub-árvore a direita não é uma folha
+
+case Node(_, Node(Leaf("bar"),_)); correspondência corresponde.
+
+case _: não chega a ser testada, porque a anterior já resolveu.
+
+
+\subsection{Captura de  variável} 
+
+É possível achar qualquer vaolor de um sub-padrão achando sua correpondência com um identificador:
+
+var myTree = Node(Leaf("foo"),Node(Leaf("bar"), Leaf("foobar")));
+var name = switch(myTree) {
+    case Leaf(s): s;
+    case Node(Leaf(s), _): s;
+    case _: "nenhum";
+}
+trace(name); // foo
+
+Isso retornaria algum dentre os seguintes:
+
+  - Se myTree é uma única folha, o nome da folha é retornado
+
+  - Se myTree é um nó cuja subárvore esquerda é uma folha, o nome da folha da subárvore da esquerda é retornado (o caso do exemplo retornando "foo").
+
+  - Em outros casos "nenhum" é retornado.
+
+Também é possível usar = para capturar valores que são correspondentes a um padrão:
+
+var node = switch(myTree) {
+    case Node(leafNode = Leaf("foo"), _):leafNode;
+    case x: x;
+}
+trace(node); // Leaf(foo)
+
+Aqui, leafNode é associado a Leaf("foo") se o dado de entrada corresponder a isso. Em todos os outros casos, a própria myTree é retornada: case x funciona de forma similar a case _ achando correspondência com qualquer coisa, mas colocando um identificador com um nome como x, o valor de x (qualquer que seja) vai ser associado a (var) node.
+
+\section{Correspondência de Estrutura}
+
+Também é possível achar a correspondência contra padrões de campos de estruturas anônimas e instâncias:
+
+var myStructure = {
+    name: "haxe",
+    rating: "awesome"
+};
+var value = switch(myStructure) {
+    case { name: "haxe", rating: "poor" }: throw false;
+    case { rating: "awesome", name: n }:n;
+    case _: "no awesome language found";
+}
+trace(value); // haxe
+
+No segundo caso nós associamos o campo name ao identificador n, caso rating corresponda a "awesome". É claro que essa estrutura poderia ser colocada no formato Tree do exemplo anterior para combinar a correspondência entre estrutura e enum.
+
+Uma limitação em relação a instâncias de classe é que você não pode achar a correspondêncoa com campos ou sua classe pai.
+
+\subsection{Correspondência de array}
+
+Arrays com tamanho fixo  podem ser correspondidos:
+
+var myArray = [1, 6];
+var match = switch(myArray) {
+    case [2, _]: "0";
+    case [_, 6]: "1";
+    case []: "2";
+    case [_, _, _]: "3";
+    case _: "4";
+}
+trace(match); // 1
+
+Isso imprimirá 1 porque array[1] corresponde a 6 e array[0] pode ser qualquer coisa.
+
+\subsection{Padrões ou}
+
+O operador | pode ser usado em qualquer lugar dentro dos padrões para descrever múltiplos termos aceitáveis:
+
+var match = switch(7) {
+   case 4|1: "0";
+   case 6|7: "1";
+   case 2: "2";
+}
+trace match; // 1
+
+Se há uma variável capturada em um padrão ou, ela deve aparecer nos dois subpadrões.
+
+\subsection{Guardas}
+
+Também é possível restringir ainda mais os padrões com a sintaxe case;;; if(condition):
+
+var myArray = [7, 6];
+var s = switch(myArray) {
+    case [a, b] if (b > a): b + ">" +a;
+    case [a, b]: b + "<=" +a;
+    case _: "found something else";
+}
+trace(s); // 6<=7
+
+O primeiro case tem uma condição adicional de guarda if(b>a). Esse caso só será selecionado se a condição for verdadeira, senão a busca por correspondência continua com o próximo case.
+
+\subsection{Correspondência sobre múltiplos valores}
+
+A sintaxe de array pode ser usada para fazer a correspondência sobre múltiplos valores:
+
+var s = switch [1, false, "foo"] {
+    case [1, false, "bar"]: "0";
+    case [_, true, _]: "1";
+    case [_, false, _]: "2";
+}
+trace(s); // 2
+
+Isso é bastante similar à correspondência normal de arrays, mas há algumas diferenças:
+
+  - O número de elementos é fixo, então padrões de diferentes tamanhos de array não serão aceitos.
+
+  - Não é possível capturar o valor do switch em uma variável, i.e. case x não é permitido aqui (case _ ainda é).
+
+\subsection{Extratores}
+
+Desde Haxe 3.1.0
+
+Extratores permitem a aplicação de transformações aos valores a serem correspondidos. Isso é frequentemente útil quando uma pequena operação é exigida em um valor correspondido antes que o processo de correspondência prossiga:
+
+enum Test {
+   TString(s:String);
+   TInt(i:Int);
+}
+
+class Main {
+     static public function main() {
+          var e = TString("fOo");
+          switch(e) {
+              case TString(temp):
+              switch(temp.toLowerCase()) {
+                   case "foo": true;
+                   case _: false;
+              }    
+              case _: false;
+          }
+     }
+}
+
+Aqui nós temos que capturar o valor do constructor do enum TString em uma variável tem e usar um switch aninhado sobre temp.toLowerCase() (toLowerCase=paraMinúscula). Obviamente, queremos que a correspondência tenha sucesso se TString tiver o valor "foo" sem consideração ao uso de maiúsculas ou minúsculas. Isso pode ser simplificado com extratores:
+(N. do T.: temp é o caso de x, sempre será verdadeiro, verificar...)
+
+enum Test {
+    TString(s:String);
+    TInt(i:Int);
+}
+class Main {
+    static public function main() {
+    var e = TString("fOo");
+    var success = switch(e) {
+        case TString(_.toLowerCase() => "foo"): true;
+        case _: false;
+        }  
+    }
+}
+
+Extratores são identidficados pela expresãoExtratora => expressão a corresponder. O compilador gerá código que é similar ao exemplo anterior, mas a sintaxe original foi bastante simplificada. Extratores consistem de duas partes, que são separadas pelo operador =>:
+
+1. O lado esquerdo pode ser qualquer expressão, onde todas as ocorrências de _ são substituídas pelo valor que atualmente detém a correspondência.
+
+2. O lado direito é um padrão que é comparado contra o resultado da valoração do lado esquerdo.
+
+Uma vez que o lado direito é um padrão, ele pode conter um outro extrator. O exemplo seguinte encadeia dois extratores:
+
+class Main {
+    static public function main() {
+        switch(3) {
+            case add(_, 1) => mul(_, 3) => a: trace(a);
+        }
+    }
+    static function add(i1:Int, i2:Int) {
+        return i1 + i2;
+    }
+
+    static function mul(i1:Int, i2:Int) {
+        return i1 * i2;
+    }
+}
+
+Isso imprime 12 como o resultado da chamada a add(3, 1) onde 3 é o valor que correspondeu, e mul (4, 3) onde 4 é o resultado da chammada a add. Vale a pena observar que a do lado direito do segundo operador => é uma variável capturada (ver seção)
+
+Atualmente não é possível usar extratores dentro de padrões or:
+
+class Main {
+    static public function main() {
+        switch("foo") {
+            // Extractors in or patterns are not allowed
+            case (_.toLowerCase() => "foo") | "bar":
+        }
+    }
+}
+
+Entretanto, é possível ter padrões ou do lado direito de um extrator. então o exemplo anterior compilaria sem os parenteses.
+
+\subsection{Verificações de exaustividade}
+
+O compilador assegura que nenhum caso possível seja esquecido:
+
+switch(true) {
+    case false:
+} // Verdadeiro não verificado
+
+O tipo correspondente admite dois valores true e false, mas apenas falso é verificado.
+
+\subsection{Verificações de padrão inúteis}
+
+De forma similar, o compilador detecta padrões que nunca corresponderão ao valor de entrada:
+
+switch(Leaf("foo")) {
+    case Leaf(_) 
+    | Leaf("foo"): // Esse padrão não é usado
+    case Node(l,r):
+    case _: // Esse padrão não é usado
+}
+
+\section {Interpolação de strings}
+
+Com o Haxe 3 não é mai necessário concatenar partes de um string devido a introdução da interpolação de strings. Identificadores especiais, denotados pelo cifrão $ dentro de um string que utilize aspas simples ', são processados como se fossem identificadores concatenados
+
+var x = 12;
+trace(’O valor de x é $x’);n // O valor de x é 12
+
+Além disso é possível incluir expressões inteiras em um string utilizando ${expr}, onde expr é qualquer expressão válida do Haxe.
+
+var x = 12;
+trace(’A soma de $x e 3 é ${x + 3}’);
+// A soma de 12 e 3 é 15
+
+A interpolação de strings é uma funcionalidade de compilação e não tem qualquer impacto em tempo de execução. O exemplo acima é equivalente a concatenação manual, que é exatamente o que o compilador gera:
+
+
+Claro que o uso de strings com aspas simples sem qualquer interpolação permanece válido, mas cudiado deve ser tomado em relação ao caractere $, uma vez que ele dispara a interpolação. Se um cifrão de fato desejar ser utilizado no string, $$ pode ser usado.
+
+trace("A soma de " + x + " e 3 é " + (x + 3));
+
+\trivia{Interpolação de strings antes do Haxe 3}{A interpolação de strings é uma funcionalidade desde a versão 2.09. Naquele momento, a macro Std.format tinha de ser usada, sendo tanto mais lenta quanto menos confortável que a nova sintaxe de interpolação de strings}
+
+\subsection{Preenchimento de arrays}
+
+O preenchimento de arrays em Haxe usa a sintaxe existente para permitir a inicialização concisa de arrays. Éla é identificada pelos constructs for ou while
+
+class Main {
+    static public function main() {
+        var a = [for (i in 0...10) i];
+        trace(a); // [0,1,2,3,4,5,6,7,8,9]
+        var i = 0;
+        var b = [while(i < 10) i++];
+        trace(b); // [0,1,2,3,4,5,6,7,8,9]
+    }
+}
+
+A variável a é inicializada para um array contendo os números de 0 a 9. O compilador gera código que adiciona o valor de cada iteração do loop no array, o que é equivalente ao seguinte código:
+
+var a = [];
+for (i in 0...10) a.push(i);
+
+A variável b é inicializada para um array com os mesmo valores, mas atráves de um estilo diferente de compressão usando while ao invés de for. Novamente, o código seguinte seria equivalente
+
+var i = 0;
+var a = [];
+while (i<10) a.push(i++);
+
+A expressão do laço pode ser qualquer uma, incluindo condições e laços aninhados, então o seguinte funciona como esperado:
+
+class AdvArrayComprehension {
+    static public function main() {
+        var a = [
+            for (a in 1...11)
+                for(b in 2...4)
+                    if (a % b == 0) 
+                         a+ "/" +b
+        ];
+        trace(a); // [2/2,3/3,4/2,6/2,6/3,8/2,9/3,10/2]
+    }    
+}  
+
+\section{Iteradores}
+
+Com o Haxe, é muito fácil definir iteradores personalizados e tipos de datas iteráveis. Esses conceitos são representados pelos tipos Iterator<T> e Iterable<T> respectivamente:
+
+typedef Iterator<T> = {
+    function hasNext() : Bool;
+    function next() : T;
+}
+typedef Iterable<T> = {
+    function iterator() : Iterator<T>;
+}
+
+Qualquer classe (ver seção) que unifique (ver seção) estruturalmente com umdesses tipos pode ser iterada usando um laço for (ver seção). Isso é, se a classe define métodos hasNext e next com tipos de retorno coincidentes, ela é considerada um iterador; se ela define um método iterador que retorna um Iterator<T> ela é considerada um tipo iterável.
+
+class MyStringIterator {
+    var s:String;
+    var i:Int;
+    public function new(s:String) {
+        this.s = s;
+        i = 0;
+    }
+    public function hasNext() {
+        return i < s.length;
+    }
+
+    public function next() {
+        return s.charAt(i++);
+    }
+}
+
+class Main {
+    static public function main() {
+        var myIt = new MyStringIterator("string");
+        for (chr in myIt) {
+            trace(chr);
+        }
+    }
+}
+
+O tipo MyStringIterator nesse exemplo qualifica um iterador: Ele define um método hasNext que retorna Bool e um método next que retorna String, tornando o compátivel com Iterator<String>. O método main o instancia e então itera sobre ele.
+
+class MyArrayWrap<T> {
+    var a:Array<T>;
+    public function new(a:Array<T>) {
+        this.a = a;
+    }
+
+    public function iterator() {
+        return a.iterator();
+    }
+} 
+
+class Main {
+    static public function main() {
+        var myWrap = new MyArrayWrap([1, 2, 3]);
+        for (elt in myWrap) {
+            trace(elt);
+        }
+    }  
+}
+
+Aqui nós não definimos um iterador completo como no exemplo anterior, ao invés disso definimos que MyArrayWrap<T> tem um método iterator, encaminhando efetivamente o método iterador do tipo envelopado Array<T>.
+
+\section{Amarração de funções}
+
+O Haxe 3 permite 3 formas de amarração de funções com argumentos parcialmente aplicados. Cada tipo de função pode ser considerar a existência de uma campo de amarração bind, que pode ser chamado com o número desejado de argumentos de forma a criar uma nova função. Isso é demontrado aqui:
+
+class Bind {
+    static public function main() {
+        var map = new Map<Int,String>();
+        var f = map.set.bind(_, "12");
+        $type(map.set); // Int -> String -> Void
+        $type(f); // Int -> Void
+        f(1);
+        f(2);
+        f(3);
+        trace(map); // {1 => 12, 2 => 12, 3 => 12}
+   }
+}
+
+A linha 4 amarra a função map.set a uma variável chamada f e aplica 12 como um segundo argumento. O caractere sublinhado _ é usado para denotar que esse argumento não é amarrado, o que é mostrado comparando os tipos de map.set e f: O argumento amarrado String é efetivamente cortado do tipo, tornandoo tipo Int->String->Void em Int->Void.
+
+Uma chamada de f(1) chama realmente map.set(1,"12"), as chamadas para f(2) e f(3) são análogas. A última linha prova que os três índices são de faot mapeados para o valor "12".
+
+O sublinhado _ pode ser omitido para os argumentos que vem depois dele, se o primeiro argumento fosse amarrado através de map.set.bind(1), disponibilizaríamos uma função String->Void que definiria o  valor para o índice 1 na chamada de f.
+
+\Trivia{Retrochamada}{Antes do Haxe 3, o Haxe costumava conhecer uma palavra-chave callback que poderia ser chamada com um argumento de função seguido por um número de argumentos de amarração. O nome se originou de um uso comum onde uma função de retrochamada (callback) é creada com o objeto this sendo amarrado. Callback  permitiria a amarração de argumentos apenas da esquerda para a direita pois não havia suporte para o caractere _. A escolha pelo uso de _ foi controversa e muitas outras sugestões foram feitas, nenhuma delas considerada superior. Afinal, o sublinhado _ ao menos parece que está dizendo "preencha o valor aqui", o que descreve a semântica de forma agradável.}
+
+\section{Metadados}
+
+Diversos constructs podem ser atribuídos com metadados personalizados:
+
+ - declarações de classe e enums
+
+ - campos de classes
+
+ - Constructors de enums
+
+ - Expressões
+
+Essas informações de metadados podem ser obtidas em tempo de execução através da API haxe.rtti.Meta:
+
+import haxe.rtti.Meta;
+
+@author("Nicolas")
+@debug
+
+class MyClass {
+    @range(1, 8)
+    var value:Int;
+
+    @broken
+    @:noCompletion
+    static function method() { }
+}
+class Main {
+    static public function main() {
+        trace(Meta.getType(MyClass)); 
+                      // { author : ["Nicolas"], debug : null }
+    trace(Meta.getFields(MyClass).value.range); // [1,8]
+    trace(Meta.getStatics(MyClass).method); // { broken: null }
+    }
+}
+
+Nós podemos facilmente identificar metadados pelo caractere inicial @, seguido pelo nome do metadado e, opcionalmente por um número de argumentos constantes separados por vírgulas fechados por parentes.
+
+  - A classe MyClass tem um metadado author com um único argumento "Nicolas", bem como um metadado debug sem argumentos.
+
+  - A variável membro value tem um metadado range com dois argumentos do tipo Int; os argumentos são 1 e 8.
+
+  - O método estático method tem um metadado broken ser argumentos, bem como um metadado :noCompletion também sem argumentos.
+
+  O método main acessa os valores desses metadados usando a API. O output revela a estrutura dos dados obtidos:
+
+  - Há um campo para cada metadado, com o nome do campo sendo o nome do metadado.
+
+  - Os valores de campo são os argumentos do metadado. Se não há argumentos, o valor do campo é null. De outra forma o valor é um array, com um elemento por argumento.
+
+  - Metadados que começam por dois pontos : são omitidos. Esse tipo de dado é conhecido por metadado de compilação.
+
+Os valores permitidos para argumentos de metadados são:
+
+- Constantes (ver seção)
+
+- Declaração de arrays (ver seção) (se todos os seus elementos forem qualificados corretamente)
+
+- Declaração de objetos (ver seção) (se todos os seus elementos forem qualificados)
+
+\section{Controle de Acessos}
+
+O controle de acessos pode se4r usado se as opções de visibilidade básica não são suficientes. Ele é aplicável em nível de classe e em nível de campos e entende duas diretivas:
+
+Permissão de acesso: Uma dada classe ou campo da classe tem o seu acesso garantido ao alvo usando o metadado :allow(target) (ver seção).
+
+Acesso forçado: Um alvo é forçado a permitir o acesso para a classe ou campo usando o metadado :acess(target) (ver seção).
+
+Nesse contexto, um alvo pode ser um caminho separado por pontos (dot-path) para:
+
+  - um campo de classe,
+
+  - uma classe ou tipo abstrato, ou
+
+  - um pacote.
+
+Se for uma classe ou um tipo abstrato, a modificação de acesso se estende a todos os campos daquele tipo. Da mesma forma, se for um pacote, a modificação de acesoo se estende a todos os tipos daquele pacote e recursivamente a todos os campos desses tipos
+
+@:allow(Main)
+class MyClass {
+    static private var foo: Int;
+}
+
+class Main {
+    static public function main() {
+        MyClass.foo;
+    }  
+}
+
+Aqui, MyClass.foo pode ser acessado do método main porque MyClass recebe a anotação @:allow(Main). Isso também funcionaria com @:allow(Main.main) e ambas as versões poderiam alternativamente ser anotadas ao campo foo ao invés da classe MyClass
+
+class MyClass {
+    @:allow(Main.main)
+    static private var foo: Int;
+}
+class Main {
+    static public function main() {
+        MyClass.foo;
+    } 
+}
+
+Se um tipo não pode ser modificado para permitir essa espécie de acesso, o método de acesso dever forçar o acesso:
+
+class MyClass {
+    static private var foo: Int;
+}
+class Main {
+    @:acess(MyClass.foo)
+    static public function main() {
+        MyClass.foo;
+    }
+}
+
+A anotação @:acess(MyClass.foo) efetivamente subverte a visibilidade do campo foo dentro do método main.
+
+\trivia{Sobre a escolhad de metadados}{A funcionalidade da linguagem de controle de acessos usa a sintaxe de metadados ao invés de sintaxe específica da linguagem. Há diversas razões para isso:
+
+  - Sintaxe adicional frequentemente adiciona complexidade ao processamento de separação de palavras da linguagem (parsing) e também adiciona (muitas) novas palavras-chave.
+
+  - Sintaxe adicional exige aprendizado adicional pelo usuário da linguagem, enquanto a sintaxe de metadados é algo que já é conhecido.
+
+  - A sintaxe de metadados é flexível o bastante para permitir a extensão dessa funcionalidade.
+
+  - Os metadados podem ser acessados/gerados/modificados pelas macros de Haxe.
+
+É claro, o principal retrocesso do uso da sintaxe de metadados é que você não recebe um relatório de erros no caso de digitar errado tanto a chave do metadado (@:acesss por exemplo) ou o nome da classe/pacote. Entretanto, com essa funcionalidade você poderá obter um erro quando você tentar acessar um campo privado que você não tem acesso, portanto não há a possibilidade de erros silenciosos.
+
+Desde Haxe 3.1.0
+
+Se o acesso é permitido a uma interface (ver seção), ele se extende a todas as classes implementando aquela interface:
+
+
+class MyClass {
+    @:allow(I)
+    static private var foo: Int;
+}
+interface I { }
+class Main implements I {
+    static public function main() {
+    MyClass.foo;
+    }
+}
+
+Isso também funciona para o acesso garantido a classes pai, caso em que se estende à todas classes descendentes.
+
+\trivia{Funcionalidade quebrada}{A extensão de acesso à classes descendentes e classes implementadoreas deveria funcionar no Haxe 3.0 e foi, inclusive documentada dessa forma. Enquanto se escrevia esse manual se descobriu que essa parte da implementação de controle de acesso simplesmente estava faltando.}
+
+\section{Constructors alinhados}
+
+Desde Haxe 3.1.0
+
+Se um constructor é declarado para ser alinhado (ver subseção), o compilador poderá tentar otimizá-lo por fora em certas situações. Há diversos requerimentos para isso funcionar:
+
+  - O resultado da chamada do constructor deve ser diretamente atribuído a uma variável local.
+
+  - A expressão do campo constructor deve conter apenas atribuições a seus campos.
+
+O exemplo seguinte demonstra o alinhamento de constructor:
+
+class Point {
+    public var x:Float;
+    public var y:Float;
+    
+    public inline function
+    new(x:Float, y:Float) {
+        this.x = x;
+        this.y = y;
+    }
+}
+
+class Main {
+    static public function main() {
+        var pt = new Point(1.2, 9.3);
+    }
+}
+
+A observação do exposto em Javascript revela o efeito:
+
+Main.main = function() {
+    var pt_x = 1.2;
+    var pt_y = 9.3;
+};
+
+\section{Remoting}
+
+Parte II - Compiler Referenca
+
